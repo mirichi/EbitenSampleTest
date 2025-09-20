@@ -15,6 +15,7 @@ type Game struct {
 	objects    []drawer
 	oldX, oldY int
 	dragRect   *Rect
+	id         ebiten.TouchID
 }
 
 func newGame() *Game {
@@ -45,6 +46,7 @@ func (g *Game) Update() error {
 	}
 
 	x, y := ebiten.CursorPosition()
+	touchIDs := inpututil.AppendJustPressedTouchIDs(nil)
 
 	// マウスでRectオブジェクトをドラッグする
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
@@ -55,14 +57,35 @@ func (g *Game) Update() error {
 				break
 			}
 		}
+	} else if len(touchIDs) > 0 {
+		g.id = touchIDs[0]
+		tx, ty := ebiten.TouchPosition(g.id)
+		for _, o := range g.objects {
+			if o.(*Rect).CheckPoint(float64(tx), float64(ty)) {
+				g.oldX, g.oldY = tx, ty
+				g.dragRect = o.(*Rect)
+				break
+			}
+		}
 	} else if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		if g.dragRect != nil {
 			g.dragRect.Move(float64(g.oldX), float64(g.oldY), float64(x), float64(y))
 			g.oldX, g.oldY = x, y
 		}
+	} else if len(touchIDs) > 0 && g.id == touchIDs[0] {
+		tx, ty := ebiten.TouchPosition(g.id)
+		if g.dragRect != nil {
+			g.dragRect.Move(float64(g.oldX), float64(g.oldY), float64(tx), float64(ty))
+			g.oldX, g.oldY = tx, ty
+		}
 	} else if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		if g.dragRect != nil {
 			g.dragRect = nil
+		}
+	} else if g.id != -1 && inpututil.IsTouchJustReleased(g.id) {
+		if g.dragRect != nil {
+			g.dragRect = nil
+			g.id = -1
 		}
 	}
 

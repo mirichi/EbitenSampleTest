@@ -50,6 +50,8 @@ func Input_Update() {
 			touchID = touchIDs[0]
 			touchJustPressed = true
 			touchPressed = true
+			oldX, oldY = x, y
+			x, y = ebiten.TouchPosition(touchID)
 		}
 	}
 

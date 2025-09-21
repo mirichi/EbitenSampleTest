@@ -45,7 +45,7 @@ func Input_Update() {
 	// タッチが開始されたらtouchIDをセットする
 	// 追加のタッチは無視
 	if touchID == -1 {
-		touchIDs := inpututil.AppendJustReleasedTouchIDs(nil)
+		touchIDs := inpututil.AppendJustPressedTouchIDs(nil)
 		if len(touchIDs) > 0 {
 			touchID = touchIDs[0]
 			touchJustPressed = true

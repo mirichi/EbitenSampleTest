@@ -28,6 +28,7 @@ func (g *Game) Init() {
 	r1 := NewRect(220, 220, 100, 80)
 	r2 := NewRect(400, 300, 150, 200)
 	g.objects = append(g.objects, r1, r2)
+	g.id = -1
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -57,7 +58,7 @@ func (g *Game) Update() error {
 				break
 			}
 		}
-	} else if len(touchIDs) > 0 {
+	} else if len(touchIDs) > 0 && g.id == -1 {
 		g.id = touchIDs[0]
 		tx, ty := ebiten.TouchPosition(g.id)
 		for _, o := range g.objects {

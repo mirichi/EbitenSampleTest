@@ -12,9 +12,12 @@ import (
 )
 
 var touchID ebiten.TouchID = -1
-var justPressed bool = false
-var pressed bool = false
-var justReleased bool = false
+var touchJustPressed bool = false
+var touchPressed bool = false
+var touchJustReleased bool = false
+var mouseJustPressed bool = false
+var mousePressed bool = false
+var mouseJustReleased bool = false
 var x, y int = 0, 0
 var oldX, oldY int = 0, 0
 
@@ -22,16 +25,16 @@ func init() {
 }
 
 func Input_Update() {
-	justPressed = false
-	justReleased = false
+	touchJustPressed = false
+	touchJustReleased = false
 
 	// 前回タッチしていた
 	if touchID != -1 {
 		if inpututil.TouchPressDuration(touchID) == 0 {
 			// タッチが終了した
 			touchID = -1
-			pressed = false
-			justReleased = true
+			touchPressed = false
+			touchJustReleased = true
 		} else {
 			// タッチ継続中
 			oldX, oldY = x, y
@@ -45,20 +48,23 @@ func Input_Update() {
 		touchIDs := inpututil.AppendJustReleasedTouchIDs(nil)
 		if len(touchIDs) > 0 {
 			touchID = touchIDs[0]
-			justPressed = true
-			pressed = true
+			touchJustPressed = true
+			touchPressed = true
 		}
 	}
 
+	mouseJustPressed = false
+	mouseJustReleased = false
+
 	if !ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-		if pressed {
-			justReleased = true
-			pressed = false
+		if mousePressed {
+			mouseJustReleased = true
+			mousePressed = false
 		}
 	} else {
 		if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-			justPressed = true
-			pressed = true
+			mouseJustPressed = true
+			mousePressed = true
 		}
 		oldX, oldY = x, y
 		x, y = ebiten.CursorPosition()
@@ -66,15 +72,15 @@ func Input_Update() {
 }
 
 func IsButtonJustPressed() bool {
-	return justPressed
+	return touchJustPressed || mouseJustPressed
 }
 
 func IsButtonPressed() bool {
-	return pressed
+	return touchPressed || mousePressed
 }
 
 func IsButtonJustReleased() bool {
-	return justReleased
+	return touchJustReleased || mouseJustReleased
 }
 
 func CurrectPos() (int, int) {

@@ -47,7 +47,7 @@ func (g *Game) Update() error {
 	}
 
 	x, y := ebiten.CursorPosition()
-	touchIDs := inpututil.AppendJustPressedTouchIDs(nil)
+	touchIDs := ebiten.AppendTouchIDs(nil)
 
 	// マウスでRectオブジェクトをドラッグする
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {

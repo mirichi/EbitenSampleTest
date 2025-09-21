@@ -7,13 +7,8 @@ package main
 // ・座標はマウスとタッチで共通、押したときだけ更新する
 
 import (
-	"bytes"
-	"fmt"
-
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 var touchID ebiten.TouchID = -1
@@ -25,16 +20,8 @@ var mousePressed bool = false
 var mouseJustReleased bool = false
 var x, y int = 0, 0
 var oldX, oldY int = 0, 0
-var (
-	mplusFaceSource *text.GoTextFaceSource
-)
 
 func init() {
-	s, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
-	if err != nil {
-		panic(err)
-	}
-	mplusFaceSource = s
 }
 
 func Input_Update() {
@@ -104,35 +91,4 @@ func CurrectPos() (int, int) {
 
 func OldPos() (int, int) {
 	return oldX, oldY
-}
-
-func drawtext(screen *ebiten.Image, msg string, y int) {
-	const (
-		normalFontSize = 24
-		bigFontSize    = 48
-	)
-
-	op := &text.DrawOptions{}
-	op.GeoM.Translate(20, float64(y))
-
-	text.Draw(screen, msg, &text.GoTextFace{
-		Source: mplusFaceSource,
-		Size:   normalFontSize,
-	}, op)
-}
-
-func Input_Draw(screen *ebiten.Image) {
-	// Draw info
-	drawtext(screen, fmt.Sprintf(" TouchID:%d\n", touchID), 20)
-	drawtext(screen, fmt.Sprintf(" TouchJustPressed:%v\n", touchJustPressed), 40)
-	drawtext(screen, fmt.Sprintf(" TouchPressed:%v\n", touchPressed), 60)
-	drawtext(screen, fmt.Sprintf(" TouchJustReleased:%v\n", touchJustReleased), 80)
-	drawtext(screen, fmt.Sprintf(" MouseJustPressed:%v\n", mouseJustPressed), 100)
-	drawtext(screen, fmt.Sprintf(" MousePressed:%v\n", mousePressed), 120)
-	drawtext(screen, fmt.Sprintf(" MouseJustReleased:%v\n", mouseJustReleased), 140)
-	drawtext(screen, fmt.Sprintf(" X:%d\n", x), 160)
-	drawtext(screen, fmt.Sprintf(" Y:%d\n", y), 180)
-	drawtext(screen, fmt.Sprintf(" OldX:%d\n", oldX), 200)
-	drawtext(screen, fmt.Sprintf(" OldY:%d\n", oldY), 220)
-
 }

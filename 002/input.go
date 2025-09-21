@@ -7,7 +7,10 @@ package main
 // ・座標はマウスとタッチで共通、押したときだけ更新する
 
 import (
+	"fmt"
+
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
@@ -91,4 +94,25 @@ func CurrectPos() (int, int) {
 
 func OldPos() (int, int) {
 	return oldX, oldY
+}
+
+func strbool(b bool) string {
+	if b {
+		return "true"
+	}
+	return "false"
+}
+
+func Input_Draw(screen *ebiten.Image) {
+	ebitenutil.DebugPrintAt(screen, "TouchID:"+fmt.Sprintf("%d", touchID), 10, 10)
+	ebitenutil.DebugPrintAt(screen, "TouchJustPressed:"+strbool(touchJustPressed), 10, 30)
+	ebitenutil.DebugPrintAt(screen, "TouchPressed:"+strbool(touchPressed), 10, 50)
+	ebitenutil.DebugPrintAt(screen, "TouchJustReleased:"+strbool(touchJustReleased), 10, 70)
+	ebitenutil.DebugPrintAt(screen, "MouseJustPressed:"+strbool(mouseJustPressed), 10, 90)
+	ebitenutil.DebugPrintAt(screen, "MousePressed:"+strbool(mousePressed), 10, 110)
+	ebitenutil.DebugPrintAt(screen, "MouseJustReleased:"+strbool(mouseJustReleased), 10, 130)
+	ebitenutil.DebugPrintAt(screen, "X:"+fmt.Sprintf("%d", x), 10, 150)
+	ebitenutil.DebugPrintAt(screen, "Y:"+fmt.Sprintf("%d", y), 10, 170)
+	ebitenutil.DebugPrintAt(screen, "OldX:"+fmt.Sprintf("%d", oldX), 10, 190)
+	ebitenutil.DebugPrintAt(screen, "OldY:"+fmt.Sprintf("%d", oldY), 10, 210)
 }

@@ -35,6 +35,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	for _, o := range g.objects {
 		o.Draw(screen)
 	}
+	Input_Draw(screen)
 }
 
 func (g *Game) Update() error {

@@ -11,8 +11,8 @@ type drawer interface {
 }
 
 type Game struct {
-	objects  []drawer
-	touchMap map[TouchInfo]drawer
+	objects []drawer
+	dragMap map[TouchInfo]drawer
 }
 
 func newGame() *Game {
@@ -25,7 +25,7 @@ func (g *Game) Init() {
 	r1 := NewRect(220, 220, 100, 80)
 	r2 := NewRect(400, 300, 150, 200)
 	g.objects = append(g.objects, r1, r2)
-	g.touchMap = make(map[TouchInfo]drawer)
+	g.dragMap = make(map[TouchInfo]drawer)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -46,7 +46,7 @@ func (g *Game) Update() error {
 	Input_Update()
 
 	// タッチ継続、終了の処理
-	for tinfo, obj := range g.touchMap {
+	for tinfo, obj := range g.dragMap {
 		// 押されている場合は移動処理
 		if tinfo.IsPressed() {
 			rect := obj.(*Rect)
@@ -55,7 +55,7 @@ func (g *Game) Update() error {
 			rect.Move(float64(oldX), float64(oldY), float64(x), float64(y))
 		} else {
 			// 押されていない場合はマップから削除
-			delete(g.touchMap, tinfo)
+			delete(g.dragMap, tinfo)
 		}
 	}
 
@@ -66,7 +66,7 @@ func (g *Game) Update() error {
 			for _, o := range g.objects {
 				rect := o.(*Rect)
 				if rect.CheckPoint(float64(x), float64(y)) {
-					g.touchMap[tinfo] = rect
+					g.dragMap[tinfo] = rect
 					break
 				}
 			}

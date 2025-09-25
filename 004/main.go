@@ -31,7 +31,7 @@ func (g *Game) Init() {
 	c1 := NewButton(10, 10, 200, 50, "1個増やす", func() {
 		g.objects = append(g.objects, NewRect(rand.Float64()*640, rand.Float64()*480, 100, 100))
 	})
-	c2 := NewButton(10, 70, 200, 50, "1個増減らす", func() {
+	c2 := NewButton(10, 70, 200, 50, "1個減らす", func() {
 		if len(g.objects) > 2 {
 			g.objects = g.objects[:len(g.objects)-1]
 		}

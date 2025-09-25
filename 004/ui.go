@@ -34,6 +34,7 @@ type Button struct {
 	Label         string
 	Touch         TouchInfo
 	Func          func()
+	color.Color
 }
 
 func NewButton(x, y, w, h float64, l string, f func()) *Button {
@@ -45,6 +46,7 @@ func NewButton(x, y, w, h float64, l string, f func()) *Button {
 		Label:  l,
 		Touch:  nil,
 		Func:   f,
+		Color:  color.White,
 	}
 }
 
@@ -54,13 +56,7 @@ func (b *Button) Draw(screen *ebiten.Image) {
 
 	op := &text.DrawOptions{}
 	op.GeoM.Translate(b.X+5, b.Y+5)
-
-	if b.Touch == nil {
-		op.ColorScale.ScaleWithColor(color.White)
-	} else {
-		op.ColorScale.ScaleWithColor(color.RGBA{0xff, 0xff, 0x00, 0xff})
-	}
-
+	op.ColorScale.ScaleWithColor(b.Color)
 	text.Draw(screen, b.Label, &text.GoTextFace{
 		Source: mplusFaceSource,
 		Size:   24,
@@ -85,9 +81,13 @@ func (b *Button) Update() {
 		if !b.Touch.IsPressed() {
 			b.OnTap()
 			b.Touch = nil // タッチ中を解除
+			b.Color = color.White
 		} else if !b.CheckPoint(b.Touch.Pos()) {
 			// ヒットしていない場合はタッチ中を解除
 			b.Touch = nil
+			b.Color = color.White
+		} else {
+			b.Color = color.RGBA{0x00, 0xff, 0x00, 0xff}
 		}
 	}
 }

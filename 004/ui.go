@@ -54,7 +54,13 @@ func (b *Button) Draw(screen *ebiten.Image) {
 
 	op := &text.DrawOptions{}
 	op.GeoM.Translate(b.X+5, b.Y+5)
-	op.ColorScale.ScaleWithColor(color.White)
+
+	if b.Touch == nil {
+		op.ColorScale.ScaleWithColor(color.White)
+	} else {
+		op.ColorScale.ScaleWithColor(color.RGBA{0xff, 0xff, 0x00, 0xff})
+	}
+
 	text.Draw(screen, b.Label, &text.GoTextFace{
 		Source: mplusFaceSource,
 		Size:   24,
@@ -75,15 +81,11 @@ func (b *Button) Press(t TouchInfo) {
 func (b *Button) Update() {
 	// タッチ中
 	if b.Touch != nil {
-		x, y := b.Touch.Pos()
-		// 自分にヒットしている
-		if b.CheckPoint(x, y) {
-			// タッチが離された
-			if !b.Touch.IsPressed() {
-				b.OnTap()
-				b.Touch = nil // タッチ中を解除
-			}
-		} else {
+		// タッチが離された
+		if !b.Touch.IsPressed() {
+			b.OnTap()
+			b.Touch = nil // タッチ中を解除
+		} else if !b.CheckPoint(b.Touch.Pos()) {
 			// ヒットしていない場合はタッチ中を解除
 			b.Touch = nil
 		}

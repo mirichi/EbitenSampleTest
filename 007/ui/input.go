@@ -39,6 +39,9 @@ func (t *Touch) Pos() (int, int) {
 	return ebiten.TouchPosition(t.id)
 }
 func (t *Touch) OldPos() (int, int) {
+	if t.IsJustPressed() {
+		return t.Pos()
+	}
 	return inpututil.TouchPositionInPreviousTick(t.id)
 }
 func (t *Touch) IsJustPressed() bool {

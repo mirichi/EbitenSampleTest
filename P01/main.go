@@ -20,7 +20,7 @@ func addBall(space *cp.Space, pos cp.Vector, radius float64) {
 	// 質量
 	mass := 100.0
 
-	// 円の回転モーメントを計算
+	// 円のモーメントを計算
 	moment := cp.MomentForCircle(mass, 0, radius, cp.Vector{})
 
 	// Bodyを作成

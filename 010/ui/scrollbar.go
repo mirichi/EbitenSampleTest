@@ -1,0 +1,360 @@
+package ui
+
+import (
+	"MyProject/ui/parts"
+	"image/color"
+
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
+)
+
+// ScrollButtonはスクロールバー用のフォーカスを持たないボタン
+type ScrollButton struct {
+	*parts.ControlBase
+	*parts.MouseInteraction
+	*parts.Drawable
+	*parts.TextDrawable
+}
+
+// ScrollButton生成
+func NewScrollButton(x, y, w, h int, text string, size int) *ScrollButton {
+	b := &ScrollButton{}
+	b.ControlBase = parts.NewControlBase(b, x, y, w, h)
+	b.MouseInteraction = parts.NewMouseInteraction(b)
+	b.Drawable = parts.NewDrawable(b, b.drawScrollButton)
+	b.TextDrawable = parts.NewTextDrawable(b, text, size, parts.AlignCenter, parts.AlignCenter, 0, 0, color.White, true)
+	return b
+}
+
+func (b *ScrollButton) drawScrollButton(screen *ebiten.Image) {
+	gx, gy := b.GetGlobalPos()
+	vector.FillRect(screen, float32(gx), float32(gy), float32(b.Width), float32(b.Height), color.RGBA{0x60, 0x60, 0x60, 0xff}, false)
+}
+
+// ScrollKnobはスクロールバー用のツマミ
+type ScrollKnob struct {
+	*parts.ControlBase
+	*parts.MouseInteraction
+	*parts.Drawable
+}
+
+// ScrollKnob生成
+func NewKnob(x, y, w, h int) *ScrollKnob {
+	k := &ScrollKnob{}
+	k.ControlBase = parts.NewControlBase(k, x, y, w, h)
+	k.MouseInteraction = parts.NewMouseInteraction(k)
+	k.Drawable = parts.NewDrawable(k, k.drawKnob)
+
+	return k
+}
+
+func (k *ScrollKnob) drawKnob(screen *ebiten.Image) {
+	gx, gy := k.GetGlobalPos()
+	vector.FillRect(screen, float32(gx), float32(gy), float32(k.Width), float32(k.Height), color.RGBA{0x60, 0x60, 0x60, 0xff}, false)
+}
+
+// ScrollSliderVはスクロールバー用のスライド範囲
+type ScrollSliderV struct {
+	*parts.ControlBase
+	*parts.MouseInteraction
+	*parts.Drawable
+	*parts.Grouping
+
+	knob                       *ScrollKnob
+	ViewRange, AllRange, Value float64
+	OnSlide                    func()
+}
+
+// ScrollSliderV生成
+func NewSliderV(x, y, w, h int) *ScrollSliderV {
+	s := &ScrollSliderV{}
+	s.ControlBase = parts.NewControlBase(s, x, y, w, h)
+	s.MouseInteraction = parts.NewMouseInteraction(s)
+	s.Drawable = parts.NewDrawable(s, s.drawSliderV)
+	s.Grouping = parts.NewGrouping(s)
+	s.knob = NewKnob(0, y, w, 60)
+	s.Grouping.AddChild(s.knob)
+	s.AutoResizable = true
+
+	var dragOffsetY int
+	s.knob.OnDragStart = func(x, y int) {
+		_, gy := s.knob.GetGlobalPos()
+		dragOffsetY = y - gy
+	}
+	s.knob.OnDrag = func(x, y int) {
+		_, oy := s.GetGlobalPos()
+		s.knob.Y = min(max(y-dragOffsetY-oy, 0), s.Height-s.knob.Height)
+		s.Value = float64(s.knob.Y) / float64(s.Height-s.knob.Height) * (s.AllRange - s.ViewRange)
+		if s.OnSlide != nil {
+			s.OnSlide()
+		}
+	}
+
+	s.OnRepeat = func() {
+		// クリックした位置がツマミより上か下かで移動方向を決める
+		_, y, _ := s.GetPosition()
+		_, ky := s.knob.GetGlobalPos()
+		if y < ky {
+			s.Move(-s.ViewRange)
+		} else if y > ky+s.knob.Height {
+			s.Move(s.ViewRange)
+		}
+	}
+
+	return s
+}
+
+// 指定した量だけスクロールする
+func (s *ScrollSliderV) Move(delta float64) {
+	s.Value += delta
+	if s.Value < 0 {
+		s.Value = 0
+	}
+	if s.Value > s.AllRange-s.ViewRange {
+		s.Value = s.AllRange - s.ViewRange
+	}
+
+	// ツマミの位置を更新
+	// SetRangeのロジックを流用したいが、SetRangeは引数が必要なのでここで再計算
+	if s.AllRange > s.ViewRange {
+		s.knob.Y = int(float64(s.Value) * float64(s.Height-s.knob.Height) / float64(s.AllRange-s.ViewRange))
+	} else {
+		s.knob.Y = 0
+	}
+
+	if s.OnSlide != nil {
+		s.OnSlide()
+	}
+}
+
+func (s *ScrollSliderV) drawSliderV(screen *ebiten.Image) {
+	gx, gy := s.GetGlobalPos()
+	vector.FillRect(screen, float32(gx), float32(gy), float32(s.Width), float32(s.Height), color.RGBA{0x20, 0x20, 0x20, 0xff}, false)
+}
+
+// ScrollSliderVの範囲設定
+func (s *ScrollSliderV) SetRange(viewrange, allrange float64) {
+	s.ViewRange = viewrange
+	s.AllRange = allrange
+	if viewrange >= allrange {
+		s.knob.Height = s.Height
+		s.knob.Y = 0
+		s.Value = 0
+		return
+	}
+	s.knob.Height = int(float64(s.Height) * float64(s.ViewRange) / float64(s.AllRange))
+	s.knob.Y = int(float64(s.Value) * float64(s.Height-s.knob.Height) / float64(s.AllRange-s.ViewRange))
+
+	if s.knob.Y < 0 {
+		s.knob.Y = 0
+		s.Value = float64(s.knob.Y) / float64(s.Height-s.knob.Height) * (s.AllRange - s.ViewRange)
+	}
+	if s.knob.Y > s.Height-s.knob.Height {
+		s.knob.Y = s.Height - s.knob.Height
+		s.Value = float64(s.knob.Y) / float64(s.Height-s.knob.Height) * (s.AllRange - s.ViewRange)
+	}
+}
+
+// ScrollBarVは縦方向にスクロールするための複合コントロール
+type ScrollBarV struct {
+	*parts.ControlBase
+	*parts.Grouping
+
+	buttonUp   *ScrollButton
+	slider     *ScrollSliderV
+	buttonDown *ScrollButton
+
+	OnSlide func()
+}
+
+// ScrollBarV生成
+func NewScrollBarV(x, y, w, h int) *ScrollBarV {
+	s := &ScrollBarV{}
+	s.ControlBase = parts.NewControlBase(s, x, y, w, h)
+	s.Grouping = parts.NewGrouping(s.ControlBase)
+	s.buttonUp = NewScrollButton(0, 0, w, w, "▲", w/2)
+	s.slider = NewSliderV(x, w, w, h)
+	s.buttonDown = NewScrollButton(0, 0, w, w, "▼", w/2)
+	s.Grouping.AddChild(s.buttonUp)
+	s.Grouping.AddChild(s.slider)
+	s.Grouping.AddChild(s.buttonDown)
+	s.Grouping.AutoLayout = parts.NewAutoLayoutFitV(s.Grouping)
+
+	// ボタンの挙動設定
+	// 押しっぱなしで連続スクロールするようにOnRepeatを使用
+	s.buttonUp.OnRepeat = func() {
+		s.slider.Move(-s.slider.ViewRange * 0.1)
+	}
+	s.buttonDown.OnRepeat = func() {
+		s.slider.Move(s.slider.ViewRange * 0.1)
+	}
+
+	s.slider.OnSlide = func() {
+		if s.OnSlide != nil {
+			s.OnSlide()
+		}
+	}
+
+	return s
+}
+
+func (s *ScrollBarV) SetRange(viewrange, allrange float64) {
+	s.slider.SetRange(viewrange, allrange)
+}
+
+func (s *ScrollBarV) GetValue() float64 {
+	return s.slider.Value
+}
+
+// ScrollSliderHは横方向のスクロールバー用のスライド範囲
+type ScrollSliderH struct {
+	*parts.ControlBase
+	*parts.MouseInteraction
+	*parts.Drawable
+	*parts.Grouping
+
+	knob                       *ScrollKnob
+	ViewRange, AllRange, Value float64
+	OnSlide                    func()
+}
+
+// ScrollSliderH生成
+func NewSliderH(x, y, w, h int) *ScrollSliderH {
+	s := &ScrollSliderH{}
+	s.ControlBase = parts.NewControlBase(s, x, y, w, h)
+	s.MouseInteraction = parts.NewMouseInteraction(s)
+	s.Drawable = parts.NewDrawable(s, s.drawSliderH)
+	s.Grouping = parts.NewGrouping(s)
+	s.knob = NewKnob(x, 0, 60, h)
+	s.Grouping.AddChild(s.knob)
+	s.AutoResizable = true
+
+	var dragOffsetX int
+	s.knob.OnDragStart = func(x, y int) {
+		gx, _ := s.knob.GetGlobalPos()
+		dragOffsetX = x - gx
+	}
+	s.knob.OnDrag = func(x, y int) {
+		ox, _ := s.GetGlobalPos()
+		s.knob.X = min(max(x-dragOffsetX-ox, 0), s.Width-s.knob.Width)
+		s.Value = float64(s.knob.X) / float64(s.Width-s.knob.Width) * (s.AllRange - s.ViewRange)
+		if s.OnSlide != nil {
+			s.OnSlide()
+		}
+	}
+
+	s.OnRepeat = func() {
+		// クリックした位置がツマミより左か右かで移動方向を決める
+		x, _, _ := s.GetPosition()
+		kx, _ := s.knob.GetGlobalPos()
+		if x < kx {
+			s.Move(-s.ViewRange)
+		} else if x > kx+s.knob.Width {
+			s.Move(s.ViewRange)
+		}
+	}
+
+	return s
+}
+
+// 指定した量だけスクロールする
+func (s *ScrollSliderH) Move(delta float64) {
+	s.Value += delta
+	if s.Value < 0 {
+		s.Value = 0
+	}
+	if s.Value > s.AllRange-s.ViewRange {
+		s.Value = s.AllRange - s.ViewRange
+	}
+
+	// ツマミの位置を更新
+	// SetRangeのロジックを流用したいが、SetRangeは引数が必要なのでここで再計算
+	if s.AllRange > s.ViewRange {
+		s.knob.X = int(float64(s.Value) * float64(s.Width-s.knob.Width) / float64(s.AllRange-s.ViewRange))
+	} else {
+		s.knob.X = 0
+	}
+
+	if s.OnSlide != nil {
+		s.OnSlide()
+	}
+}
+
+func (s *ScrollSliderH) drawSliderH(screen *ebiten.Image) {
+	gx, gy := s.GetGlobalPos()
+	vector.FillRect(screen, float32(gx), float32(gy), float32(s.Width), float32(s.Height), color.RGBA{0x20, 0x20, 0x20, 0xff}, false)
+}
+
+// ScrollSliderHの範囲設定
+func (s *ScrollSliderH) SetRange(viewrange, allrange float64) {
+	s.ViewRange = viewrange
+	s.AllRange = allrange
+	if viewrange >= allrange {
+		s.knob.Width = s.Width
+		s.knob.X = 0
+		s.Value = 0
+		return
+	}
+	s.knob.Width = int(float64(s.Width) * float64(s.ViewRange) / float64(s.AllRange))
+	s.knob.X = int(float64(s.Value) * float64(s.Width-s.knob.Width) / float64(s.AllRange-s.ViewRange))
+
+	if s.knob.X < 0 {
+		s.knob.X = 0
+		s.Value = float64(s.knob.X) / float64(s.Width-s.knob.Width) * (s.AllRange - s.ViewRange)
+	}
+	if s.knob.X > s.Width-s.knob.Width {
+		s.knob.X = s.Width - s.knob.Width
+		s.Value = float64(s.knob.X) / float64(s.Width-s.knob.Width) * (s.AllRange - s.ViewRange)
+	}
+}
+
+// ScrollBarHは横方向にスクロールするための複合コントロール
+type ScrollBarH struct {
+	*parts.ControlBase
+	*parts.Grouping
+
+	buttonLeft  *ScrollButton
+	slider      *ScrollSliderH
+	buttonRight *ScrollButton
+
+	OnSlide func()
+}
+
+// ScrollBarH生成
+func NewScrollBarH(x, y, w, h int) *ScrollBarH {
+	s := &ScrollBarH{}
+	s.ControlBase = parts.NewControlBase(s, x, y, w, h)
+	s.Grouping = parts.NewGrouping(s.ControlBase)
+	s.buttonLeft = NewScrollButton(0, 0, h, h, "◀", h/2)
+	s.slider = NewSliderH(h, 0, w, h)
+	s.buttonRight = NewScrollButton(0, 0, h, h, "▶", h/2)
+	s.Grouping.AddChild(s.buttonLeft)
+	s.Grouping.AddChild(s.slider)
+	s.Grouping.AddChild(s.buttonRight)
+	s.Grouping.AutoLayout = parts.NewAutoLayoutFitH(s.Grouping)
+
+	// ボタンの挙動設定
+	// 押しっぱなしで連続スクロールするようにOnRepeatを使用
+	s.buttonLeft.OnRepeat = func() {
+		s.slider.Move(-s.slider.ViewRange * 0.1)
+	}
+	s.buttonRight.OnRepeat = func() {
+		s.slider.Move(s.slider.ViewRange * 0.1)
+	}
+
+	s.slider.OnSlide = func() {
+		if s.OnSlide != nil {
+			s.OnSlide()
+		}
+	}
+
+	return s
+}
+
+func (s *ScrollBarH) SetRange(viewrange, allrange float64) {
+	s.slider.SetRange(viewrange, allrange)
+}
+
+func (s *ScrollBarH) GetValue() float64 {
+	return s.slider.Value
+}

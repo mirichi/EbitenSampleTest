@@ -17,6 +17,11 @@ type Resizable struct {
 	touch    input.Touch
 	mode     int    // 12346789でサイズ変更中を表す
 	OnResize func() // リサイズ時に呼ぶ関数
+
+	// ドラッグ開始時の状態
+	startMX, startMY int
+	startX, startY   int
+	startW, startH   int
 }
 
 func (r *Resizable) InitResizable(c Control) {
@@ -96,6 +101,11 @@ func (r *Resizable) handleInputFunction(t input.Touch) bool {
 			r.mode = r.judgeResize(mx, my)
 			if r.mode > 0 {
 				r.touch = t
+				// ドラッグ開始時の状態を保存
+				r.startMX, r.startMY = mx, my
+				c := r.Control.GetControlBase()
+				r.startX, r.startY = c.X, c.Y
+				r.startW, r.startH = c.Width, c.Height
 				return true
 			}
 		}
@@ -123,44 +133,61 @@ func (r *Resizable) updateFunction() {
 			// カーソルは継続して変更しないと自動的に元に戻される
 			r.updateCursor(r.mode)
 
-			x, y := r.touch.Pos()
-			bx, by := r.touch.OldPos()
+			mx, my := r.touch.Pos()
+			dx := mx - r.startMX
+			dy := my - r.startMY
 			c := r.Control.GetControlBase()
+
+			// 計算用の一時変数
+			newX, newY := r.startX, r.startY
+			newW, newH := r.startW, r.startH
 
 			// 左上、左、左下
 			if r.mode == 7 || r.mode == 4 || r.mode == 1 {
-				c.X += x - bx
-				c.Width -= x - bx
+				newW = r.startW - dx
+				newX = r.startX + dx
 			}
 
 			// 左上、上、右上
 			if r.mode == 7 || r.mode == 8 || r.mode == 9 {
-				c.Y += y - by
-				c.Height -= y - by
+				newH = r.startH - dy
+				newY = r.startY + dy
 			}
 
 			// 右上、右、右下
 			if r.mode == 9 || r.mode == 6 || r.mode == 3 {
-				c.Width += x - bx
+				newW = r.startW + dx
 			}
 
 			// 左下、下、右下
 			if r.mode == 1 || r.mode == 2 || r.mode == 3 {
-				c.Height += y - by
+				newH = r.startH + dy
 			}
 
 			// 最小サイズの制限
-			// コントロールが消失したり操作不能になるのを防ぐため、最小サイズを確保します。
-			if r.mode > 0 {
-				if c.Width < 10 {
-					c.Width = 10
+			if newW < 10 {
+				// 左側を動かしている場合、X座標を調整して右端を固定する
+				if r.mode == 7 || r.mode == 4 || r.mode == 1 {
+					newX = r.startX + r.startW - 10
 				}
-				if c.Height < 10 {
-					c.Height = 10
+				newW = 10
+			}
+			if newH < 10 {
+				// 上側を動かしている場合、Y座標を調整して下端を固定する
+				if r.mode == 7 || r.mode == 8 || r.mode == 9 {
+					newY = r.startY + r.startH - 10
 				}
-				if r.OnResize != nil {
-					r.OnResize()
-				}
+				newH = 10
+			}
+
+			// 適用
+			c.X = newX
+			c.Y = newY
+			c.Width = newW
+			c.Height = newH
+
+			if r.OnResize != nil {
+				r.OnResize()
 			}
 		}
 	}

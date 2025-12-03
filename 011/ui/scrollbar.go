@@ -19,11 +19,18 @@ type ScrollButton struct {
 // ScrollButton生成
 func NewScrollButton(x, y, w, h int, text string, size int) *ScrollButton {
 	b := &ScrollButton{}
+	b.InitScrollButton(nil, x, y, w, h, text, size)
+	return b
+}
+
+func (b *ScrollButton) InitScrollButton(g parts.GroupingInterface, x, y, w, h int, text string, size int) {
 	b.InitControlBase(b, x, y, w, h)
 	b.InitMouseInteraction(b)
 	b.InitDrawable(b, b.drawScrollButton)
 	b.InitTextDrawable(b, text, size, parts.AlignCenter, parts.AlignCenter, 0, 0, color.White, true)
-	return b
+	if g != nil {
+		g.AddChild(b)
+	}
 }
 
 func (b *ScrollButton) drawScrollButton(screen *ebiten.Image) {
@@ -41,11 +48,17 @@ type ScrollKnob struct {
 // ScrollKnob生成
 func NewKnob(x, y, w, h int) *ScrollKnob {
 	k := &ScrollKnob{}
+	k.InitScrollKnob(nil, x, y, w, h)
+	return k
+}
+
+func (k *ScrollKnob) InitScrollKnob(g parts.GroupingInterface, x, y, w, h int) {
 	k.InitControlBase(k, x, y, w, h)
 	k.InitMouseInteraction(k)
 	k.InitDrawable(k, k.drawKnob)
-
-	return k
+	if g != nil {
+		g.AddChild(k)
+	}
 }
 
 func (k *ScrollKnob) drawKnob(screen *ebiten.Image) {
@@ -60,7 +73,7 @@ type ScrollSliderV struct {
 	parts.Drawable
 	parts.Grouping
 
-	knob                       *ScrollKnob
+	knob                       ScrollKnob
 	ViewRange, AllRange, Value float64
 	OnSlide                    func()
 }
@@ -68,14 +81,21 @@ type ScrollSliderV struct {
 // ScrollSliderV生成
 func NewSliderV(x, y, w, h int) *ScrollSliderV {
 	s := &ScrollSliderV{}
+	s.InitSliderV(nil, x, y, w, h)
+	return s
+}
+
+func (s *ScrollSliderV) InitSliderV(g parts.GroupingInterface, x, y, w, h int) {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitMouseInteraction(s)
 	s.InitDrawable(s, s.drawSliderV)
 	s.InitGrouping(s)
 	s.ClippingFlag = false
-	s.knob = NewKnob(0, y, w, 60)
-	s.Grouping.AddChild(s.knob)
+	s.knob.InitScrollKnob(s, 0, y, w, 60)
 	s.AutoResizable = true
+	if g != nil {
+		g.AddChild(s)
+	}
 
 	var dragOffsetY int
 	s.knob.OnDragStart = func(x, y int) {
@@ -101,8 +121,6 @@ func NewSliderV(x, y, w, h int) *ScrollSliderV {
 			s.Move(s.ViewRange)
 		}
 	}
-
-	return s
 }
 
 // 指定した量だけスクロールする
@@ -161,9 +179,9 @@ type ScrollBarV struct {
 	parts.ControlBase
 	parts.Grouping
 
-	buttonUp   *ScrollButton
-	slider     *ScrollSliderV
-	buttonDown *ScrollButton
+	buttonUp   ScrollButton
+	slider     ScrollSliderV
+	buttonDown ScrollButton
 
 	OnSlide func()
 }
@@ -174,12 +192,9 @@ func NewScrollBarV(x, y, w, h int) *ScrollBarV {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitGrouping(s)
 	s.ClippingFlag = false
-	s.buttonUp = NewScrollButton(0, 0, w, w, "▲", w/2)
-	s.slider = NewSliderV(x, w, w, h)
-	s.buttonDown = NewScrollButton(0, 0, w, w, "▼", w/2)
-	s.Grouping.AddChild(s.buttonUp)
-	s.Grouping.AddChild(s.slider)
-	s.Grouping.AddChild(s.buttonDown)
+	s.buttonUp.InitScrollButton(s, 0, 0, w, w, "▲", w/2)
+	s.slider.InitSliderV(s, x, w, w, h)
+	s.buttonDown.InitScrollButton(s, 0, 0, w, w, "▼", w/2)
 	s.Grouping.AutoLayout = parts.NewAutoLayoutFitV(&s.Grouping)
 
 	// ボタンの挙動設定
@@ -215,7 +230,7 @@ type ScrollSliderH struct {
 	parts.Drawable
 	parts.Grouping
 
-	knob                       *ScrollKnob
+	knob                       ScrollKnob
 	ViewRange, AllRange, Value float64
 	OnSlide                    func()
 }
@@ -223,14 +238,21 @@ type ScrollSliderH struct {
 // ScrollSliderH生成
 func NewSliderH(x, y, w, h int) *ScrollSliderH {
 	s := &ScrollSliderH{}
+	s.InitSliderH(nil, x, y, w, h)
+	return s
+}
+
+func (s *ScrollSliderH) InitSliderH(g parts.GroupingInterface, x, y, w, h int) {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitMouseInteraction(s)
 	s.InitDrawable(s, s.drawSliderH)
 	s.InitGrouping(s)
 	s.ClippingFlag = false
-	s.knob = NewKnob(x, 0, 60, h)
-	s.Grouping.AddChild(s.knob)
+	s.knob.InitScrollKnob(s, x, 0, 60, h)
 	s.AutoResizable = true
+	if g != nil {
+		g.AddChild(s)
+	}
 
 	var dragOffsetX int
 	s.knob.OnDragStart = func(x, y int) {
@@ -256,8 +278,6 @@ func NewSliderH(x, y, w, h int) *ScrollSliderH {
 			s.Move(s.ViewRange)
 		}
 	}
-
-	return s
 }
 
 // 指定した量だけスクロールする
@@ -316,9 +336,9 @@ type ScrollBarH struct {
 	parts.ControlBase
 	parts.Grouping
 
-	buttonLeft  *ScrollButton
-	slider      *ScrollSliderH
-	buttonRight *ScrollButton
+	buttonLeft  ScrollButton
+	slider      ScrollSliderH
+	buttonRight ScrollButton
 
 	OnSlide func()
 }
@@ -326,16 +346,21 @@ type ScrollBarH struct {
 // ScrollBarH生成
 func NewScrollBarH(x, y, w, h int) *ScrollBarH {
 	s := &ScrollBarH{}
+	s.InitScrollBarH(nil, x, y, w, h)
+	return s
+}
+
+func (s *ScrollBarH) InitScrollBarH(g parts.GroupingInterface, x, y, w, h int) {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitGrouping(s)
 	s.ClippingFlag = false
-	s.buttonLeft = NewScrollButton(0, 0, h, h, "◀", h/2)
-	s.slider = NewSliderH(h, 0, w, h)
-	s.buttonRight = NewScrollButton(0, 0, h, h, "▶", h/2)
-	s.Grouping.AddChild(s.buttonLeft)
-	s.Grouping.AddChild(s.slider)
-	s.Grouping.AddChild(s.buttonRight)
+	s.buttonLeft.InitScrollButton(s, 0, 0, h, h, "◀", h/2)
+	s.slider.InitSliderH(s, h, 0, w, h)
+	s.buttonRight.InitScrollButton(s, 0, 0, h, h, "▶", h/2)
 	s.Grouping.AutoLayout = parts.NewAutoLayoutFitH(&s.Grouping)
+	if g != nil {
+		g.AddChild(s)
+	}
 
 	// ボタンの挙動設定
 	// 押しっぱなしで連続スクロールするようにOnRepeatを使用
@@ -351,8 +376,6 @@ func NewScrollBarH(x, y, w, h int) *ScrollBarH {
 			s.OnSlide()
 		}
 	}
-
-	return s
 }
 
 func (s *ScrollBarH) SetRange(viewrange, allrange float64) {

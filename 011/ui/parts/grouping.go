@@ -7,6 +7,10 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+type GroupingInterface interface {
+	AddChild(c Control)
+}
+
 // Groupingは子コントロールを管理する機能を提供します。
 // 子コントロールの追加、入力イベントの伝播、更新、描画を統括します。
 type Grouping struct {

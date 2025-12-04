@@ -24,13 +24,29 @@ type TextBox struct {
 // TetxBox生成
 func NewTextBox(x, y, w, h int, text string, fontSize int) *TextBox {
 	tb := &TextBox{}
+	tb.InitTextBox(nil, x, y, w, h, text, fontSize)
+	return tb
+}
 
-	tb.InitControlBase(tb, x, y, w, h)
-
+func (tb *TextBox) InitTextBox(g parts.GroupingInterface, x, y, w, h int, text string, fontSize int) {
 	// 初期テキスト
 	tb.field.SetTextAndSelection(text, len(text), len(text))
 
+	tb.InitControlBase(tb, x, y, w, h)
 	tb.InitMouseInteraction(tb)
+	tb.InitDrawable(tb, tb.drawTextBox)
+	tb.InitTextInputable(tb, &tb.field, &tb.counter, fontSize, parts.AlignLeft, color.White, color.White, func() bool { return tb.Focused })
+	tb.InitFocusable(tb)
+	if g != nil {
+		g.AddChild(tb)
+	}
+
+	tb.OnFocus = func() {
+		tb.field.Focus()
+	}
+	tb.OnBlur = func() {
+		tb.field.Blur()
+	}
 
 	// マウス押下時にフォーカス取得と範囲選択開始
 	tb.OnPress = func() {
@@ -45,17 +61,6 @@ func NewTextBox(x, y, w, h int, text string, fontSize int) *TextBox {
 		tb.TextInputable.UpdateSelection(x, y)
 	}
 
-	tb.InitDrawable(tb, tb.drawTextBox)
-	tb.InitTextInputable(tb, &tb.field, &tb.counter, fontSize, parts.AlignLeft, color.White, color.White, func() bool { return tb.Focused })
-	tb.InitFocusable(tb)
-	tb.OnFocus = func() {
-		tb.field.Focus()
-	}
-	tb.OnBlur = func() {
-		tb.field.Blur()
-	}
-
-	return tb
 }
 
 func (tb *TextBox) drawTextBox(screen *ebiten.Image) {

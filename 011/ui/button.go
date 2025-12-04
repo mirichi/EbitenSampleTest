@@ -22,18 +22,24 @@ type Button struct {
 // Button生成
 func NewButton(x, y, w, h int, text string, size int) *Button {
 	b := &Button{}
+	b.InitButton(nil, x, y, w, h, text, size)
+	return b
+}
+
+func (b *Button) InitButton(g parts.GroupingInterface, x, y, w, h int, text string, size int) {
 	b.InitControlBase(b, x, y, w, h)
 	b.InitMouseInteraction(b)
 	b.InitDrawable(b, b.drawButton)
 	b.InitTextDrawable(b, text, size, parts.AlignCenter, parts.AlignCenter, 0, 0, color.White, true)
 	b.InitFocusable(b)
+	if g != nil {
+		g.AddChild(b)
+	}
 	b.Color = color.RGBA{0x60, 0x60, 0x60, 0xff}
 
 	b.OnPress = func() {
 		b.Focus()
 	}
-
-	return b
 }
 
 // drawButtonはボタンの描画処理を行う

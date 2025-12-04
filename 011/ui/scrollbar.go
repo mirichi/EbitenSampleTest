@@ -189,6 +189,11 @@ type ScrollBarV struct {
 // ScrollBarV生成
 func NewScrollBarV(x, y, w, h int) *ScrollBarV {
 	s := &ScrollBarV{}
+	s.InitScrollBarV(nil, x, y, w, h)
+	return s
+}
+
+func (s *ScrollBarV) InitScrollBarV(g parts.GroupingInterface, x, y, w, h int) {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitGrouping(s)
 	s.ClippingFlag = false
@@ -196,6 +201,9 @@ func NewScrollBarV(x, y, w, h int) *ScrollBarV {
 	s.slider.InitSliderV(s, x, w, w, h)
 	s.buttonDown.InitScrollButton(s, 0, 0, w, w, "▼", w/2)
 	s.Grouping.AutoLayout = parts.NewAutoLayoutFitV(&s.Grouping)
+	if g != nil {
+		g.AddChild(s)
+	}
 
 	// ボタンの挙動設定
 	// 押しっぱなしで連続スクロールするようにOnRepeatを使用
@@ -211,8 +219,6 @@ func NewScrollBarV(x, y, w, h int) *ScrollBarV {
 			s.OnSlide()
 		}
 	}
-
-	return s
 }
 
 func (s *ScrollBarV) SetRange(viewrange, allrange float64) {

@@ -7,14 +7,14 @@ type ScrollablePanel struct {
 	parts.ControlBase
 	parts.Grouping
 
-	topGroup   *Blank
-	Area       *Blank
-	Panel      *Blank
-	ScrollbarV *ScrollBarV
+	topGroup   Blank
+	Area       Blank
+	Panel      Blank
+	ScrollbarV ScrollBarV
 
-	bottomGroup *Blank
-	ScrollbarH  *ScrollBarH
-	corner      *Blank
+	bottomGroup Blank
+	ScrollbarH  ScrollBarH
+	corner      Blank
 
 	OnSlide func(x, y float64)
 }
@@ -22,39 +22,40 @@ type ScrollablePanel struct {
 // ScrollablePanel生成
 func NewScrollablePanel(x, y, w, h, sbw int) *ScrollablePanel {
 	sp := &ScrollablePanel{}
+	sp.InitScrollablePanel(nil, x, y, w, h, sbw)
+	return sp
+}
+
+func (sp *ScrollablePanel) InitScrollablePanel(g parts.GroupingInterface, x, y, w, h, sbw int) {
 	sp.InitControlBase(sp, x, y, w, h)
 	sp.InitGrouping(sp)
 	sp.AutoLayout = parts.NewAutoLayoutFitV(&sp.Grouping)
 
 	// 上部（パネル＋縦スクロールバー）
-	sp.topGroup = NewBlank(0, 0, w, h-sbw)
+	sp.topGroup.InitBlank(&sp.Grouping, 0, 0, w, h-sbw)
 	sp.topGroup.AutoResizable = true
 	sp.topGroup.AutoLayout = parts.NewAutoLayoutFitH(&sp.topGroup.Grouping)
 	sp.topGroup.ClippingFlag = false
 
-	sp.Area = NewBlank(0, 0, 0, 0)
+	sp.Area.InitBlank(&sp.topGroup, 0, 0, 0, 0)
 	sp.Area.AutoResizable = true
-	sp.ScrollbarV = NewScrollBarV(0, 0, sbw, 0)
-	sp.topGroup.AddChild(sp.Area)
-	sp.topGroup.AddChild(sp.ScrollbarV)
+	sp.ScrollbarV.InitScrollBarV(&sp.topGroup, 0, 0, sbw, 0)
 
-	sp.Panel = NewBlank(0, 0, 0, 0)
+	sp.Panel.InitBlank(&sp.Area, 0, 0, 0, 0)
 	sp.Panel.ClippingFlag = false
-	sp.Area.AddChild(sp.Panel)
 
 	// 下部（横スクロールバー＋コーナー）
-	sp.bottomGroup = NewBlank(0, 0, w, sbw)
+	sp.bottomGroup.InitBlank(&sp.Grouping, 0, 0, w, sbw)
 	sp.bottomGroup.AutoLayout = parts.NewAutoLayoutFitH(&sp.bottomGroup.Grouping)
 	sp.bottomGroup.ClippingFlag = false
 
-	sp.ScrollbarH = NewScrollBarH(0, 0, 0, sbw)
+	sp.ScrollbarH.InitScrollBarH(&sp.bottomGroup, 0, 0, 0, sbw)
 	sp.ScrollbarH.AutoResizable = true
-	sp.corner = NewBlank(0, 0, sbw, sbw) // コーナーの空白
-	sp.bottomGroup.AddChild(sp.ScrollbarH)
-	sp.bottomGroup.AddChild(sp.corner)
+	sp.corner.InitBlank(&sp.bottomGroup, 0, 0, sbw, sbw) // コーナーの空白
 
-	sp.Grouping.AddChild(sp.topGroup)
-	sp.Grouping.AddChild(sp.bottomGroup)
+	if g != nil {
+		g.AddChild(sp)
+	}
 
 	// スクロールバーのスライド時の動作
 	sp.ScrollbarV.OnSlide = func() {
@@ -69,8 +70,6 @@ func NewScrollablePanel(x, y, w, h, sbw int) *ScrollablePanel {
 	}
 	sp.OnLayout = sp.OnLayoutFunction
 	sp.OnSlide = sp.OnSlideFunction
-
-	return sp
 }
 
 // ScrollablePanelに対してのAddChildはPanelに委譲する

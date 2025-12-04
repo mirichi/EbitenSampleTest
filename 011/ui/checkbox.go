@@ -22,27 +22,29 @@ type Checkbox struct {
 
 // Checkbox生成
 func NewCheckbox(x, y, w, h int, text string, size int, initialChecked bool) *Checkbox {
-	c := &Checkbox{
-		Checked: initialChecked,
+	c := &Checkbox{}
+	c.InitCheckbox(nil, x, y, w, h, text, size, initialChecked)
+	return c
+}
+
+func (c *Checkbox) InitCheckbox(g parts.GroupingInterface, x, y, w, h int, text string, size int, initialChecked bool) {
+	c.InitControlBase(c, x, y, w, h)
+	c.InitMouseInteraction(c)
+	c.InitDrawable(c, c.drawCheckbox)
+	c.InitTextDrawable(c, text, size, parts.AlignLeft, parts.AlignCenter, h+5, 0, color.White, true)
+	c.InitFocusable(c)
+	c.Checked = initialChecked
+	if g != nil {
+		g.AddChild(c)
 	}
 
-	c.InitControlBase(c, x, y, w, h)
-
 	// クリック時の動作
-	c.InitMouseInteraction(c)
 	c.OnClick = func() {
 		c.Checked = !c.Checked
 		if c.OnCheckChanged != nil {
 			c.OnCheckChanged(c.Checked)
 		}
 	}
-
-	// 背景とチェックマークを描画するカスタム描画関数
-	c.InitDrawable(c, c.drawCheckbox)
-	c.InitTextDrawable(c, text, size, parts.AlignLeft, parts.AlignCenter, h+5, 0, color.White, true)
-	c.InitFocusable(c)
-
-	return c
 }
 
 func (c *Checkbox) drawCheckbox(screen *ebiten.Image) {

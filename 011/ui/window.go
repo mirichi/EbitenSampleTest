@@ -17,34 +17,22 @@ type TitleBar struct {
 	parts.MouseInteraction
 }
 
-// ClientAreaはウィンドウのクライアント領域を表すコントロール
-// ウィンドウ内に配置される他のコントロールを保持する
-type ClientArea struct {
-	parts.ControlBase
-	parts.Drawable
-	parts.MouseInteraction
-	parts.Grouping
-}
-
-// Windowはタイトルバーとクライアント領域を持つウィンドウコントロール
-// これ自体はコンテナとしての役割を持ち、具体的な機能はTitleBarとClientAreaに委譲する
-type Window struct {
-	parts.ControlBase
-	parts.Resizable // Resizableは自前でマウス処理を持っている
-	parts.Grouping
-
-	TitleBar   *TitleBar
-	ClientArea *ClientArea
-}
-
-// newTitleBarは新しいタイトルバーを作成する
+// NewTitleBarは新しいタイトルバーを作成する
 // ドラッグ操作によるウィンドウ移動のイベントハンドラを設定する
-func newTitleBar(x, y, w, h int, text string) *TitleBar {
+func NewTitleBar(x, y, w, h int, text string) *TitleBar {
 	t := &TitleBar{}
+	t.InitTitleBar(nil, x, y, w, h, text)
+	return t
+}
+
+func (t *TitleBar) InitTitleBar(g parts.GroupingInterface, x, y, w, h int, text string) {
 	t.InitControlBase(t, x, y, w, h)
 	t.InitDrawable(t, t.drawTitleBar)
 	t.InitTextDrawable(t, text, h*2/3, parts.AlignCenter, parts.AlignCenter, 0, 0, color.White, true)
 	t.InitMouseInteraction(t)
+	if g != nil {
+		g.AddChild(t)
+	}
 
 	// TitleBarをドラッグすると親のWindowが移動するように設定
 	var dragOffsetX, dragOffsetY int
@@ -63,8 +51,6 @@ func newTitleBar(x, y, w, h int, text string) *TitleBar {
 		cb.X = x - dragOffsetX - ox
 		cb.Y = y - dragOffsetY - oy
 	}
-
-	return t
 }
 
 func (t *TitleBar) drawTitleBar(screen *ebiten.Image) {
@@ -72,19 +58,34 @@ func (t *TitleBar) drawTitleBar(screen *ebiten.Image) {
 	vector.FillRect(screen, float32(gx), float32(gy), float32(t.Width), float32(t.Height), color.RGBA{0x00, 0x40, 0x00, 0xff}, false)
 }
 
-// newClientAreaは新しいクライアント領域を作成する
-// ウィンドウのリサイズやドラッグ移動に対応する
-func newClientArea(x, y, w, h int) *ClientArea {
+// ClientAreaはウィンドウのクライアント領域を表すコントロール
+// ウィンドウ内に配置される他のコントロールを保持する
+type ClientArea struct {
+	parts.ControlBase
+	parts.Drawable
+	parts.MouseInteraction
+	parts.Grouping
+}
+
+// NewClientAreaは新しいクライアント領域を作成する
+// ウィンドウのドラッグ移動に対応する
+func NewClientArea(x, y, w, h int) *ClientArea {
 	c := &ClientArea{}
+	c.InitClientArea(nil, x, y, w, h)
+	return c
+}
+
+func (c *ClientArea) InitClientArea(g parts.GroupingInterface, x, y, w, h int) {
 	c.InitControlBase(c, x, y, w, h)
+	c.InitDrawable(c, c.drawClientArea)
+	c.InitMouseInteraction(c)
+	c.InitGrouping(c)
+	if g != nil {
+		g.AddChild(c)
+	}
 	c.AutoResizable = true
 
-	// DrawFunctionsは前から順に実行
-	// Groupingより後に実行するとボタンがClientAreaに上書きされて消える
-	c.InitDrawable(c, c.drawClientArea)
-
 	// ClientAreaをドラッグすると親のWindowが移動する
-	c.InitMouseInteraction(c)
 	var dragOffsetX, dragOffsetY int
 	c.OnDragStart = func(x, y int) {
 		// 親のWindowの座標を保存
@@ -100,12 +101,6 @@ func newClientArea(x, y, w, h int) *ClientArea {
 		cb.X = x - dragOffsetX - ox
 		cb.Y = y - dragOffsetY - oy
 	}
-
-	// UpdateFunctionsは後ろから順に実行
-	// Draggableより後に実行すると操作がClientAreaに食われてボタンを押せない
-	c.InitGrouping(&c.ControlBase)
-
-	return c
 }
 
 func (c *ClientArea) drawClientArea(screen *ebiten.Image) {
@@ -113,26 +108,35 @@ func (c *ClientArea) drawClientArea(screen *ebiten.Image) {
 	vector.FillRect(screen, float32(gx), float32(gy), float32(c.Width), float32(c.Height), color.RGBA{0x30, 0x30, 0x30, 0xff}, false)
 }
 
+// Windowはタイトルバーとクライアント領域を持つ複合コントロール
+// これ自体はコンテナとしての役割を持ち、具体的な機能はTitleBarとClientAreaに実装する
+type Window struct {
+	parts.ControlBase
+	parts.Resizable // Resizableは自前でマウス処理を持っている
+	parts.Grouping
+
+	TitleBar   TitleBar
+	ClientArea ClientArea
+}
+
 // NewWindowは新しいウィンドウを作成する
 // タイトルバーとクライアント領域を初期化し、レイアウトを設定する
 func NewWindow(x, y, w, h int, text string) *Window {
 	win := &Window{}
 	win.InitControlBase(win, x, y, w, h)
-	win.InitGrouping(&win.ControlBase)
+	win.InitGrouping(win)
+	win.InitResizable(win)
 	win.ClippingFlag = false
-	win.InitResizable(&win.ControlBase)
-	win.OnResize = func() {
-		win.Layout()
-	}
 	win.AutoLayout = parts.NewAutoLayoutFitV(&win.Grouping)
 
 	// TitleBarとClientArea生成
-	win.TitleBar = newTitleBar(0, 0, w, 30, text)
-	win.ClientArea = newClientArea(0, 30, w, h-30)
+	// win.Groupingを指定することで、ウィンドウのレイアウトに追加される
+	win.TitleBar.InitTitleBar(&win.Grouping, 0, 0, w, 30, text)
+	win.ClientArea.InitClientArea(&win.Grouping, 0, 30, w, h-30)
 
-	// ClipGroupingを指定しないと↓のメソッドが呼ばれてハマる(ハマった)
-	win.Grouping.AddChild(win.TitleBar)
-	win.Grouping.AddChild(win.ClientArea)
+	win.OnResize = func() {
+		win.Layout()
+	}
 
 	return win
 }

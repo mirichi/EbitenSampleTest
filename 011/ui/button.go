@@ -26,7 +26,7 @@ func NewButton(x, y, w, h int, text string, size int) *Button {
 	return b
 }
 
-func (b *Button) InitButton(g parts.GroupingInterface, x, y, w, h int, text string, size int) {
+func (b *Button) InitButton(g parts.AddChilder, x, y, w, h int, text string, size int) {
 	b.InitControlBase(b, x, y, w, h)
 	b.InitMouseInteraction(b)
 	b.InitDrawable(b, b.drawButton)

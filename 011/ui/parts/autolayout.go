@@ -4,23 +4,10 @@ type AutoLayoutInterface interface {
 	Layout()
 }
 
-// AutoLayoutVはGrouping内のコントロールを垂直方向に自動配置する機能
-// Groupingと組み合わせて使用する
-type AutoLayoutV struct {
-	grouping *Grouping
-}
-
-// AutoLayoutV生成
-func NewAutoLayoutV(g *Grouping) *AutoLayoutV {
-	a := &AutoLayoutV{grouping: g}
-	return a
-}
-
 // Layoutはオートレイアウト処理を実行する
 // AutoLayoutVでは親コントロールのサイズに合わせて、子コントロールを等間隔に垂直配置する
 // リサイズ時に呼び出されることを想定する
-func (a *AutoLayoutV) Layout() {
-	gr := a.grouping
+func AutoLayoutV(gr *Grouping) {
 	con := gr.Control.GetControlBase()
 
 	// 範囲取得。この中にコントロールを配置する
@@ -55,22 +42,8 @@ func (a *AutoLayoutV) Layout() {
 	}
 }
 
-// AutoLayoutFitHはGrouping内のコントロールを水平方向に自動配置する機能
-// 親コントロールの幅に合わせて、子コントロールを左詰めで配置する
-// AutoResizableを持つコントロールがある場合、余白を埋めるようにリサイズする
-type AutoLayoutFitH struct {
-	grouping *Grouping
-}
-
-// AutoLayoutFit生成
-func NewAutoLayoutFitH(g *Grouping) *AutoLayoutFitH {
-	a := &AutoLayoutFitH{grouping: g}
-	return a
-}
-
 // オートレイアウト処理(水平方向)
-func (a *AutoLayoutFitH) Layout() {
-	gr := a.grouping
+func AutoLayoutFitH(gr *Grouping) {
 	con := gr.Control.GetControlBase()
 
 	// コントロールの数
@@ -115,22 +88,8 @@ func (a *AutoLayoutFitH) Layout() {
 	}
 }
 
-// AutoLayoutFitVはGrouping内のコントロールを垂直方向に自動配置する機能
-// 親コントロールの高さに合わせて、子コントロールを上詰めで配置する
-// AutoResizableを持つコントロールがある場合、余白を埋めるようにリサイズする
-type AutoLayoutFitV struct {
-	grouping *Grouping
-}
-
-// AutoLayoutFit生成
-func NewAutoLayoutFitV(g *Grouping) *AutoLayoutFitV {
-	a := &AutoLayoutFitV{grouping: g}
-	return a
-}
-
 // オートレイアウト処理(垂直方向)
-func (a *AutoLayoutFitV) Layout() {
-	gr := a.grouping
+func AutoLayoutFitV(gr *Grouping) {
 	con := gr.Control.GetControlBase()
 
 	// コントロールの数

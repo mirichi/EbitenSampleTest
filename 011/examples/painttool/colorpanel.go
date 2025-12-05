@@ -59,7 +59,7 @@ type ColorPanel struct {
 func NewColorPanel(x, y, w, h int) *ColorPanel {
 	cp := &ColorPanel{}
 	cp.InitControlBase(cp, x, y, w, h)
-	cp.InitGrouping(&cp.ControlBase)
+	cp.InitGrouping(cp)
 
 	// ColorMarker生成と配置
 	cp.marker = NewColorMarker(32, 7*32+8, 16, 16)

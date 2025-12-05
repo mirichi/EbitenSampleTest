@@ -78,7 +78,7 @@ func createWindow(x, y, w, h int, str string) *ui.Window {
 	window.AddChild(textbox)
 
 	// ClientAreaのAutoLayoutを設定してオートレイアウト実行
-	window.ClientArea.AutoLayout = parts.NewAutoLayoutV(&window.ClientArea.Grouping)
+	window.ClientArea.AutoLayout = parts.AutoLayoutV
 	window.Layout()
 
 	return window

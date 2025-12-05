@@ -28,7 +28,7 @@ func NewTextBox(x, y, w, h int, text string, fontSize int) *TextBox {
 	return tb
 }
 
-func (tb *TextBox) InitTextBox(g parts.GroupingInterface, x, y, w, h int, text string, fontSize int) {
+func (tb *TextBox) InitTextBox(g parts.AddChilder, x, y, w, h int, text string, fontSize int) {
 	// 初期テキスト
 	tb.field.SetTextAndSelection(text, len(text), len(text))
 

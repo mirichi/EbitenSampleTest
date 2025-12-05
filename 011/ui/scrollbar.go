@@ -23,7 +23,7 @@ func NewScrollButton(x, y, w, h int, text string, size int) *ScrollButton {
 	return b
 }
 
-func (b *ScrollButton) InitScrollButton(g parts.GroupingInterface, x, y, w, h int, text string, size int) {
+func (b *ScrollButton) InitScrollButton(g parts.AddChilder, x, y, w, h int, text string, size int) {
 	b.InitControlBase(b, x, y, w, h)
 	b.InitMouseInteraction(b)
 	b.InitDrawable(b, b.drawScrollButton)
@@ -52,7 +52,7 @@ func NewKnob(x, y, w, h int) *ScrollKnob {
 	return k
 }
 
-func (k *ScrollKnob) InitScrollKnob(g parts.GroupingInterface, x, y, w, h int) {
+func (k *ScrollKnob) InitScrollKnob(g parts.AddChilder, x, y, w, h int) {
 	k.InitControlBase(k, x, y, w, h)
 	k.InitMouseInteraction(k)
 	k.InitDrawable(k, k.drawKnob)
@@ -85,7 +85,7 @@ func NewSliderV(x, y, w, h int) *ScrollSliderV {
 	return s
 }
 
-func (s *ScrollSliderV) InitSliderV(g parts.GroupingInterface, x, y, w, h int) {
+func (s *ScrollSliderV) InitSliderV(g parts.AddChilder, x, y, w, h int) {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitMouseInteraction(s)
 	s.InitDrawable(s, s.drawSliderV)
@@ -104,10 +104,10 @@ func (s *ScrollSliderV) InitSliderV(g parts.GroupingInterface, x, y, w, h int) {
 	}
 	s.knob.OnDrag = func(x, y int) {
 		_, oy := s.GetGlobalPos()
-		s.knob.Y = min(max(y-dragOffsetY-oy, 0), s.Height-s.knob.Height)
-		s.Value = float64(s.knob.Y) / float64(s.Height-s.knob.Height) * (s.AllRange - s.ViewRange)
-		if s.OnSlide != nil {
-			s.OnSlide()
+		targetY := y - dragOffsetY - oy
+		if s.Height-s.knob.Height > 0 {
+			targetValue := float64(targetY) / float64(s.Height-s.knob.Height) * (s.AllRange - s.ViewRange)
+			s.Move(targetValue - s.Value)
 		}
 	}
 
@@ -193,14 +193,14 @@ func NewScrollBarV(x, y, w, h int) *ScrollBarV {
 	return s
 }
 
-func (s *ScrollBarV) InitScrollBarV(g parts.GroupingInterface, x, y, w, h int) {
+func (s *ScrollBarV) InitScrollBarV(g parts.AddChilder, x, y, w, h int) {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitGrouping(s)
 	s.ClippingFlag = false
 	s.buttonUp.InitScrollButton(s, 0, 0, w, w, "▲", w/2)
 	s.slider.InitSliderV(s, x, w, w, h)
 	s.buttonDown.InitScrollButton(s, 0, 0, w, w, "▼", w/2)
-	s.Grouping.AutoLayout = parts.NewAutoLayoutFitV(&s.Grouping)
+	s.Grouping.AutoLayout = parts.AutoLayoutFitV
 	if g != nil {
 		g.AddChild(s)
 	}
@@ -248,7 +248,7 @@ func NewSliderH(x, y, w, h int) *ScrollSliderH {
 	return s
 }
 
-func (s *ScrollSliderH) InitSliderH(g parts.GroupingInterface, x, y, w, h int) {
+func (s *ScrollSliderH) InitSliderH(g parts.AddChilder, x, y, w, h int) {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitMouseInteraction(s)
 	s.InitDrawable(s, s.drawSliderH)
@@ -267,10 +267,10 @@ func (s *ScrollSliderH) InitSliderH(g parts.GroupingInterface, x, y, w, h int) {
 	}
 	s.knob.OnDrag = func(x, y int) {
 		ox, _ := s.GetGlobalPos()
-		s.knob.X = min(max(x-dragOffsetX-ox, 0), s.Width-s.knob.Width)
-		s.Value = float64(s.knob.X) / float64(s.Width-s.knob.Width) * (s.AllRange - s.ViewRange)
-		if s.OnSlide != nil {
-			s.OnSlide()
+		targetX := x - dragOffsetX - ox
+		if s.Width-s.knob.Width > 0 {
+			targetValue := float64(targetX) / float64(s.Width-s.knob.Width) * (s.AllRange - s.ViewRange)
+			s.Move(targetValue - s.Value)
 		}
 	}
 
@@ -356,14 +356,14 @@ func NewScrollBarH(x, y, w, h int) *ScrollBarH {
 	return s
 }
 
-func (s *ScrollBarH) InitScrollBarH(g parts.GroupingInterface, x, y, w, h int) {
+func (s *ScrollBarH) InitScrollBarH(g parts.AddChilder, x, y, w, h int) {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitGrouping(s)
 	s.ClippingFlag = false
 	s.buttonLeft.InitScrollButton(s, 0, 0, h, h, "◀", h/2)
 	s.slider.InitSliderH(s, h, 0, w, h)
 	s.buttonRight.InitScrollButton(s, 0, 0, h, h, "▶", h/2)
-	s.Grouping.AutoLayout = parts.NewAutoLayoutFitH(&s.Grouping)
+	s.Grouping.AutoLayout = parts.AutoLayoutFitH
 	if g != nil {
 		g.AddChild(s)
 	}

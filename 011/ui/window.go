@@ -25,7 +25,7 @@ func NewTitleBar(x, y, w, h int, text string) *TitleBar {
 	return t
 }
 
-func (t *TitleBar) InitTitleBar(g parts.GroupingInterface, x, y, w, h int, text string) {
+func (t *TitleBar) InitTitleBar(g parts.AddChilder, x, y, w, h int, text string) {
 	t.InitControlBase(t, x, y, w, h)
 	t.InitDrawable(t, t.drawTitleBar)
 	t.InitTextDrawable(t, text, h*2/3, parts.AlignCenter, parts.AlignCenter, 0, 0, color.White, true)
@@ -75,7 +75,7 @@ func NewClientArea(x, y, w, h int) *ClientArea {
 	return c
 }
 
-func (c *ClientArea) InitClientArea(g parts.GroupingInterface, x, y, w, h int) {
+func (c *ClientArea) InitClientArea(g parts.AddChilder, x, y, w, h int) {
 	c.InitControlBase(c, x, y, w, h)
 	c.InitDrawable(c, c.drawClientArea)
 	c.InitMouseInteraction(c)
@@ -126,8 +126,7 @@ func NewWindow(x, y, w, h int, text string) *Window {
 	win.InitControlBase(win, x, y, w, h)
 	win.InitGrouping(win)
 	win.InitResizable(win)
-	win.ClippingFlag = false
-	win.AutoLayout = parts.NewAutoLayoutFitV(&win.Grouping)
+	win.AutoLayout = parts.AutoLayoutFitV
 
 	// TitleBarとClientArea生成
 	// win.Groupingを指定することで、ウィンドウのレイアウトに追加される

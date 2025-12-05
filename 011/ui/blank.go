@@ -13,7 +13,7 @@ func NewBlank(x, y, w, h int) *Blank {
 	return c
 }
 
-func (c *Blank) InitBlank(g parts.GroupingInterface, x, y, w, h int) {
+func (c *Blank) InitBlank(g parts.AddChilder, x, y, w, h int) {
 	c.InitControlBase(c, x, y, w, h)
 	c.InitGrouping(c)
 	if g != nil {

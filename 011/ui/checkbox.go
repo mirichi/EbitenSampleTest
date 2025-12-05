@@ -27,7 +27,7 @@ func NewCheckbox(x, y, w, h int, text string, size int, initialChecked bool) *Ch
 	return c
 }
 
-func (c *Checkbox) InitCheckbox(g parts.GroupingInterface, x, y, w, h int, text string, size int, initialChecked bool) {
+func (c *Checkbox) InitCheckbox(g parts.AddChilder, x, y, w, h int, text string, size int, initialChecked bool) {
 	c.InitControlBase(c, x, y, w, h)
 	c.InitMouseInteraction(c)
 	c.InitDrawable(c, c.drawCheckbox)

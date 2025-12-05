@@ -7,7 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-type GroupingInterface interface {
+type AddChilder interface {
 	AddChild(c Control)
 }
 
@@ -17,25 +17,21 @@ type Grouping struct {
 	Control      Control
 	Children     []Control
 	OrderChange  bool
-	AutoLayout   AutoLayoutInterface
+	AutoLayout   func(g *Grouping)
 	OnLayout     func()
 	ClippingFlag bool
 }
 
-type internalLayout struct {
-	grouping *Grouping
-}
-
 // LayoutはGroupingのデフォルトのレイアウト処理を行います。
 // AutoResizableな子コントロールのサイズを親に合わせて調整します。
-func (l *internalLayout) Layout() {
-	for _, c := range l.grouping.Children {
+func internalLayout(g *Grouping) {
+	for _, c := range g.Children {
 		cb := c.GetControlBase()
 
 		// ChildrenにAutoResizableがあった場合
 		if cb.AutoResizable {
 			// Groupingコントロールのサイズに合わせたサイズに更新する
-			pcb := l.grouping.Control.GetControlBase()
+			pcb := g.Control.GetControlBase()
 			cb.Width = pcb.Width
 			cb.Height = pcb.Height
 		}
@@ -49,7 +45,7 @@ func (l *internalLayout) Layout() {
 
 func (g *Grouping) InitGrouping(c Control) {
 	g.Control = c
-	g.AutoLayout = &internalLayout{g}
+	g.AutoLayout = internalLayout
 	g.ClippingFlag = true
 
 	// コントロールのHandleInput時に呼ばれる関数を登録する
@@ -116,7 +112,7 @@ func (c *Grouping) drawFunction(screen *ebiten.Image) {
 }
 
 func (c *Grouping) Layout() {
-	c.AutoLayout.Layout()
+	c.AutoLayout(c)
 	if c.OnLayout != nil {
 		c.OnLayout()
 	}

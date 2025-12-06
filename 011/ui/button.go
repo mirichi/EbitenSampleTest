@@ -9,7 +9,7 @@ import (
 )
 
 type BaseButton struct {
-	parts.ControlBase      // 基本的なコントロール機能
+	parts.WidgetBase       // 基本的なコントロール機能
 	parts.MouseInteraction // マウス操作（クリックなど）の処理
 	parts.Drawable         // 描画機能
 
@@ -24,7 +24,7 @@ func NewBaseButton(x, y, w, h int) *BaseButton {
 }
 
 func (b *BaseButton) InitBaseButton(g parts.AddChilder, x, y, w, h int) {
-	b.InitControlBase(b, x, y, w, h)
+	b.InitWidgetBase(b, x, y, w, h)
 	b.InitMouseInteraction(b)
 	b.InitDrawable(b)
 	if g != nil {

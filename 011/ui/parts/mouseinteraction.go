@@ -5,8 +5,8 @@ import "MyProject/ui/input"
 // MouseInteractionはマウスやタッチ操作（クリック、ドラッグ、プレス）を処理する機能を提供します。
 // コントロールに埋め込んで使用します。
 type MouseInteraction struct {
-	Control Control
-	touch   input.Touch
+	Widget Widget
+	touch  input.Touch
 
 	OnPress     func()
 	OnHover     func()
@@ -22,23 +22,23 @@ type MouseInteraction struct {
 	pressDuration  int // 押されている時間
 }
 
-func (m *MouseInteraction) InitMouseInteraction(c Control) {
-	m.Control = c
+func (m *MouseInteraction) InitMouseInteraction(c Widget) {
+	m.Widget = c
 	m.RepeatDelay = 30
 	m.RepeatInterval = 5
 
 	// コントロールのHandleInput時に呼ばれる関数を登録する
-	c.GetControlBase().AddHandleInputFunction(m.handleInputFunction)
+	c.GetWidgetBase().AddHandleInputFunction(m.handleInputFunction)
 
 	// コントロールのUpdate時に呼ばれる関数を登録する
-	c.GetControlBase().AddUpdateFunction(m.updateFunction)
+	c.GetWidgetBase().AddUpdateFunction(m.updateFunction)
 }
 
 // handleInputFunctionは入力イベントを処理します。
 // クリック開始、ドラッグ開始、ホバー状態の判定を行います。
 func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 	if m.touch == nil {
-		cb := m.Control.GetControlBase()
+		cb := m.Widget.GetWidgetBase()
 		gx, gy := cb.GetGlobalPos()
 		x, y := t.Pos()
 		// 座標判定
@@ -100,7 +100,7 @@ func (m *MouseInteraction) updateFunction() {
 				m.OnDrag(x, y)
 			} else {
 				// クリック動作：範囲外に出たらキャンセルする
-				cb := m.Control.GetControlBase()
+				cb := m.Widget.GetWidgetBase()
 				gx, gy := cb.GetGlobalPos()
 				// 範囲外に移動した判定
 				if x < gx || gx+cb.Width <= x || y < gy || gy+cb.Height <= y {

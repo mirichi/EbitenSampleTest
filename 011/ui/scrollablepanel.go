@@ -4,7 +4,7 @@ import "MyProject/ui/parts"
 
 // ScrollablePanelはスクロール可能なパネル
 type ScrollablePanel struct {
-	parts.ControlBase
+	parts.WidgetBase
 	parts.Grouping
 
 	topGroup   Blank
@@ -27,7 +27,7 @@ func NewScrollablePanel(x, y, w, h, sbw int) *ScrollablePanel {
 }
 
 func (sp *ScrollablePanel) InitScrollablePanel(g parts.AddChilder, x, y, w, h, sbw int) {
-	sp.InitControlBase(sp, x, y, w, h)
+	sp.InitWidgetBase(sp, x, y, w, h)
 	sp.InitGrouping(sp)
 	sp.AutoLayout = parts.AutoLayoutFitV
 
@@ -73,7 +73,7 @@ func (sp *ScrollablePanel) InitScrollablePanel(g parts.AddChilder, x, y, w, h, s
 }
 
 // ScrollablePanelに対してのAddChildはPanelに委譲する
-func (sp *ScrollablePanel) AddChild(c parts.Control) {
+func (sp *ScrollablePanel) AddChild(c parts.Widget) {
 	sp.Panel.AddChild(c)
 }
 
@@ -107,7 +107,7 @@ func (sp *ScrollablePanel) OnLayoutFunction() {
 	// Panel配下の子コントロールの描画範囲を算出
 	maxX, maxY := 0, 0
 	for _, ch := range sp.Panel.Children {
-		cb := ch.GetControlBase()
+		cb := ch.GetWidgetBase()
 		maxX = max(cb.X+cb.Width, maxX)
 		maxY = max(cb.Y+cb.Height, maxY)
 	}

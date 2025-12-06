@@ -6,20 +6,20 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-// ControlBaseを埋め込むとControlインターフェースを満たす
-type Control interface {
+// WidgetBaseを埋め込むとWidgetインターフェースを満たす
+type Widget interface {
 	HandleInput(t input.Touch) bool
 	Update()
 	Draw(screen *ebiten.Image)
-	GetControlBase() *ControlBase
+	GetWidgetBase() *WidgetBase
 }
 
-// ControlBaseはコントロールの基本機能を実装した構造体
+// WidgetBaseはコントロールの基本機能を実装した構造体
 // 親コントロールの参照、座標、サイズ、可視性などの共通プロパティを管理する
 // また、HandleInput/Update/Drawの各フェーズで実行される関数リストを保持している
-type ControlBase struct {
-	Control              Control
-	Parent               Control
+type WidgetBase struct {
+	Widget               Widget
+	Parent               Widget
 	X, Y                 int
 	Width, Height        int
 	Visible              bool
@@ -29,8 +29,8 @@ type ControlBase struct {
 	drawFunctions        []func(screen *ebiten.Image)
 }
 
-func (cb *ControlBase) InitControlBase(c Control, x, y, w, h int) {
-	cb.Control = c
+func (cb *WidgetBase) InitWidgetBase(c Widget, x, y, w, h int) {
+	cb.Widget = c
 	cb.X = x
 	cb.Y = y
 	cb.Width = w
@@ -41,12 +41,12 @@ func (cb *ControlBase) InitControlBase(c Control, x, y, w, h int) {
 
 // AddHandleInputFunctionは、HandleInputメソッド呼び出し時に実行される関数を登録する
 // 登録された関数は後に追加されたものから順に実行される
-func (cb *ControlBase) AddHandleInputFunction(f func(t input.Touch) bool) {
+func (cb *WidgetBase) AddHandleInputFunction(f func(t input.Touch) bool) {
 	cb.handleInputFunctions = append(cb.handleInputFunctions, f)
 }
 
 // 登録されたHandleInputFunctionsを順次実行する
-func (cb *ControlBase) HandleInput(t input.Touch) bool {
+func (cb *WidgetBase) HandleInput(t input.Touch) bool {
 	if cb.Visible && t != nil {
 		for i := len(cb.handleInputFunctions) - 1; i >= 0; i-- {
 			if cb.handleInputFunctions[i](t) {
@@ -60,12 +60,12 @@ func (cb *ControlBase) HandleInput(t input.Touch) bool {
 
 // AddUpdateFunctionは、Updateメソッド呼び出し時に実行される関数を登録する
 // 登録された関数は後に追加されたものから順に実行される
-func (cb *ControlBase) AddUpdateFunction(f func()) {
+func (cb *WidgetBase) AddUpdateFunction(f func()) {
 	cb.updateFunctions = append(cb.updateFunctions, f)
 }
 
 // 登録されたUpdateFunctionsを順次実行する
-func (cb *ControlBase) Update() {
+func (cb *WidgetBase) Update() {
 	if cb.Visible {
 		for i := len(cb.updateFunctions) - 1; i >= 0; i-- {
 			cb.updateFunctions[i]()
@@ -75,12 +75,12 @@ func (cb *ControlBase) Update() {
 
 // AddDrawFunctionは、Drawメソッド呼び出し時に実行される関数を登録する
 // 登録された関数は登録順に実行される
-func (cb *ControlBase) AddDrawFunction(f func(screen *ebiten.Image)) {
+func (cb *WidgetBase) AddDrawFunction(f func(screen *ebiten.Image)) {
 	cb.drawFunctions = append(cb.drawFunctions, f)
 }
 
 // 登録されたDrawFunctionsを順次実行する
-func (cb *ControlBase) Draw(screen *ebiten.Image) {
+func (cb *WidgetBase) Draw(screen *ebiten.Image) {
 	if cb.Visible {
 		for _, f := range cb.drawFunctions {
 			f(screen)
@@ -90,19 +90,19 @@ func (cb *ControlBase) Draw(screen *ebiten.Image) {
 
 // getGlobalPosは、画面全体（ルートコントロール）からの絶対座標を取得
 // 親コントロールの座標を再帰的に加算して算出する
-func (cb *ControlBase) GetGlobalPos() (int, int) {
+func (cb *WidgetBase) GetGlobalPos() (int, int) {
 	p := cb.Parent
 	if p == nil {
 		return cb.X, cb.Y
 	} else {
-		pcb := p.GetControlBase()
+		pcb := p.GetWidgetBase()
 		x, y := pcb.GetGlobalPos()
 		return x + cb.X, y + cb.Y
 	}
 }
 
-// ControlBaseのポインタを返す。Controlインターフェースのメソッドの一つ
-// Controlとしての基本機能はControlBaseに定義することでControlインターフェースをなるべくシンプルにしておきたい
-func (cb *ControlBase) GetControlBase() *ControlBase {
+// WidgetBaseのポインタを返す。Widgetインターフェースのメソッドの一つ
+// Widgetとしての基本機能はWidgetBaseに定義することでWidgetインターフェースをなるべくシンプルにしておきたい
+func (cb *WidgetBase) GetWidgetBase() *WidgetBase {
 	return cb
 }

@@ -11,7 +11,7 @@ import (
 
 // Canvasは描画可能なキャンバスコントロール
 type Canvas struct {
-	parts.ControlBase
+	parts.WidgetBase
 	parts.ImageDrawable
 	parts.MouseInteraction
 
@@ -24,7 +24,7 @@ type Canvas struct {
 // Canvas生成
 func NewCanvas(x, y, w, h int) *Canvas {
 	c := &Canvas{}
-	c.InitControlBase(c, x, y, w, h)
+	c.InitWidgetBase(c, x, y, w, h)
 	c.InitImageDrawable(c, ebiten.NewImage(w, h))
 	c.InitMouseInteraction(c)
 	c.Color = color.White

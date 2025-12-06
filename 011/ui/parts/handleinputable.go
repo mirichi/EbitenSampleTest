@@ -4,19 +4,19 @@ import "MyProject/ui/input"
 
 // HandleInputableは独自の入力ロジックを持つ機能
 type HandleInputable struct {
-	Control       Control
+	Widget        Widget
 	OnHandleInput func(t input.Touch) bool
 }
 
 // HandleInputable生成
-func NewHandleInputable(c Control, f func(t input.Touch) bool) *HandleInputable {
+func NewHandleInputable(c Widget, f func(t input.Touch) bool) *HandleInputable {
 	u := &HandleInputable{
-		Control:       c,
+		Widget:        c,
 		OnHandleInput: f,
 	}
 
 	// コントロールのHandleInput時に呼ばれる関数を登録する
-	c.GetControlBase().AddHandleInputFunction(u.handleInputFunction)
+	c.GetWidgetBase().AddHandleInputFunction(u.handleInputFunction)
 
 	return u
 }

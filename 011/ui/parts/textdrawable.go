@@ -34,7 +34,7 @@ func init() {
 
 // TextDrawableはテキストを描画する機能
 type TextDrawable struct {
-	Control Control
+	Widget  Widget
 	Text    string
 	Size    int
 	AlignX  TextAlign
@@ -45,8 +45,8 @@ type TextDrawable struct {
 	Shadow  bool
 }
 
-func (d *TextDrawable) InitTextDrawable(c Control, text string, size int, alignX, alignY TextAlign, offsetX, offsetY int, color color.Color, shadow bool) {
-	d.Control = c
+func (d *TextDrawable) InitTextDrawable(c Widget, text string, size int, alignX, alignY TextAlign, offsetX, offsetY int, color color.Color, shadow bool) {
+	d.Widget = c
 	d.Text = text
 	d.Size = size
 	d.AlignX = alignX
@@ -57,7 +57,7 @@ func (d *TextDrawable) InitTextDrawable(c Control, text string, size int, alignX
 	d.Shadow = shadow
 
 	// コントロールのDraw時に呼ばれる関数を登録する
-	c.GetControlBase().AddDrawFunction(d.drawFunction)
+	c.GetWidgetBase().AddDrawFunction(d.drawFunction)
 }
 
 // コントロールのDraw時に呼ばれるDrawFunction
@@ -70,7 +70,7 @@ func (d *TextDrawable) drawFunction(screen *ebiten.Image) {
 	mw, _ := text.Measure(d.Text, f, 0)
 
 	// 描画座標算出
-	cb := d.Control.GetControlBase()
+	cb := d.Widget.GetWidgetBase()
 	gx, gy := cb.GetGlobalPos()
 	x, y := float64(gx), float64(gy)
 

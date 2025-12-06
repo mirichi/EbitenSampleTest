@@ -12,14 +12,14 @@ import (
 // 全てのコントロールをこのMainScreenの子要素として登録することで、
 // MainScreenのUpdate/Drawを呼び出すだけでUI全体の更新と描画が行われる
 type MainScreen struct {
-	parts.ControlBase
+	parts.WidgetBase
 	parts.Grouping
 }
 
 // MainScreen生成
 func NewMainScreen() *MainScreen {
 	ms := &MainScreen{}
-	ms.InitControlBase(ms, 0, 0, 0, 0)
+	ms.InitWidgetBase(ms, 0, 0, 0, 0)
 	ms.InitGrouping(ms)
 	ms.ClippingFlag = false
 	ms.OrderChange = true
@@ -32,20 +32,20 @@ func NewMainScreen() *MainScreen {
 func (ms *MainScreen) HandleInput(t input.Touch) bool {
 	// ブラウザではウィンドウサイズが取得できないので固定値にする
 	if runtime.GOOS == "js" {
-		ms.ControlBase.Width = 640
-		ms.ControlBase.Height = 480
+		ms.WidgetBase.Width = 640
+		ms.WidgetBase.Height = 480
 	} else {
-		ms.ControlBase.Width, ms.ControlBase.Height = ebiten.WindowSize()
+		ms.WidgetBase.Width, ms.WidgetBase.Height = ebiten.WindowSize()
 	}
 	parts.FlameFocus = false
-	r := ms.ControlBase.HandleInput(t)
-	if !parts.FlameFocus && t != nil && t.IsJustPressed() && parts.FocusedControl != nil {
-		parts.FocusedControl.Blur()
+	r := ms.WidgetBase.HandleInput(t)
+	if !parts.FlameFocus && t != nil && t.IsJustPressed() && parts.FocusedWidget != nil {
+		parts.FocusedWidget.Blur()
 	}
 	return r
 }
 
 func (ms *MainScreen) Update() {
-	ms.ControlBase.Update()
+	ms.WidgetBase.Update()
 	parts.FinalizeCursor()
 }

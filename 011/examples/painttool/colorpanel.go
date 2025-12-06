@@ -10,7 +10,7 @@ import (
 
 // ColorButtonは色選択ボタンのコントロール
 type ColorButton struct {
-	parts.ControlBase      // 基本的なコントロール機能
+	parts.WidgetBase       // 基本的なコントロール機能
 	parts.MouseInteraction // マウス操作（クリックなど）の処理
 	parts.Drawable         // 描画機能
 	Color                  color.Color
@@ -19,7 +19,7 @@ type ColorButton struct {
 // ColorButton生成
 func NewColorButton(x, y, w, h int, color color.Color) *ColorButton {
 	b := &ColorButton{}
-	b.InitControlBase(b, x, y, w, h)
+	b.InitWidgetBase(b, x, y, w, h)
 	b.InitMouseInteraction(b)
 	b.InitDrawable(b)
 	b.OnDraw = b.drawButton
@@ -35,21 +35,21 @@ func (b *ColorButton) drawButton(screen *ebiten.Image) {
 
 // ColorMarkerは色選択マーカーのコントロール
 type ColorMarker struct {
-	parts.ControlBase
+	parts.WidgetBase
 	parts.TextDrawable
 }
 
 // ColorMarker生成
 func NewColorMarker(x, y, w, h int) *ColorMarker {
 	m := &ColorMarker{}
-	m.InitControlBase(m, x, y, w, h)
+	m.InitWidgetBase(m, x, y, w, h)
 	m.InitTextDrawable(m, "◀", 16, parts.AlignCenter, parts.AlignCenter, 0, 0, color.RGBA{0xff, 0xff, 0x00, 0xff}, false)
 	return m
 }
 
 // ColorPanelは色選択パネルのコントロール
 type ColorPanel struct {
-	parts.ControlBase
+	parts.WidgetBase
 	parts.Grouping
 
 	marker   *ColorMarker
@@ -59,7 +59,7 @@ type ColorPanel struct {
 
 func NewColorPanel(x, y, w, h int) *ColorPanel {
 	cp := &ColorPanel{}
-	cp.InitControlBase(cp, x, y, w, h)
+	cp.InitWidgetBase(cp, x, y, w, h)
 	cp.InitGrouping(cp)
 
 	// ColorMarker生成と配置

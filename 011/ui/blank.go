@@ -3,7 +3,7 @@ package ui
 import "MyProject/ui/parts"
 
 type Blank struct {
-	parts.ControlBase
+	parts.WidgetBase
 	parts.Grouping
 }
 
@@ -14,7 +14,7 @@ func NewBlank(x, y, w, h int) *Blank {
 }
 
 func (c *Blank) InitBlank(g parts.AddChilder, x, y, w, h int) {
-	c.InitControlBase(c, x, y, w, h)
+	c.InitWidgetBase(c, x, y, w, h)
 	c.InitGrouping(c)
 	if g != nil {
 		g.AddChild(c)

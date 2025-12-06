@@ -11,7 +11,7 @@ import (
 // TitleBarはウィンドウのタイトルバーを表すコントロール
 // マウスドラッグによるウィンドウの移動機能を提供する
 type TitleBar struct {
-	parts.ControlBase
+	parts.WidgetBase
 	parts.Drawable
 	parts.TextDrawable
 	parts.MouseInteraction
@@ -26,7 +26,7 @@ func NewTitleBar(x, y, w, h int, text string) *TitleBar {
 }
 
 func (t *TitleBar) InitTitleBar(g parts.AddChilder, x, y, w, h int, text string) {
-	t.InitControlBase(t, x, y, w, h)
+	t.InitWidgetBase(t, x, y, w, h)
 	t.InitDrawable(t)
 	t.OnDraw = t.drawTitleBar
 	t.InitTextDrawable(t, text, h*2/3, parts.AlignCenter, parts.AlignCenter, 0, 0, color.White, true)
@@ -39,7 +39,7 @@ func (t *TitleBar) InitTitleBar(g parts.AddChilder, x, y, w, h int, text string)
 	var dragOffsetX, dragOffsetY int
 	t.OnDragStart = func(x, y int) {
 		// ドラッグ開始時のマウス位置とウィンドウ位置のオフセットを保存
-		cb := t.Parent.GetControlBase()
+		cb := t.Parent.GetWidgetBase()
 		gx, gy := cb.GetGlobalPos()
 		dragOffsetX = x - gx
 		dragOffsetY = y - gy
@@ -47,8 +47,8 @@ func (t *TitleBar) InitTitleBar(g parts.AddChilder, x, y, w, h int, text string)
 	t.OnDrag = func(x, y int) {
 		// マウス位置からオフセットを引いてウィンドウの新しい位置を計算
 		// さらに親コントロール（通常はMainScreen）の座標を引いてローカル座標に変換
-		cb := t.Parent.GetControlBase()
-		ox, oy := cb.Parent.GetControlBase().GetGlobalPos()
+		cb := t.Parent.GetWidgetBase()
+		ox, oy := cb.Parent.GetWidgetBase().GetGlobalPos()
 		cb.X = x - dragOffsetX - ox
 		cb.Y = y - dragOffsetY - oy
 	}
@@ -62,7 +62,7 @@ func (t *TitleBar) drawTitleBar(screen *ebiten.Image) {
 // ClientAreaはウィンドウのクライアント領域を表すコントロール
 // ウィンドウ内に配置される他のコントロールを保持する
 type ClientArea struct {
-	parts.ControlBase
+	parts.WidgetBase
 	parts.Drawable
 	parts.MouseInteraction
 	parts.Grouping
@@ -77,7 +77,7 @@ func NewClientArea(x, y, w, h int) *ClientArea {
 }
 
 func (c *ClientArea) InitClientArea(g parts.AddChilder, x, y, w, h int) {
-	c.InitControlBase(c, x, y, w, h)
+	c.InitWidgetBase(c, x, y, w, h)
 	c.InitDrawable(c)
 	c.OnDraw = c.drawClientArea
 	c.InitMouseInteraction(c)
@@ -91,15 +91,15 @@ func (c *ClientArea) InitClientArea(g parts.AddChilder, x, y, w, h int) {
 	var dragOffsetX, dragOffsetY int
 	c.OnDragStart = func(x, y int) {
 		// 親のWindowの座標を保存
-		cb := c.Parent.GetControlBase()
+		cb := c.Parent.GetWidgetBase()
 		gx, gy := cb.GetGlobalPos()
 		dragOffsetX = x - gx
 		dragOffsetY = y - gy
 	}
 	c.OnDrag = func(x, y int) {
 		// 親のWindowの座標を更新
-		cb := c.Parent.GetControlBase()
-		ox, oy := cb.Parent.GetControlBase().GetGlobalPos()
+		cb := c.Parent.GetWidgetBase()
+		ox, oy := cb.Parent.GetWidgetBase().GetGlobalPos()
 		cb.X = x - dragOffsetX - ox
 		cb.Y = y - dragOffsetY - oy
 	}
@@ -113,7 +113,7 @@ func (c *ClientArea) drawClientArea(screen *ebiten.Image) {
 // Windowはタイトルバーとクライアント領域を持つ複合コントロール
 // これ自体はコンテナとしての役割を持ち、具体的な機能はTitleBarとClientAreaに実装する
 type Window struct {
-	parts.ControlBase
+	parts.WidgetBase
 	parts.Resizable // Resizableは自前でマウス処理を持っている
 	parts.Grouping
 
@@ -125,7 +125,7 @@ type Window struct {
 // タイトルバーとクライアント領域を初期化し、レイアウトを設定する
 func NewWindow(x, y, w, h int, text string) *Window {
 	win := &Window{}
-	win.InitControlBase(win, x, y, w, h)
+	win.InitWidgetBase(win, x, y, w, h)
 	win.InitGrouping(win)
 	win.InitResizable(win)
 	win.AutoLayout = parts.AutoLayoutFitV
@@ -143,6 +143,6 @@ func NewWindow(x, y, w, h int, text string) *Window {
 }
 
 // Windowに対してのAddChildはクライアント領域に委譲する
-func (win *Window) AddChild(c parts.Control) {
+func (win *Window) AddChild(c parts.Widget) {
 	win.ClientArea.AddChild(c)
 }

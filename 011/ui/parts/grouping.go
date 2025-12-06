@@ -8,14 +8,14 @@ import (
 )
 
 type AddChilder interface {
-	AddChild(c Control)
+	AddChild(c Widget)
 }
 
 // Groupingは子コントロールを管理する機能を提供します。
 // 子コントロールの追加、入力イベントの伝播、更新、描画を統括します。
 type Grouping struct {
-	Control      Control
-	Children     []Control
+	Widget       Widget
+	Children     []Widget
 	OrderChange  bool
 	AutoLayout   func(g *Grouping)
 	OnLayout     func()
@@ -26,12 +26,12 @@ type Grouping struct {
 // AutoResizableな子コントロールのサイズを親に合わせて調整します。
 func internalLayout(g *Grouping) {
 	for _, c := range g.Children {
-		cb := c.GetControlBase()
+		cb := c.GetWidgetBase()
 
 		// ChildrenにAutoResizableがあった場合
 		if cb.AutoResizable {
 			// Groupingコントロールのサイズに合わせたサイズに更新する
-			pcb := g.Control.GetControlBase()
+			pcb := g.Widget.GetWidgetBase()
 			cb.Width = pcb.Width
 			cb.Height = pcb.Height
 		}
@@ -43,30 +43,30 @@ func internalLayout(g *Grouping) {
 	}
 }
 
-func (g *Grouping) InitGrouping(c Control) {
-	g.Control = c
+func (g *Grouping) InitGrouping(c Widget) {
+	g.Widget = c
 	g.AutoLayout = internalLayout
 	g.ClippingFlag = true
 
 	// コントロールのHandleInput時に呼ばれる関数を登録する
-	c.GetControlBase().AddHandleInputFunction(g.handleInputFunction)
+	c.GetWidgetBase().AddHandleInputFunction(g.handleInputFunction)
 
 	// コントロールのUpdate時に呼ばれる関数を登録する
-	c.GetControlBase().AddUpdateFunction(g.updateFunction)
+	c.GetWidgetBase().AddUpdateFunction(g.updateFunction)
 
 	// コントロールのDraw時に呼ばれる関数を登録する
-	c.GetControlBase().AddDrawFunction(g.drawFunction)
+	c.GetWidgetBase().AddDrawFunction(g.drawFunction)
 }
 
 // 子コントロールを登録する
-func (g *Grouping) AddChild(c Control) {
-	c.GetControlBase().Parent = g.Control
+func (g *Grouping) AddChild(c Widget) {
+	c.GetWidgetBase().Parent = g.Widget
 	g.Children = append(g.Children, c)
 }
 
 // コントロールのHandleInput時に呼ばれるHandleInputFunction
 func (c *Grouping) handleInputFunction(t input.Touch) bool {
-	cb := c.Control.GetControlBase()
+	cb := c.Widget.GetWidgetBase()
 	gx, gy := cb.GetGlobalPos()
 	x, y := t.Pos()
 	if c.ClippingFlag {
@@ -100,7 +100,7 @@ func (c *Grouping) updateFunction() {
 
 // コントロールのDraw時に呼ばれるDrawFunction
 func (c *Grouping) drawFunction(screen *ebiten.Image) {
-	cb := c.Control.GetControlBase()
+	cb := c.Widget.GetWidgetBase()
 	ox, oy := cb.GetGlobalPos()
 	if c.ClippingFlag {
 		// クリッピング用SubImage。SubImageのSubImageは元の画像に対しての座標になるので入れ子構造でも大丈夫

@@ -10,7 +10,7 @@ import (
 
 // Checkboxはチェック状態を持つコントロール
 type Checkbox struct {
-	parts.ControlBase
+	parts.WidgetBase
 	parts.MouseInteraction
 	parts.Drawable
 	parts.TextDrawable
@@ -28,7 +28,7 @@ func NewCheckbox(x, y, w, h int, text string, size int, initialChecked bool) *Ch
 }
 
 func (c *Checkbox) InitCheckbox(g parts.AddChilder, x, y, w, h int, text string, size int, initialChecked bool) {
-	c.InitControlBase(c, x, y, w, h)
+	c.InitWidgetBase(c, x, y, w, h)
 	c.InitMouseInteraction(c)
 	c.InitDrawable(c)
 	c.OnDraw = c.drawCheckbox

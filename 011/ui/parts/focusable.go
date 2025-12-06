@@ -66,7 +66,7 @@ func (f *Focusable) Blur() {
 	}
 }
 
-// drawFocusBorder はフォーカスがある場合に枠を描画します。
+// drawFocusBorder はフォーカスがある場合に枠を描画する
 func (f *Focusable) drawFocusBorder(screen *ebiten.Image) {
 	if !f.DrawFocusBorder || !f.Focused {
 		return

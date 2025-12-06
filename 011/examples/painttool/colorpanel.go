@@ -7,7 +7,7 @@ import (
 
 // ColorPanelは色選択パネル
 type ColorPanel struct {
-	ui.BlankWidget
+	ui.GroupingWidget
 
 	marker   ui.Label
 	buttons  [8]ui.InteractiveWidget
@@ -16,7 +16,7 @@ type ColorPanel struct {
 
 func NewColorPanel(x, y, w, h int) *ColorPanel {
 	cp := &ColorPanel{}
-	cp.InitBlankWidget(x, y, w, h)
+	cp.InitGroupingWidget(x, y, w, h)
 
 	// ColorMarker初期化
 	cp.marker.InitLabel(32, 7*32+8, 16, 16, "◀", 16)

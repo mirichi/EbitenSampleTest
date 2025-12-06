@@ -1,21 +1,21 @@
 package ui
 
-import "MyProject/ui/parts"
+import (
+	"MyProject/ui/parts"
+)
 
 // ScrollablePanelはスクロール可能なパネル
 type ScrollablePanel struct {
-	BlankWidget
+	GroupingWidget
 
-	topGroup   BlankWidget
-	Area       BlankWidget
-	Panel      BlankWidget
+	topGroup   GroupingWidget
+	Area       GroupingWidget
+	Panel      GroupingWidget
 	ScrollbarV ScrollBarV
 
-	bottomGroup BlankWidget
+	bottomGroup GroupingWidget
 	ScrollbarH  ScrollBarH
 	corner      BlankWidget
-
-	OnSlide func(x, y float64)
 }
 
 // ScrollablePanel生成
@@ -26,28 +26,28 @@ func NewScrollablePanel(x, y, w, h, sbw int) *ScrollablePanel {
 }
 
 func (sp *ScrollablePanel) InitScrollablePanel(x, y, w, h, sbw int) {
-	sp.InitBlankWidget(x, y, w, h)
+	sp.InitGroupingWidget(x, y, w, h)
 	sp.AutoLayout = parts.AutoLayoutFitV
 
 	// 上部（パネル＋縦スクロールバー）
-	sp.topGroup.InitBlankWidget(0, 0, w, h-sbw)
+	sp.topGroup.InitGroupingWidget(0, 0, w, h-sbw)
 	sp.Grouping.AddChild(&sp.topGroup)
 	sp.topGroup.AutoResizable = true
 	sp.topGroup.AutoLayout = parts.AutoLayoutFitH
 	sp.topGroup.ClippingFlag = false
 
-	sp.Area.InitBlankWidget(0, 0, 0, 0)
+	sp.Area.InitGroupingWidget(0, 0, 0, 0)
 	sp.topGroup.AddChild(&sp.Area)
 	sp.Area.AutoResizable = true
 	sp.ScrollbarV.InitScrollBarV(0, 0, sbw, 0)
 	sp.topGroup.AddChild(&sp.ScrollbarV)
 
-	sp.Panel.InitBlankWidget(0, 0, 0, 0)
+	sp.Panel.InitGroupingWidget(0, 0, 0, 0)
 	sp.Area.AddChild(&sp.Panel)
 	sp.Panel.ClippingFlag = false
 
 	// 下部（横スクロールバー＋コーナー）
-	sp.bottomGroup.InitBlankWidget(0, 0, w, sbw)
+	sp.bottomGroup.InitGroupingWidget(0, 0, w, sbw)
 	sp.Grouping.AddChild(&sp.bottomGroup)
 	sp.bottomGroup.AutoLayout = parts.AutoLayoutFitH
 	sp.bottomGroup.ClippingFlag = false
@@ -60,17 +60,12 @@ func (sp *ScrollablePanel) InitScrollablePanel(x, y, w, h, sbw int) {
 
 	// スクロールバーのスライド時の動作
 	sp.ScrollbarV.OnSlide = func() {
-		if sp.OnSlide != nil {
-			sp.OnSlide(sp.ScrollbarH.GetValue(), sp.ScrollbarV.GetValue())
-		}
+		sp.Panel.X, sp.Panel.Y = -int(sp.ScrollbarH.GetValue()), -int(sp.ScrollbarV.GetValue())
 	}
 	sp.ScrollbarH.OnSlide = func() {
-		if sp.OnSlide != nil {
-			sp.OnSlide(sp.ScrollbarH.GetValue(), sp.ScrollbarV.GetValue())
-		}
+		sp.Panel.X, sp.Panel.Y = -int(sp.ScrollbarH.GetValue()), -int(sp.ScrollbarV.GetValue())
 	}
 	sp.OnLayout = sp.OnLayoutFunction
-	sp.OnSlide = sp.OnSlideFunction
 }
 
 // ScrollablePanelに対してのAddChildはPanelに委譲する
@@ -116,8 +111,4 @@ func (sp *ScrollablePanel) OnLayoutFunction() {
 	sp.ScrollbarV.SetRange(float64(sp.Area.Height), float64(maxY))
 	sp.Panel.X, sp.Panel.Y = -int(sp.ScrollbarH.GetValue()), -int(sp.ScrollbarV.GetValue())
 
-}
-
-func (sp *ScrollablePanel) OnSlideFunction(x, y float64) {
-	sp.Panel.X, sp.Panel.Y = -int(x), -int(y)
 }

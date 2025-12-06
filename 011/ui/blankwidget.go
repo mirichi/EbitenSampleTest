@@ -1,19 +1,19 @@
 package ui
 
-import "MyProject/ui/parts"
+import (
+	"MyProject/ui/parts"
+)
 
 type BlankWidget struct {
 	parts.WidgetBase
-	parts.Grouping
 }
 
 func NewBlankWidget(x, y, w, h int) *BlankWidget {
-	c := &BlankWidget{}
-	c.InitBlankWidget(x, y, w, h)
-	return c
+	b := &BlankWidget{}
+	b.InitBlankWidget(x, y, w, h)
+	return b
 }
 
-func (c *BlankWidget) InitBlankWidget(x, y, w, h int) {
-	c.InitWidgetBase(c, x, y, w, h)
-	c.InitGrouping(c)
+func (b *BlankWidget) InitBlankWidget(x, y, w, h int) {
+	b.InitWidgetBase(b, x, y, w, h)
 }

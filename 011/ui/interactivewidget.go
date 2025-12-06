@@ -20,24 +20,20 @@ type InteractiveWidget struct {
 // InteractiveWidget生成
 func NewInteractiveWidget(x, y, w, h int) *InteractiveWidget {
 	b := &InteractiveWidget{}
-	b.InitInteractiveWidget(nil, x, y, w, h)
+	b.InitInteractiveWidget(x, y, w, h)
 	return b
 }
 
 // InteractiveWidget初期化
-func (b *InteractiveWidget) InitInteractiveWidget(g parts.AddChilder, x, y, w, h int) {
+func (b *InteractiveWidget) InitInteractiveWidget(x, y, w, h int) {
 	b.InitWidgetBase(b, x, y, w, h)
 	b.InitMouseInteraction(b)
 	b.InitDrawable(b)
-	if g != nil {
-		g.AddChild(b)
-	}
-	b.OnDraw = b.drawInteractiveWidget
-	b.Color = color.RGBA{0x60, 0x60, 0x60, 0xff}
-}
 
-// InteractiveWidgetの描画処理を行う
-func (b *InteractiveWidget) drawInteractiveWidget(screen *ebiten.Image) {
-	gx, gy := b.GetGlobalPos()
-	vector.FillRect(screen, float32(gx), float32(gy), float32(b.Width), float32(b.Height), b.Color, false)
+	b.OnDraw = func(screen *ebiten.Image) {
+		gx, gy := b.GetGlobalPos()
+		vector.FillRect(screen, float32(gx), float32(gy), float32(b.Width), float32(b.Height), b.Color, false)
+	}
+
+	b.Color = color.RGBA{0x60, 0x60, 0x60, 0xff}
 }

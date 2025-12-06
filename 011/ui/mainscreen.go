@@ -18,7 +18,7 @@ type MainScreen struct {
 // MainScreen生成
 func NewMainScreen() *MainScreen {
 	ms := &MainScreen{}
-	ms.InitBlankWidget(nil, 0, 0, 0, 0)
+	ms.InitBlankWidget(0, 0, 0, 0)
 	ms.ClippingFlag = false
 	ms.OrderChange = true
 

@@ -21,39 +21,42 @@ type ScrollablePanel struct {
 // ScrollablePanel生成
 func NewScrollablePanel(x, y, w, h, sbw int) *ScrollablePanel {
 	sp := &ScrollablePanel{}
-	sp.InitScrollablePanel(nil, x, y, w, h, sbw)
+	sp.InitScrollablePanel(x, y, w, h, sbw)
 	return sp
 }
 
-func (sp *ScrollablePanel) InitScrollablePanel(g parts.AddChilder, x, y, w, h, sbw int) {
-	sp.InitBlankWidget(nil, x, y, w, h)
+func (sp *ScrollablePanel) InitScrollablePanel(x, y, w, h, sbw int) {
+	sp.InitBlankWidget(x, y, w, h)
 	sp.AutoLayout = parts.AutoLayoutFitV
 
 	// 上部（パネル＋縦スクロールバー）
-	sp.topGroup.InitBlankWidget(&sp.Grouping, 0, 0, w, h-sbw)
+	sp.topGroup.InitBlankWidget(0, 0, w, h-sbw)
+	sp.Grouping.AddChild(&sp.topGroup)
 	sp.topGroup.AutoResizable = true
 	sp.topGroup.AutoLayout = parts.AutoLayoutFitH
 	sp.topGroup.ClippingFlag = false
 
-	sp.Area.InitBlankWidget(&sp.topGroup, 0, 0, 0, 0)
+	sp.Area.InitBlankWidget(0, 0, 0, 0)
+	sp.topGroup.AddChild(&sp.Area)
 	sp.Area.AutoResizable = true
-	sp.ScrollbarV.InitScrollBarV(&sp.topGroup, 0, 0, sbw, 0)
+	sp.ScrollbarV.InitScrollBarV(0, 0, sbw, 0)
+	sp.topGroup.AddChild(&sp.ScrollbarV)
 
-	sp.Panel.InitBlankWidget(&sp.Area, 0, 0, 0, 0)
+	sp.Panel.InitBlankWidget(0, 0, 0, 0)
+	sp.Area.AddChild(&sp.Panel)
 	sp.Panel.ClippingFlag = false
 
 	// 下部（横スクロールバー＋コーナー）
-	sp.bottomGroup.InitBlankWidget(&sp.Grouping, 0, 0, w, sbw)
+	sp.bottomGroup.InitBlankWidget(0, 0, w, sbw)
+	sp.Grouping.AddChild(&sp.bottomGroup)
 	sp.bottomGroup.AutoLayout = parts.AutoLayoutFitH
 	sp.bottomGroup.ClippingFlag = false
 
-	sp.ScrollbarH.InitScrollBarH(&sp.bottomGroup, 0, 0, 0, sbw)
+	sp.ScrollbarH.InitScrollBarH(0, 0, 0, sbw)
+	sp.bottomGroup.AddChild(&sp.ScrollbarH)
 	sp.ScrollbarH.AutoResizable = true
-	sp.corner.InitBlankWidget(&sp.bottomGroup, 0, 0, sbw, sbw) // コーナーの空白
-
-	if g != nil {
-		g.AddChild(sp)
-	}
+	sp.corner.InitBlankWidget(0, 0, sbw, sbw) // コーナーの空白
+	sp.bottomGroup.AddChild(&sp.corner)
 
 	// スクロールバーのスライド時の動作
 	sp.ScrollbarV.OnSlide = func() {

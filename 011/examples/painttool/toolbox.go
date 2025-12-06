@@ -17,13 +17,10 @@ type ToolButton struct {
 }
 
 // ToolButton初期化
-func (b *ToolButton) InitToolButton(g parts.AddChilder, x, y, w, h, size int) {
-	b.InitInteractiveWidget(nil, x, y, w, h)
+func (b *ToolButton) InitToolButton(x, y, w, h, size int) {
+	b.InitInteractiveWidget(x, y, w, h)
 	b.OnDraw = b.drawToolButton
 	b.Size = size
-	if g != nil {
-		g.AddChild(b)
-	}
 }
 
 // drawToolButtonはボタンの描画処理を行う
@@ -33,27 +30,12 @@ func (b *ToolButton) drawToolButton(screen *ebiten.Image) {
 	vector.FillCircle(screen, float32(gx+b.Width/2), float32(gy+b.Height/2), float32(b.Size/2), color.RGBA{0xff, 0xff, 0xff, 0xff}, true)
 }
 
-// ToolMarkerはツール選択マーカー
-type ToolMarker struct {
-	parts.WidgetBase
-	parts.TextDrawable
-}
-
-// ToolMarker初期化
-func (m *ToolMarker) InitToolMarker(g parts.AddChilder, x, y, w, h int) {
-	m.InitWidgetBase(m, x, y, w, h)
-	m.InitTextDrawable(m, "▶", 16, parts.AlignCenter, parts.AlignCenter, 0, 0, color.RGBA{0xff, 0xff, 0x00, 0xff}, false)
-	if g != nil {
-		g.AddChild(m)
-	}
-}
-
 // ToolBoxはツール選択ボックス
 type ToolBox struct {
 	parts.WidgetBase
 	parts.Grouping
 
-	marker   ToolMarker
+	marker   ui.Label
 	buttons  [8]ToolButton
 	OnSelect func(int)
 }
@@ -64,11 +46,13 @@ func NewToolBox(x, y, w, h int) *ToolBox {
 	tb.InitWidgetBase(tb, x, y, w, h)
 	tb.InitGrouping(tb)
 	// ToolMarker初期化
-	tb.marker.InitToolMarker(tb, 0, 2*32+8, 16, 16)
+	tb.marker.InitLabel(0, 2*32+8, 16, 16, "▶", 16)
+	tb.AddChild(&tb.marker)
 
 	// ToolButton初期化
 	for i := range tb.buttons {
-		tb.buttons[i].InitToolButton(tb, 18, i*32, 32, 32, i*2+2)
+		tb.buttons[i].InitToolButton(18, i*32, 32, 32, i*2+2)
+		tb.AddChild(&tb.buttons[i])
 
 		// ボタンクリック時の処理
 		tb.buttons[i].OnClick = func() {

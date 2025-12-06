@@ -1,10 +1,28 @@
 package parts
 
-type AutoLayoutInterface interface {
-	Layout()
+// DefaultLayoutはGroupingのデフォルトのレイアウト処理
+// AutoResizableな子コントロールのサイズを親に合わせて調整する
+func DefaultLayout(g *Grouping) {
+	for _, c := range g.Children {
+		cb := c.GetWidgetBase()
+
+		if cb.Visible {
+			// AutoResizableがあった場合
+			if cb.AutoResizable {
+				// Groupingコントロールのサイズに合わせたサイズに更新する
+				pcb := g.Widget.GetWidgetBase()
+				cb.Width = pcb.Width
+				cb.Height = pcb.Height
+			}
+
+			// 配下のレイアウト更新
+			if al, ok := c.(Layouter); ok {
+				al.Layout()
+			}
+		}
+	}
 }
 
-// Layoutはオートレイアウト処理を実行する
 // AutoLayoutVでは親コントロールのサイズに合わせて、子コントロールを等間隔に垂直配置する
 // リサイズ時に呼び出されることを想定する
 func AutoLayoutV(gr *Grouping) {
@@ -81,7 +99,7 @@ func AutoLayoutFitH(gr *Grouping) {
 			x += ccon.Width
 
 			// AutoLayoutInterfaceを実装していたらオートレイアウト実行
-			if ali, ok := c.(AutoLayoutInterface); ok {
+			if ali, ok := c.(Layouter); ok {
 				ali.Layout()
 			}
 		}
@@ -126,7 +144,7 @@ func AutoLayoutFitV(gr *Grouping) {
 			y += ccon.Height
 
 			// AutoLayoutInterfaceを実装していたらオートレイアウト実行
-			if ali, ok := c.(AutoLayoutInterface); ok {
+			if ali, ok := c.(Layouter); ok {
 				ali.Layout()
 			}
 		}

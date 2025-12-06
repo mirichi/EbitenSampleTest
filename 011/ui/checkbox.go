@@ -21,19 +21,16 @@ type Checkbox struct {
 // Checkbox生成
 func NewCheckbox(x, y, w, h int, text string, size int, initialChecked bool) *Checkbox {
 	c := &Checkbox{}
-	c.InitCheckbox(nil, x, y, w, h, text, size, initialChecked)
+	c.InitCheckbox(x, y, w, h, text, size, initialChecked)
 	return c
 }
 
-func (c *Checkbox) InitCheckbox(g parts.AddChilder, x, y, w, h int, text string, size int, initialChecked bool) {
-	c.InitInteractiveWidget(nil, x, y, w, h)
+func (c *Checkbox) InitCheckbox(x, y, w, h int, text string, size int, initialChecked bool) {
+	c.InitInteractiveWidget(x, y, w, h)
 	c.InitTextDrawable(c, text, size, parts.AlignLeft, parts.AlignCenter, h+5, 0, color.White, true)
 	c.InitFocusable(c)
 	c.OnDraw = c.drawCheckbox
 	c.Checked = initialChecked
-	if g != nil {
-		g.AddChild(c)
-	}
 
 	// クリック時の動作
 	c.OnClick = func() {

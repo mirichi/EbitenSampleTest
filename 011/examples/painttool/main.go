@@ -42,7 +42,6 @@ func main() {
 
 	// ColorPanel生成
 	cp := NewColorPanel(0, 0, 50, 256)
-
 	win.AddChild(cp)
 
 	// スクロール可能なパネル生成
@@ -52,12 +51,10 @@ func main() {
 	// キャンバス生成
 	canvas := NewCanvas(0, 0, 480, 320)
 	sp.AddChild(canvas)
-
 	win.AddChild(sp)
 
 	// ToolBox生成
 	tp := NewToolBox(0, 0, 50, 256)
-
 	win.AddChild(tp)
 
 	ms := ui.NewMainScreen()

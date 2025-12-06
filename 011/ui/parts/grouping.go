@@ -7,8 +7,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-type AddChilder interface {
-	AddChild(c Widget)
+type Layouter interface {
+	Layout()
 }
 
 // Groupingは子コントロールを管理する機能を提供します。
@@ -22,27 +22,6 @@ type Grouping struct {
 	ClippingFlag bool
 }
 
-// LayoutはGroupingのデフォルトのレイアウト処理を行います。
-// AutoResizableな子コントロールのサイズを親に合わせて調整します。
-func internalLayout(g *Grouping) {
-	for _, c := range g.Children {
-		cb := c.GetWidgetBase()
-
-		// ChildrenにAutoResizableがあった場合
-		if cb.AutoResizable {
-			// Groupingコントロールのサイズに合わせたサイズに更新する
-			pcb := g.Widget.GetWidgetBase()
-			cb.Width = pcb.Width
-			cb.Height = pcb.Height
-		}
-
-		// AutoResizableがGroupingだった場合、配下のレイアウト更新
-		if al, ok := c.(AutoLayoutInterface); ok {
-			al.Layout()
-		}
-	}
-}
-
 func NewGrouping(c Widget) *Grouping {
 	g := &Grouping{}
 	g.InitGrouping(c)
@@ -51,7 +30,7 @@ func NewGrouping(c Widget) *Grouping {
 
 func (g *Grouping) InitGrouping(c Widget) {
 	g.Widget = c
-	g.AutoLayout = internalLayout
+	g.AutoLayout = DefaultLayout
 	g.ClippingFlag = true
 
 	// コントロールのHandleInput時に呼ばれる関数を登録する

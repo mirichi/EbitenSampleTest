@@ -10,8 +10,8 @@ const (
 	resizeMargin = 7
 )
 
-// Resizableはマウスドラッグによるコントロールのサイズ変更機能を提供します。
-// コントロールの端をドラッグすることでリサイズが可能になります。
+// Resizableはマウスドラッグによるコントロールのサイズ変更機能を提供する
+// コントロールの端をドラッグすることでリサイズが可能になる
 type Resizable struct {
 	Widget   Widget
 	touch    input.Touch

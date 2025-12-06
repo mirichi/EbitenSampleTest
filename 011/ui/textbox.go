@@ -22,20 +22,17 @@ type TextBox struct {
 // TextBox生成
 func NewTextBox(x, y, w, h int, text string, fontSize int) *TextBox {
 	tb := &TextBox{}
-	tb.InitTextBox(nil, x, y, w, h, text, fontSize)
+	tb.InitTextBox(x, y, w, h, text, fontSize)
 	return tb
 }
 
-func (tb *TextBox) InitTextBox(g parts.AddChilder, x, y, w, h int, text string, fontSize int) {
+func (tb *TextBox) InitTextBox(x, y, w, h int, text string, fontSize int) {
 	// 初期テキスト
 	tb.field.SetTextAndSelection(text, len(text), len(text))
 
-	tb.InitInteractiveWidget(nil, x, y, w, h)
+	tb.InitInteractiveWidget(x, y, w, h)
 	tb.InitTextInputable(tb, &tb.field, &tb.counter, fontSize, parts.AlignLeft, color.White, color.White, func() bool { return tb.Focused })
 	tb.InitFocusable(tb)
-	if g != nil {
-		g.AddChild(tb)
-	}
 	tb.OnDraw = tb.drawTextBox
 
 	tb.OnFocus = func() {

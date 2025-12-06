@@ -16,16 +16,13 @@ type TitleBar struct {
 // ドラッグ操作によるウィンドウ移動のイベントハンドラを設定する
 func NewTitleBar(x, y, w, h int, text string) *TitleBar {
 	t := &TitleBar{}
-	t.InitTitleBar(nil, x, y, w, h, text)
+	t.InitTitleBar(x, y, w, h, text)
 	return t
 }
 
-func (t *TitleBar) InitTitleBar(g parts.AddChilder, x, y, w, h int, text string) {
-	t.InitInteractiveWidget(nil, x, y, w, h)
+func (t *TitleBar) InitTitleBar(x, y, w, h int, text string) {
+	t.InitInteractiveWidget(x, y, w, h)
 	t.InitTextDrawable(t, text, h*2/3, parts.AlignCenter, parts.AlignCenter, 0, 0, color.White, true)
-	if g != nil {
-		g.AddChild(t)
-	}
 	t.Color = color.RGBA{0x00, 0x40, 0x00, 0xff}
 
 	// TitleBarをドラッグすると親のWindowが移動するように設定
@@ -58,16 +55,13 @@ type ClientArea struct {
 // ウィンドウのドラッグ移動に対応する
 func NewClientArea(x, y, w, h int) *ClientArea {
 	c := &ClientArea{}
-	c.InitClientArea(nil, x, y, w, h)
+	c.InitClientArea(x, y, w, h)
 	return c
 }
 
-func (c *ClientArea) InitClientArea(g parts.AddChilder, x, y, w, h int) {
-	c.InitInteractiveWidget(nil, x, y, w, h)
+func (c *ClientArea) InitClientArea(x, y, w, h int) {
+	c.InitInteractiveWidget(x, y, w, h)
 	c.InitGrouping(c)
-	if g != nil {
-		g.AddChild(c)
-	}
 	c.Color = color.RGBA{0x30, 0x30, 0x30, 0xff}
 	c.AutoResizable = true
 
@@ -110,9 +104,12 @@ func NewWindow(x, y, w, h int, text string) *Window {
 	win.AutoLayout = parts.AutoLayoutFitV
 
 	// TitleBarとClientArea生成
+	win.TitleBar.InitTitleBar(0, 0, w, 30, text)
+	win.ClientArea.InitClientArea(0, 30, w, h-30)
+
 	// win.Groupingを指定することで、ウィンドウのレイアウトに追加される
-	win.TitleBar.InitTitleBar(&win.Grouping, 0, 0, w, 30, text)
-	win.ClientArea.InitClientArea(&win.Grouping, 0, 30, w, h-30)
+	win.Grouping.AddChild(&win.TitleBar)
+	win.Grouping.AddChild(&win.ClientArea)
 
 	win.OnResize = func() {
 		win.Layout()

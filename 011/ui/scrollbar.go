@@ -3,9 +3,6 @@ package ui
 import (
 	"MyProject/ui/parts"
 	"image/color"
-
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 // ScrollButtonはスクロールバー用のフォーカスを持たないボタン
@@ -17,16 +14,13 @@ type ScrollButton struct {
 // ScrollButton生成
 func NewScrollButton(x, y, w, h int, text string, size int) *ScrollButton {
 	b := &ScrollButton{}
-	b.InitScrollButton(nil, x, y, w, h, text, size)
+	b.InitScrollButton(x, y, w, h, text, size)
 	return b
 }
 
-func (b *ScrollButton) InitScrollButton(g parts.AddChilder, x, y, w, h int, text string, size int) {
-	b.InitInteractiveWidget(nil, x, y, w, h)
+func (b *ScrollButton) InitScrollButton(x, y, w, h int, text string, size int) {
+	b.InitInteractiveWidget(x, y, w, h)
 	b.InitTextDrawable(b, text, size, parts.AlignCenter, parts.AlignCenter, 0, 0, color.White, true)
-	if g != nil {
-		g.AddChild(b)
-	}
 }
 
 // ScrollSliderVはスクロールバー用のスライド範囲
@@ -42,22 +36,22 @@ type ScrollSliderV struct {
 // ScrollSliderV生成
 func NewSliderV(x, y, w, h int) *ScrollSliderV {
 	s := &ScrollSliderV{}
-	s.InitSliderV(nil, x, y, w, h)
+	s.InitSliderV(x, y, w, h)
 	return s
 }
 
-func (s *ScrollSliderV) InitSliderV(g parts.AddChilder, x, y, w, h int) {
-	s.InitInteractiveWidget(nil, x, y, w, h)
-	s.OnDraw = s.drawSliderV
+func (s *ScrollSliderV) InitSliderV(x, y, w, h int) {
+	s.InitInteractiveWidget(x, y, w, h)
 	s.InitGrouping(s)
-	s.ClippingFlag = false
-	s.knob.InitInteractiveWidget(s, 0, y, w, 60)
-	s.AutoResizable = true
-	if g != nil {
-		g.AddChild(s)
-	}
 
-	var dragOffsetY int
+	s.Color = color.RGBA{0x20, 0x20, 0x20, 0xff}
+	s.ClippingFlag = false
+	s.AutoResizable = true
+
+	s.knob.InitInteractiveWidget(x, y, w, 60)
+	s.AddChild(&s.knob)
+
+	dragOffsetY := 0
 	s.knob.OnDragStart = func(x, y int) {
 		_, gy := s.knob.GetGlobalPos()
 		dragOffsetY = y - gy
@@ -106,11 +100,6 @@ func (s *ScrollSliderV) Move(delta float64) {
 	}
 }
 
-func (s *ScrollSliderV) drawSliderV(screen *ebiten.Image) {
-	gx, gy := s.GetGlobalPos()
-	vector.FillRect(screen, float32(gx), float32(gy), float32(s.Width), float32(s.Height), color.RGBA{0x20, 0x20, 0x20, 0xff}, false)
-}
-
 // ScrollSliderVの範囲設定
 func (s *ScrollSliderV) SetRange(viewrange, allrange float64) {
 	s.ViewRange = viewrange
@@ -148,20 +137,22 @@ type ScrollBarV struct {
 // ScrollBarV生成
 func NewScrollBarV(x, y, w, h int) *ScrollBarV {
 	s := &ScrollBarV{}
-	s.InitScrollBarV(nil, x, y, w, h)
+	s.InitScrollBarV(x, y, w, h)
 	return s
 }
 
-func (s *ScrollBarV) InitScrollBarV(g parts.AddChilder, x, y, w, h int) {
-	s.InitBlankWidget(nil, x, y, w, h)
+func (s *ScrollBarV) InitScrollBarV(x, y, w, h int) {
+	s.InitBlankWidget(x, y, w, h)
 	s.ClippingFlag = false
-	s.buttonUp.InitScrollButton(s, 0, 0, w, w, "▲", w/2)
-	s.slider.InitSliderV(s, x, w, w, h)
-	s.buttonDown.InitScrollButton(s, 0, 0, w, w, "▼", w/2)
-	s.Grouping.AutoLayout = parts.AutoLayoutFitV
-	if g != nil {
-		g.AddChild(s)
-	}
+	s.AutoLayout = parts.AutoLayoutFitV
+
+	s.buttonUp.InitScrollButton(0, 0, w, w, "▲", w/2)
+	s.slider.InitSliderV(x, w, w, h)
+	s.buttonDown.InitScrollButton(0, 0, w, w, "▼", w/2)
+
+	s.AddChild(&s.buttonUp)
+	s.AddChild(&s.slider)
+	s.AddChild(&s.buttonDown)
 
 	// ボタンの挙動設定
 	// 押しっぱなしで連続スクロールするようにOnRepeatを使用
@@ -200,20 +191,20 @@ type ScrollSliderH struct {
 // ScrollSliderH生成
 func NewSliderH(x, y, w, h int) *ScrollSliderH {
 	s := &ScrollSliderH{}
-	s.InitSliderH(nil, x, y, w, h)
+	s.InitSliderH(x, y, w, h)
 	return s
 }
 
-func (s *ScrollSliderH) InitSliderH(g parts.AddChilder, x, y, w, h int) {
-	s.InitInteractiveWidget(nil, x, y, w, h)
-	s.OnDraw = s.drawSliderH
+func (s *ScrollSliderH) InitSliderH(x, y, w, h int) {
+	s.InitInteractiveWidget(x, y, w, h)
 	s.InitGrouping(s)
+
+	s.Color = color.RGBA{0x20, 0x20, 0x20, 0xff}
 	s.ClippingFlag = false
-	s.knob.InitInteractiveWidget(s, x, 0, 60, h)
 	s.AutoResizable = true
-	if g != nil {
-		g.AddChild(s)
-	}
+
+	s.knob.InitInteractiveWidget(x, 0, 60, h)
+	s.AddChild(&s.knob)
 
 	var dragOffsetX int
 	s.knob.OnDragStart = func(x, y int) {
@@ -264,11 +255,6 @@ func (s *ScrollSliderH) Move(delta float64) {
 	}
 }
 
-func (s *ScrollSliderH) drawSliderH(screen *ebiten.Image) {
-	gx, gy := s.GetGlobalPos()
-	vector.FillRect(screen, float32(gx), float32(gy), float32(s.Width), float32(s.Height), color.RGBA{0x20, 0x20, 0x20, 0xff}, false)
-}
-
 // ScrollSliderHの範囲設定
 func (s *ScrollSliderH) SetRange(viewrange, allrange float64) {
 	s.ViewRange = viewrange
@@ -306,20 +292,22 @@ type ScrollBarH struct {
 // ScrollBarH生成
 func NewScrollBarH(x, y, w, h int) *ScrollBarH {
 	s := &ScrollBarH{}
-	s.InitScrollBarH(nil, x, y, w, h)
+	s.InitScrollBarH(x, y, w, h)
 	return s
 }
 
-func (s *ScrollBarH) InitScrollBarH(g parts.AddChilder, x, y, w, h int) {
-	s.InitBlankWidget(nil, x, y, w, h)
+func (s *ScrollBarH) InitScrollBarH(x, y, w, h int) {
+	s.InitBlankWidget(x, y, w, h)
 	s.ClippingFlag = false
-	s.buttonLeft.InitScrollButton(s, 0, 0, h, h, "◀", h/2)
-	s.slider.InitSliderH(s, h, 0, w, h)
-	s.buttonRight.InitScrollButton(s, 0, 0, h, h, "▶", h/2)
 	s.AutoLayout = parts.AutoLayoutFitH
-	if g != nil {
-		g.AddChild(s)
-	}
+
+	s.buttonLeft.InitScrollButton(0, 0, h, h, "◀", h/2)
+	s.slider.InitSliderH(h, 0, w, h)
+	s.buttonRight.InitScrollButton(0, 0, h, h, "▶", h/2)
+
+	s.AddChild(&s.buttonLeft)
+	s.AddChild(&s.slider)
+	s.AddChild(&s.buttonRight)
 
 	// ボタンの挙動設定
 	// 押しっぱなしで連続スクロールするようにOnRepeatを使用

@@ -43,6 +43,12 @@ func internalLayout(g *Grouping) {
 	}
 }
 
+func NewGrouping(c Widget) *Grouping {
+	g := &Grouping{}
+	g.InitGrouping(c)
+	return g
+}
+
 func (g *Grouping) InitGrouping(c Widget) {
 	g.Widget = c
 	g.AutoLayout = internalLayout

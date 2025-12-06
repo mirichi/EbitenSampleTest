@@ -28,6 +28,12 @@ type FocusableInterface interface {
 var FocusedWidget FocusableInterface
 var FlameFocus bool
 
+func NewFocusable(c Widget) *Focusable {
+	f := &Focusable{}
+	f.InitFocusable(c)
+	return f
+}
+
 func (f *Focusable) InitFocusable(c Widget) {
 	f.Widget = c
 	f.DrawFocusBorder = true

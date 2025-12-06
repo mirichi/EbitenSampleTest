@@ -8,22 +8,23 @@ type HandleInputable struct {
 	OnHandleInput func(t input.Touch) bool
 }
 
-// HandleInputable生成
 func NewHandleInputable(c Widget) *HandleInputable {
-	u := &HandleInputable{
-		Widget: c,
-	}
+	h := &HandleInputable{}
+	h.InitHandleInputable(c)
+	return h
+}
+
+func (h *HandleInputable) InitHandleInputable(c Widget) {
+	h.Widget = c
 
 	// コントロールのHandleInput時に呼ばれる関数を登録する
-	c.GetWidgetBase().AddHandleInputFunction(u.handleInputFunction)
-
-	return u
+	c.GetWidgetBase().AddHandleInputFunction(h.handleInputFunction)
 }
 
 // コントロールのHandleInput時に呼ばれるHandleInputFunction
-func (u *HandleInputable) handleInputFunction(t input.Touch) bool {
-	if u.OnHandleInput != nil {
-		return u.OnHandleInput(t)
+func (h *HandleInputable) handleInputFunction(t input.Touch) bool {
+	if h.OnHandleInput != nil {
+		return h.OnHandleInput(t)
 	}
 	return false
 }

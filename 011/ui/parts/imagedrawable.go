@@ -10,6 +10,12 @@ type ImageDrawable struct {
 	Image  *ebiten.Image
 }
 
+func NewImageDrawable(c Widget, image *ebiten.Image) *ImageDrawable {
+	i := &ImageDrawable{}
+	i.InitImageDrawable(c, image)
+	return i
+}
+
 func (d *ImageDrawable) InitImageDrawable(c Widget, image *ebiten.Image) {
 	d.Widget = c
 	d.Image = image

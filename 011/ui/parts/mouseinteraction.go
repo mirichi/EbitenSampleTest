@@ -22,6 +22,12 @@ type MouseInteraction struct {
 	pressDuration  int // 押されている時間
 }
 
+func NewMouseInteraction(c Widget) *MouseInteraction {
+	m := &MouseInteraction{}
+	m.InitMouseInteraction(c)
+	return m
+}
+
 func (m *MouseInteraction) InitMouseInteraction(c Widget) {
 	m.Widget = c
 	m.RepeatDelay = 30

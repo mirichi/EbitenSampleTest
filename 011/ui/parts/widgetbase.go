@@ -29,6 +29,12 @@ type WidgetBase struct {
 	drawFunctions        []func(screen *ebiten.Image)
 }
 
+func NewWidgetBase(c Widget, x, y, w, h int) *WidgetBase {
+	cb := &WidgetBase{}
+	cb.InitWidgetBase(c, x, y, w, h)
+	return cb
+}
+
 func (cb *WidgetBase) InitWidgetBase(c Widget, x, y, w, h int) {
 	cb.Widget = c
 	cb.X = x

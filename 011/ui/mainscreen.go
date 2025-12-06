@@ -12,13 +12,13 @@ import (
 // 全てのWidgetをこのMainScreenの子要素として登録することで、
 // MainScreenのHandleInput/Update/Drawを呼び出すだけでUI全体の更新と描画が行われる
 type MainScreen struct {
-	Blank
+	BlankWidget
 }
 
 // MainScreen生成
 func NewMainScreen() *MainScreen {
 	ms := &MainScreen{}
-	ms.InitBlank(nil, 0, 0, 0, 0)
+	ms.InitBlankWidget(nil, 0, 0, 0, 0)
 	ms.ClippingFlag = false
 	ms.OrderChange = true
 

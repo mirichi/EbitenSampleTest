@@ -10,6 +10,12 @@ type Drawable struct {
 	OnDraw func(screen *ebiten.Image)
 }
 
+func NewDrawable(c Widget) *Drawable {
+	d := &Drawable{}
+	d.InitDrawable(c)
+	return d
+}
+
 func (d *Drawable) InitDrawable(c Widget) {
 	d.Widget = c
 

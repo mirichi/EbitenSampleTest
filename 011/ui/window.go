@@ -3,9 +3,6 @@ package ui
 import (
 	"MyProject/ui/parts"
 	"image/color"
-
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 // TitleBarはウィンドウのタイトルバーを表すWidget
@@ -29,7 +26,7 @@ func (t *TitleBar) InitTitleBar(g parts.AddChilder, x, y, w, h int, text string)
 	if g != nil {
 		g.AddChild(t)
 	}
-	t.OnDraw = t.drawTitleBar
+	t.Color = color.RGBA{0x00, 0x40, 0x00, 0xff}
 
 	// TitleBarをドラッグすると親のWindowが移動するように設定
 	var dragOffsetX, dragOffsetY int
@@ -48,11 +45,6 @@ func (t *TitleBar) InitTitleBar(g parts.AddChilder, x, y, w, h int, text string)
 		cb.X = x - dragOffsetX - ox
 		cb.Y = y - dragOffsetY - oy
 	}
-}
-
-func (t *TitleBar) drawTitleBar(screen *ebiten.Image) {
-	gx, gy := t.GetGlobalPos()
-	vector.FillRect(screen, float32(gx), float32(gy), float32(t.Width), float32(t.Height), color.RGBA{0x00, 0x40, 0x00, 0xff}, false)
 }
 
 // ClientAreaはウィンドウのクライアント領域を表すWidget
@@ -76,7 +68,7 @@ func (c *ClientArea) InitClientArea(g parts.AddChilder, x, y, w, h int) {
 	if g != nil {
 		g.AddChild(c)
 	}
-	c.OnDraw = c.drawClientArea
+	c.Color = color.RGBA{0x30, 0x30, 0x30, 0xff}
 	c.AutoResizable = true
 
 	// ClientAreaをドラッグすると親のWindowが移動する
@@ -95,11 +87,6 @@ func (c *ClientArea) InitClientArea(g parts.AddChilder, x, y, w, h int) {
 		cb.X = x - dragOffsetX - ox
 		cb.Y = y - dragOffsetY - oy
 	}
-}
-
-func (c *ClientArea) drawClientArea(screen *ebiten.Image) {
-	gx, gy := c.GetGlobalPos()
-	vector.FillRect(screen, float32(gx), float32(gy), float32(c.Width), float32(c.Height), color.RGBA{0x30, 0x30, 0x30, 0xff}, false)
 }
 
 // Windowはタイトルバーとクライアント領域を持つ複合Widget

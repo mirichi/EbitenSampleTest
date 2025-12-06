@@ -24,6 +24,12 @@ type Resizable struct {
 	startW, startH   int
 }
 
+func NewResizable(c Widget) *Resizable {
+	r := &Resizable{}
+	r.InitResizable(c)
+	return r
+}
+
 func (r *Resizable) InitResizable(c Widget) {
 	r.Widget = c
 

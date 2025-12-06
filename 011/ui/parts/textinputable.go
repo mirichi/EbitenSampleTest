@@ -29,6 +29,12 @@ type TextInputable struct {
 	selectionStartIdx int  // ドラッグ選択開始時の文字インデックス
 }
 
+func NewTextInputable(c Widget, field *textinput.Field, counter *int, fontSize int, alignX TextAlign, color, cursorColor color.Color, isFocused func() bool) *TextInputable {
+	t := &TextInputable{}
+	t.InitTextInputable(c, field, counter, fontSize, alignX, color, cursorColor, isFocused)
+	return t
+}
+
 func (u *TextInputable) InitTextInputable(c Widget, field *textinput.Field, counter *int, fontSize int, alignX TextAlign, color, cursorColor color.Color, isFocused func() bool) {
 	u.Widget = c
 	u.Field = field

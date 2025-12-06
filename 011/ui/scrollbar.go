@@ -136,7 +136,7 @@ func (s *ScrollSliderV) SetRange(viewrange, allrange float64) {
 
 // ScrollBarVは縦方向にスクロールするための複合Widget
 type ScrollBarV struct {
-	Blank
+	BlankWidget
 
 	buttonUp   ScrollButton
 	slider     ScrollSliderV
@@ -153,7 +153,7 @@ func NewScrollBarV(x, y, w, h int) *ScrollBarV {
 }
 
 func (s *ScrollBarV) InitScrollBarV(g parts.AddChilder, x, y, w, h int) {
-	s.InitBlank(nil, x, y, w, h)
+	s.InitBlankWidget(nil, x, y, w, h)
 	s.ClippingFlag = false
 	s.buttonUp.InitScrollButton(s, 0, 0, w, w, "▲", w/2)
 	s.slider.InitSliderV(s, x, w, w, h)
@@ -294,7 +294,7 @@ func (s *ScrollSliderH) SetRange(viewrange, allrange float64) {
 
 // ScrollBarHは横方向にスクロールするための複合Widget
 type ScrollBarH struct {
-	Blank
+	BlankWidget
 
 	buttonLeft  ScrollButton
 	slider      ScrollSliderH
@@ -311,7 +311,7 @@ func NewScrollBarH(x, y, w, h int) *ScrollBarH {
 }
 
 func (s *ScrollBarH) InitScrollBarH(g parts.AddChilder, x, y, w, h int) {
-	s.InitBlank(nil, x, y, w, h)
+	s.InitBlankWidget(nil, x, y, w, h)
 	s.ClippingFlag = false
 	s.buttonLeft.InitScrollButton(s, 0, 0, h, h, "◀", h/2)
 	s.slider.InitSliderH(s, h, 0, w, h)

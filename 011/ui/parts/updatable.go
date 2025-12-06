@@ -6,16 +6,17 @@ type Updatable struct {
 	OnUpdate func()
 }
 
-// Updatable生成
 func NewUpdatable(c Widget) *Updatable {
-	u := &Updatable{
-		Widget: c,
-	}
+	u := &Updatable{}
+	u.InitUpdatable(c)
+	return u
+}
+
+func (u *Updatable) InitUpdatable(c Widget) {
+	u.Widget = c
 
 	// コントロールのUpdate時に呼ばれる関数を登録する
 	c.GetWidgetBase().AddUpdateFunction(u.updateFunction)
-
-	return u
 }
 
 // コントロールのUpdate時に呼ばれるUpdateFunction

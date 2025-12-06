@@ -4,16 +4,16 @@ import "MyProject/ui/parts"
 
 // ScrollablePanelはスクロール可能なパネル
 type ScrollablePanel struct {
-	Blank
+	BlankWidget
 
-	topGroup   Blank
-	Area       Blank
-	Panel      Blank
+	topGroup   BlankWidget
+	Area       BlankWidget
+	Panel      BlankWidget
 	ScrollbarV ScrollBarV
 
-	bottomGroup Blank
+	bottomGroup BlankWidget
 	ScrollbarH  ScrollBarH
-	corner      Blank
+	corner      BlankWidget
 
 	OnSlide func(x, y float64)
 }
@@ -26,30 +26,30 @@ func NewScrollablePanel(x, y, w, h, sbw int) *ScrollablePanel {
 }
 
 func (sp *ScrollablePanel) InitScrollablePanel(g parts.AddChilder, x, y, w, h, sbw int) {
-	sp.InitBlank(nil, x, y, w, h)
+	sp.InitBlankWidget(nil, x, y, w, h)
 	sp.AutoLayout = parts.AutoLayoutFitV
 
 	// 上部（パネル＋縦スクロールバー）
-	sp.topGroup.InitBlank(&sp.Grouping, 0, 0, w, h-sbw)
+	sp.topGroup.InitBlankWidget(&sp.Grouping, 0, 0, w, h-sbw)
 	sp.topGroup.AutoResizable = true
 	sp.topGroup.AutoLayout = parts.AutoLayoutFitH
 	sp.topGroup.ClippingFlag = false
 
-	sp.Area.InitBlank(&sp.topGroup, 0, 0, 0, 0)
+	sp.Area.InitBlankWidget(&sp.topGroup, 0, 0, 0, 0)
 	sp.Area.AutoResizable = true
 	sp.ScrollbarV.InitScrollBarV(&sp.topGroup, 0, 0, sbw, 0)
 
-	sp.Panel.InitBlank(&sp.Area, 0, 0, 0, 0)
+	sp.Panel.InitBlankWidget(&sp.Area, 0, 0, 0, 0)
 	sp.Panel.ClippingFlag = false
 
 	// 下部（横スクロールバー＋コーナー）
-	sp.bottomGroup.InitBlank(&sp.Grouping, 0, 0, w, sbw)
+	sp.bottomGroup.InitBlankWidget(&sp.Grouping, 0, 0, w, sbw)
 	sp.bottomGroup.AutoLayout = parts.AutoLayoutFitH
 	sp.bottomGroup.ClippingFlag = false
 
 	sp.ScrollbarH.InitScrollBarH(&sp.bottomGroup, 0, 0, 0, sbw)
 	sp.ScrollbarH.AutoResizable = true
-	sp.corner.InitBlank(&sp.bottomGroup, 0, 0, sbw, sbw) // コーナーの空白
+	sp.corner.InitBlankWidget(&sp.bottomGroup, 0, 0, sbw, sbw) // コーナーの空白
 
 	if g != nil {
 		g.AddChild(sp)

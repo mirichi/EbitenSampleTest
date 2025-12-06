@@ -34,15 +34,21 @@ func init() {
 
 // TextDrawableはテキストを描画する機能
 type TextDrawable struct {
-	Widget  Widget
-	Text    string
-	Size    int
-	AlignX  TextAlign
-	AlignY  TextAlign
-	OffsetX int
-	OffsetY int
-	Color   color.Color
-	Shadow  bool
+	Widget    Widget
+	Text      string
+	Size      int
+	AlignX    TextAlign
+	AlignY    TextAlign
+	OffsetX   int
+	OffsetY   int
+	TextColor color.Color
+	Shadow    bool
+}
+
+func NewTextDrawable(c Widget, text string, size int, alignX, alignY TextAlign, offsetX, offsetY int, color color.Color, shadow bool) *TextDrawable {
+	t := &TextDrawable{}
+	t.InitTextDrawable(c, text, size, alignX, alignY, offsetX, offsetY, color, shadow)
+	return t
 }
 
 func (d *TextDrawable) InitTextDrawable(c Widget, text string, size int, alignX, alignY TextAlign, offsetX, offsetY int, color color.Color, shadow bool) {
@@ -53,7 +59,7 @@ func (d *TextDrawable) InitTextDrawable(c Widget, text string, size int, alignX,
 	d.AlignY = alignY
 	d.OffsetX = offsetX
 	d.OffsetY = offsetY
-	d.Color = color
+	d.TextColor = color
 	d.Shadow = shadow
 
 	// コントロールのDraw時に呼ばれる関数を登録する
@@ -105,6 +111,6 @@ func (d *TextDrawable) drawFunction(screen *ebiten.Image) {
 	// テキスト描画
 	op := &text.DrawOptions{}
 	op.GeoM.Translate(x, y)
-	op.ColorScale.ScaleWithColor(d.Color)
+	op.ColorScale.ScaleWithColor(d.TextColor)
 	text.Draw(screen, d.Text, f, op)
 }

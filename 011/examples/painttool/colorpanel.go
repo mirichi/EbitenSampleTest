@@ -23,7 +23,7 @@ func (m *ColorMarker) InitColorMarker(g parts.AddChilder, x, y, w, h int) {
 
 // ColorPanelは色選択パネル
 type ColorPanel struct {
-	ui.Blank
+	ui.BlankWidget
 
 	marker   ColorMarker
 	buttons  [8]ui.InteractiveWidget
@@ -32,10 +32,10 @@ type ColorPanel struct {
 
 func NewColorPanel(x, y, w, h int) *ColorPanel {
 	cp := &ColorPanel{}
-	cp.InitBlank(nil, x, y, w, h)
+	cp.InitBlankWidget(nil, x, y, w, h)
 
 	// ColorMarker初期化
-	cp.marker.InitColorMarker(&cp.Blank, 32, 7*32+8, 16, 16)
+	cp.marker.InitColorMarker(&cp.BlankWidget, 32, 7*32+8, 16, 16)
 
 	// ColorButton初期化
 	cols := []color.Color{color.RGBA{0x00, 0x00, 0x00, 0xff}, color.RGBA{0xff, 0x00, 0x00, 0xff}, color.RGBA{0xff, 0xff, 0x00, 0xff},
@@ -46,7 +46,7 @@ func NewColorPanel(x, y, w, h int) *ColorPanel {
 		cp.buttons[i].Color = c
 		cp.buttons[i].OnPress = func() {
 			cp.marker.Y = i*32 + 8
-			cp.marker.Color = c
+			cp.marker.TextColor = c
 			if cp.OnSelect != nil {
 				cp.OnSelect(c)
 			}

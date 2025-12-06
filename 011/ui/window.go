@@ -27,7 +27,8 @@ func NewTitleBar(x, y, w, h int, text string) *TitleBar {
 
 func (t *TitleBar) InitTitleBar(g parts.AddChilder, x, y, w, h int, text string) {
 	t.InitControlBase(t, x, y, w, h)
-	t.InitDrawable(t, t.drawTitleBar)
+	t.InitDrawable(t)
+	t.OnDraw = t.drawTitleBar
 	t.InitTextDrawable(t, text, h*2/3, parts.AlignCenter, parts.AlignCenter, 0, 0, color.White, true)
 	t.InitMouseInteraction(t)
 	if g != nil {
@@ -77,7 +78,8 @@ func NewClientArea(x, y, w, h int) *ClientArea {
 
 func (c *ClientArea) InitClientArea(g parts.AddChilder, x, y, w, h int) {
 	c.InitControlBase(c, x, y, w, h)
-	c.InitDrawable(c, c.drawClientArea)
+	c.InitDrawable(c)
+	c.OnDraw = c.drawClientArea
 	c.InitMouseInteraction(c)
 	c.InitGrouping(c)
 	if g != nil {

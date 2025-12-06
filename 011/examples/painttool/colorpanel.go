@@ -21,7 +21,8 @@ func NewColorButton(x, y, w, h int, color color.Color) *ColorButton {
 	b := &ColorButton{}
 	b.InitControlBase(b, x, y, w, h)
 	b.InitMouseInteraction(b)
-	b.InitDrawable(b, b.drawButton)
+	b.InitDrawable(b)
+	b.OnDraw = b.drawButton
 	b.Color = color
 	return b
 }

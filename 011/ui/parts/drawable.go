@@ -10,9 +10,8 @@ type Drawable struct {
 	OnDraw  func(screen *ebiten.Image)
 }
 
-func (d *Drawable) InitDrawable(c Control, f func(screen *ebiten.Image)) {
+func (d *Drawable) InitDrawable(c Control) {
 	d.Control = c
-	d.OnDraw = f
 
 	// コントロールのDraw時に呼ばれる関数を登録する
 	c.GetControlBase().AddDrawFunction(d.drawFunction)
@@ -20,5 +19,7 @@ func (d *Drawable) InitDrawable(c Control, f func(screen *ebiten.Image)) {
 
 // コントロールのDraw時に呼ばれるDrawFunction
 func (d *Drawable) drawFunction(screen *ebiten.Image) {
-	d.OnDraw(screen)
+	if d.OnDraw != nil {
+		d.OnDraw(screen)
+	}
 }

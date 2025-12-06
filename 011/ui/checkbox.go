@@ -30,7 +30,8 @@ func NewCheckbox(x, y, w, h int, text string, size int, initialChecked bool) *Ch
 func (c *Checkbox) InitCheckbox(g parts.AddChilder, x, y, w, h int, text string, size int, initialChecked bool) {
 	c.InitControlBase(c, x, y, w, h)
 	c.InitMouseInteraction(c)
-	c.InitDrawable(c, c.drawCheckbox)
+	c.InitDrawable(c)
+	c.OnDraw = c.drawCheckbox
 	c.InitTextDrawable(c, text, size, parts.AlignLeft, parts.AlignCenter, h+5, 0, color.White, true)
 	c.InitFocusable(c)
 	c.Checked = initialChecked

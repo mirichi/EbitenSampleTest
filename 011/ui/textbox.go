@@ -34,7 +34,8 @@ func (tb *TextBox) InitTextBox(g parts.AddChilder, x, y, w, h int, text string, 
 
 	tb.InitControlBase(tb, x, y, w, h)
 	tb.InitMouseInteraction(tb)
-	tb.InitDrawable(tb, tb.drawTextBox)
+	tb.InitDrawable(tb)
+	tb.OnDraw = tb.drawTextBox
 	tb.InitTextInputable(tb, &tb.field, &tb.counter, fontSize, parts.AlignLeft, color.White, color.White, func() bool { return tb.Focused })
 	tb.InitFocusable(tb)
 	if g != nil {

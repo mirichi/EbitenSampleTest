@@ -22,7 +22,8 @@ func NewToolButton(x, y, w, h, size int) *ToolButton {
 	b := &ToolButton{}
 	b.InitControlBase(b, x, y, w, h)
 	b.InitMouseInteraction(b)
-	b.InitDrawable(b, b.drawButton)
+	b.InitDrawable(b)
+	b.OnDraw = b.drawButton
 	b.Size = size
 	return b
 }

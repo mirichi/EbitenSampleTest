@@ -134,7 +134,7 @@ func (s *ScrollSliderV) SetRange(viewrange, allrange float64) {
 	}
 }
 
-// ScrollBarVは縦方向にスクロールするための複合コントロール
+// ScrollBarVは縦方向にスクロールするための複合Widget
 type ScrollBarV struct {
 	Blank
 
@@ -292,7 +292,7 @@ func (s *ScrollSliderH) SetRange(viewrange, allrange float64) {
 	}
 }
 
-// ScrollBarHは横方向にスクロールするための複合コントロール
+// ScrollBarHは横方向にスクロールするための複合Widget
 type ScrollBarH struct {
 	Blank
 

@@ -8,7 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
-// TitleBarはウィンドウのタイトルバーを表すコントロール
+// TitleBarはウィンドウのタイトルバーを表すWidget
 // マウスドラッグによるウィンドウの移動機能を提供する
 type TitleBar struct {
 	InteractiveWidget
@@ -55,8 +55,8 @@ func (t *TitleBar) drawTitleBar(screen *ebiten.Image) {
 	vector.FillRect(screen, float32(gx), float32(gy), float32(t.Width), float32(t.Height), color.RGBA{0x00, 0x40, 0x00, 0xff}, false)
 }
 
-// ClientAreaはウィンドウのクライアント領域を表すコントロール
-// ウィンドウ内に配置される他のコントロールを保持する
+// ClientAreaはウィンドウのクライアント領域を表すWidget
+// ウィンドウ内に配置される他のWidgetを保持する
 type ClientArea struct {
 	InteractiveWidget
 	parts.Grouping
@@ -102,7 +102,7 @@ func (c *ClientArea) drawClientArea(screen *ebiten.Image) {
 	vector.FillRect(screen, float32(gx), float32(gy), float32(c.Width), float32(c.Height), color.RGBA{0x30, 0x30, 0x30, 0xff}, false)
 }
 
-// Windowはタイトルバーとクライアント領域を持つ複合コントロール
+// Windowはタイトルバーとクライアント領域を持つ複合Widget
 // これ自体はコンテナとしての役割を持ち、具体的な機能はTitleBarとClientAreaに実装する
 type Window struct {
 	parts.WidgetBase

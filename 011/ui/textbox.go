@@ -9,7 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
-// TettBoxは文字入力と描画をするコントロール
+// TextBoxは文字入力と描画をするWidget
 type TextBox struct {
 	InteractiveWidget
 	parts.TextInputable
@@ -19,7 +19,7 @@ type TextBox struct {
 	counter int
 }
 
-// TetxBox生成
+// TextBox生成
 func NewTextBox(x, y, w, h int, text string, fontSize int) *TextBox {
 	tb := &TextBox{}
 	tb.InitTextBox(nil, x, y, w, h, text, fontSize)

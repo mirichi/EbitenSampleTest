@@ -9,7 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
-// ToolButtonはツール選択ボタンのコントロール
+// ToolButtonはツール選択ボタン
 type ToolButton struct {
 	ui.InteractiveWidget
 
@@ -33,7 +33,7 @@ func (b *ToolButton) drawToolButton(screen *ebiten.Image) {
 	vector.FillCircle(screen, float32(gx+b.Width/2), float32(gy+b.Height/2), float32(b.Size/2), color.RGBA{0xff, 0xff, 0xff, 0xff}, true)
 }
 
-// ToolMarkerはツール選択マーカーのコントロール
+// ToolMarkerはツール選択マーカー
 type ToolMarker struct {
 	parts.WidgetBase
 	parts.TextDrawable
@@ -48,7 +48,7 @@ func (m *ToolMarker) InitToolMarker(g parts.AddChilder, x, y, w, h int) {
 	}
 }
 
-// ToolBoxはツール選択ボックスのコントロール
+// ToolBoxはツール選択ボックス
 type ToolBox struct {
 	parts.WidgetBase
 	parts.Grouping
@@ -63,10 +63,10 @@ func NewToolBox(x, y, w, h int) *ToolBox {
 	tb := &ToolBox{}
 	tb.InitWidgetBase(tb, x, y, w, h)
 	tb.InitGrouping(tb)
-	// ToolMarker生成と配置
+	// ToolMarker初期化
 	tb.marker.InitToolMarker(tb, 0, 2*32+8, 16, 16)
 
-	// ToolButton生成と配置
+	// ToolButton初期化
 	for i := range tb.buttons {
 		tb.buttons[i].InitToolButton(tb, 18, i*32, 32, 32, i*2+2)
 

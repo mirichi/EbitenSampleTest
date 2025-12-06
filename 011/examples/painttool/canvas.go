@@ -9,7 +9,7 @@ import (
 	"MyProject/ui/parts"
 )
 
-// Canvasは描画可能なキャンバスコントロール
+// Canvasは描画可能なキャンバス
 type Canvas struct {
 	parts.WidgetBase
 	parts.ImageDrawable

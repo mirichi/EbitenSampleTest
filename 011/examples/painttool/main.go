@@ -53,6 +53,8 @@ func main() {
 	sp.AddChild(canvas)
 	win.AddChild(sp)
 
+	sp.SetMaxRange(&canvas.Width, &canvas.Height)
+
 	// ToolBox生成
 	tp := NewToolBox(0, 0, 50, 256)
 	win.AddChild(tp)

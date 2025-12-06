@@ -28,9 +28,10 @@ type ScrollSliderV struct {
 	InteractiveWidget
 	parts.Grouping
 
-	knob                       InteractiveWidget
-	ViewRange, AllRange, Value float64
-	OnSlide                    func()
+	knob                InteractiveWidget
+	ViewRange, AllRange *int
+	Value               float64
+	OnSlide             func()
 }
 
 // ScrollSliderV生成
@@ -60,7 +61,7 @@ func (s *ScrollSliderV) InitSliderV(x, y, w, h int) {
 		_, oy := s.GetGlobalPos()
 		targetY := y - dragOffsetY - oy
 		if s.Height-s.knob.Height > 0 {
-			targetValue := float64(targetY) / float64(s.Height-s.knob.Height) * (s.AllRange - s.ViewRange)
+			targetValue := float64(targetY) / float64(s.Height-s.knob.Height) * float64(*s.AllRange-*s.ViewRange)
 			s.Move(targetValue - s.Value)
 		}
 	}
@@ -70,9 +71,9 @@ func (s *ScrollSliderV) InitSliderV(x, y, w, h int) {
 		_, y, _ := s.GetPosition()
 		_, ky := s.knob.GetGlobalPos()
 		if y < ky {
-			s.Move(-s.ViewRange)
+			s.Move(-float64(*s.ViewRange))
 		} else if y > ky+s.knob.Height {
-			s.Move(s.ViewRange)
+			s.Move(float64(*s.ViewRange))
 		}
 	}
 }
@@ -83,14 +84,13 @@ func (s *ScrollSliderV) Move(delta float64) {
 	if s.Value < 0 {
 		s.Value = 0
 	}
-	if s.Value > s.AllRange-s.ViewRange {
-		s.Value = s.AllRange - s.ViewRange
+	if s.Value > float64(*s.AllRange-*s.ViewRange) {
+		s.Value = float64(*s.AllRange - *s.ViewRange)
 	}
 
 	// ツマミの位置を更新
-	// SetRangeのロジックを流用したいが、SetRangeは引数が必要なのでここで再計算
-	if s.AllRange > s.ViewRange {
-		s.knob.Y = int(float64(s.Value) * float64(s.Height-s.knob.Height) / float64(s.AllRange-s.ViewRange))
+	if *s.AllRange > *s.ViewRange {
+		s.knob.Y = int(float64(s.Value) * float64(s.Height-s.knob.Height) / float64(*s.AllRange-*s.ViewRange))
 	} else {
 		s.knob.Y = 0
 	}
@@ -101,25 +101,24 @@ func (s *ScrollSliderV) Move(delta float64) {
 }
 
 // ScrollSliderVの範囲設定
-func (s *ScrollSliderV) SetRange(viewrange, allrange float64) {
-	s.ViewRange = viewrange
-	s.AllRange = allrange
-	if viewrange >= allrange {
+func (s *ScrollSliderV) Layout() {
+	if *s.ViewRange >= *s.AllRange {
 		s.knob.Height = s.Height
 		s.knob.Y = 0
 		s.Value = 0
 		return
 	}
-	s.knob.Height = int(float64(s.Height) * float64(s.ViewRange) / float64(s.AllRange))
-	s.knob.Y = int(float64(s.Value) * float64(s.Height-s.knob.Height) / float64(s.AllRange-s.ViewRange))
+
+	s.knob.Height = int(float64(s.Height) * float64(*s.ViewRange) / float64(*s.AllRange))
+	s.knob.Y = int(float64(s.Value) * float64(s.Height-s.knob.Height) / float64(*s.AllRange-*s.ViewRange))
 
 	if s.knob.Y < 0 {
 		s.knob.Y = 0
-		s.Value = float64(s.knob.Y) / float64(s.Height-s.knob.Height) * (s.AllRange - s.ViewRange)
+		s.Value = 0
 	}
 	if s.knob.Y > s.Height-s.knob.Height {
 		s.knob.Y = s.Height - s.knob.Height
-		s.Value = float64(s.knob.Y) / float64(s.Height-s.knob.Height) * (s.AllRange - s.ViewRange)
+		s.Value = float64(*s.AllRange - *s.ViewRange)
 	}
 }
 
@@ -157,10 +156,10 @@ func (s *ScrollBarV) InitScrollBarV(x, y, w, h int) {
 	// ボタンの挙動設定
 	// 押しっぱなしで連続スクロールするようにOnRepeatを使用
 	s.buttonUp.OnRepeat = func() {
-		s.slider.Move(-s.slider.ViewRange * 0.1)
+		s.slider.Move(-float64(*s.slider.ViewRange) * 0.1)
 	}
 	s.buttonDown.OnRepeat = func() {
-		s.slider.Move(s.slider.ViewRange * 0.1)
+		s.slider.Move(float64(*s.slider.ViewRange) * 0.1)
 	}
 
 	s.slider.OnSlide = func() {
@@ -170,8 +169,12 @@ func (s *ScrollBarV) InitScrollBarV(x, y, w, h int) {
 	}
 }
 
-func (s *ScrollBarV) SetRange(viewrange, allrange float64) {
-	s.slider.SetRange(viewrange, allrange)
+func (s *ScrollBarV) SetViewRange(viewrange *int) {
+	s.slider.ViewRange = viewrange
+}
+
+func (s *ScrollBarV) SetMaxRange(allrange *int) {
+	s.slider.AllRange = allrange
 }
 
 func (s *ScrollBarV) GetValue() float64 {
@@ -183,9 +186,10 @@ type ScrollSliderH struct {
 	InteractiveWidget
 	parts.Grouping
 
-	knob                       InteractiveWidget
-	ViewRange, AllRange, Value float64
-	OnSlide                    func()
+	knob                InteractiveWidget
+	ViewRange, AllRange *int
+	Value               float64
+	OnSlide             func()
 }
 
 // ScrollSliderH生成
@@ -215,7 +219,7 @@ func (s *ScrollSliderH) InitSliderH(x, y, w, h int) {
 		ox, _ := s.GetGlobalPos()
 		targetX := x - dragOffsetX - ox
 		if s.Width-s.knob.Width > 0 {
-			targetValue := float64(targetX) / float64(s.Width-s.knob.Width) * (s.AllRange - s.ViewRange)
+			targetValue := float64(targetX) / float64(s.Width-s.knob.Width) * float64(*s.AllRange-*s.ViewRange)
 			s.Move(targetValue - s.Value)
 		}
 	}
@@ -225,9 +229,9 @@ func (s *ScrollSliderH) InitSliderH(x, y, w, h int) {
 		x, _, _ := s.GetPosition()
 		kx, _ := s.knob.GetGlobalPos()
 		if x < kx {
-			s.Move(-s.ViewRange)
+			s.Move(-float64(*s.ViewRange))
 		} else if x > kx+s.knob.Width {
-			s.Move(s.ViewRange)
+			s.Move(float64(*s.ViewRange))
 		}
 	}
 }
@@ -238,14 +242,13 @@ func (s *ScrollSliderH) Move(delta float64) {
 	if s.Value < 0 {
 		s.Value = 0
 	}
-	if s.Value > s.AllRange-s.ViewRange {
-		s.Value = s.AllRange - s.ViewRange
+	if s.Value > float64(*s.AllRange-*s.ViewRange) {
+		s.Value = float64(*s.AllRange - *s.ViewRange)
 	}
 
 	// ツマミの位置を更新
-	// SetRangeのロジックを流用したいが、SetRangeは引数が必要なのでここで再計算
-	if s.AllRange > s.ViewRange {
-		s.knob.X = int(float64(s.Value) * float64(s.Width-s.knob.Width) / float64(s.AllRange-s.ViewRange))
+	if *s.AllRange > *s.ViewRange {
+		s.knob.X = int(float64(s.Value) * float64(s.Width-s.knob.Width) / float64(*s.AllRange-*s.ViewRange))
 	} else {
 		s.knob.X = 0
 	}
@@ -256,25 +259,24 @@ func (s *ScrollSliderH) Move(delta float64) {
 }
 
 // ScrollSliderHの範囲設定
-func (s *ScrollSliderH) SetRange(viewrange, allrange float64) {
-	s.ViewRange = viewrange
-	s.AllRange = allrange
-	if viewrange >= allrange {
+func (s *ScrollSliderH) Layout() {
+	if *s.ViewRange >= *s.AllRange {
 		s.knob.Width = s.Width
 		s.knob.X = 0
 		s.Value = 0
 		return
 	}
-	s.knob.Width = int(float64(s.Width) * float64(s.ViewRange) / float64(s.AllRange))
-	s.knob.X = int(float64(s.Value) * float64(s.Width-s.knob.Width) / float64(s.AllRange-s.ViewRange))
+
+	s.knob.Width = int(float64(s.Width) * float64(*s.ViewRange) / float64(*s.AllRange))
+	s.knob.X = int(float64(s.Value) * float64(s.Width-s.knob.Width) / float64(*s.AllRange-*s.ViewRange))
 
 	if s.knob.X < 0 {
 		s.knob.X = 0
-		s.Value = float64(s.knob.X) / float64(s.Width-s.knob.Width) * (s.AllRange - s.ViewRange)
+		s.Value = 0
 	}
 	if s.knob.X > s.Width-s.knob.Width {
 		s.knob.X = s.Width - s.knob.Width
-		s.Value = float64(s.knob.X) / float64(s.Width-s.knob.Width) * (s.AllRange - s.ViewRange)
+		s.Value = float64(*s.AllRange - *s.ViewRange)
 	}
 }
 
@@ -312,10 +314,10 @@ func (s *ScrollBarH) InitScrollBarH(x, y, w, h int) {
 	// ボタンの挙動設定
 	// 押しっぱなしで連続スクロールするようにOnRepeatを使用
 	s.buttonLeft.OnRepeat = func() {
-		s.slider.Move(-s.slider.ViewRange * 0.1)
+		s.slider.Move(-float64(*s.slider.ViewRange) * 0.1)
 	}
 	s.buttonRight.OnRepeat = func() {
-		s.slider.Move(s.slider.ViewRange * 0.1)
+		s.slider.Move(float64(*s.slider.ViewRange) * 0.1)
 	}
 
 	s.slider.OnSlide = func() {
@@ -325,8 +327,12 @@ func (s *ScrollBarH) InitScrollBarH(x, y, w, h int) {
 	}
 }
 
-func (s *ScrollBarH) SetRange(viewrange, allrange float64) {
-	s.slider.SetRange(viewrange, allrange)
+func (s *ScrollBarH) SetViewRange(viewrange *int) {
+	s.slider.ViewRange = viewrange
+}
+
+func (s *ScrollBarH) SetMaxRange(allrange *int) {
+	s.slider.AllRange = allrange
 }
 
 func (s *ScrollBarH) GetValue() float64 {

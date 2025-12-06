@@ -1,6 +1,7 @@
 package main
 
 import (
+	"MyProject/ui"
 	"MyProject/ui/parts"
 	"image/color"
 
@@ -10,26 +11,23 @@ import (
 
 // ToolButtonはツール選択ボタンのコントロール
 type ToolButton struct {
-	parts.WidgetBase       // 基本的なコントロール機能
-	parts.MouseInteraction // マウス操作（クリックなど）の処理
-	parts.Drawable         // 描画機能
+	ui.InteractiveWidget
 
 	Size int
 }
 
-// ToolButton生成
-func NewToolButton(x, y, w, h, size int) *ToolButton {
-	b := &ToolButton{}
-	b.InitWidgetBase(b, x, y, w, h)
-	b.InitMouseInteraction(b)
-	b.InitDrawable(b)
-	b.OnDraw = b.drawButton
+// ToolButton初期化
+func (b *ToolButton) InitToolButton(g parts.AddChilder, x, y, w, h, size int) {
+	b.InitInteractiveWidget(nil, x, y, w, h)
+	b.OnDraw = b.drawToolButton
 	b.Size = size
-	return b
+	if g != nil {
+		g.AddChild(b)
+	}
 }
 
-// drawButtonはボタンの描画処理を行う
-func (b *ToolButton) drawButton(screen *ebiten.Image) {
+// drawToolButtonはボタンの描画処理を行う
+func (b *ToolButton) drawToolButton(screen *ebiten.Image) {
 	gx, gy := b.GetGlobalPos()
 	vector.StrokeRect(screen, float32(gx), float32(gy), float32(b.Width), float32(b.Height), 2, color.RGBA{0xff, 0xff, 0xff, 0xff}, false)
 	vector.FillCircle(screen, float32(gx+b.Width/2), float32(gy+b.Height/2), float32(b.Size/2), color.RGBA{0xff, 0xff, 0xff, 0xff}, true)
@@ -41,12 +39,13 @@ type ToolMarker struct {
 	parts.TextDrawable
 }
 
-// ToolMarker生成
-func NewToolMarker(x, y, w, h int) *ToolMarker {
-	m := &ToolMarker{}
+// ToolMarker初期化
+func (m *ToolMarker) InitToolMarker(g parts.AddChilder, x, y, w, h int) {
 	m.InitWidgetBase(m, x, y, w, h)
 	m.InitTextDrawable(m, "▶", 16, parts.AlignCenter, parts.AlignCenter, 0, 0, color.RGBA{0xff, 0xff, 0x00, 0xff}, false)
-	return m
+	if g != nil {
+		g.AddChild(m)
+	}
 }
 
 // ToolBoxはツール選択ボックスのコントロール
@@ -54,8 +53,8 @@ type ToolBox struct {
 	parts.WidgetBase
 	parts.Grouping
 
-	marker   *ToolMarker
-	buttons  []*ToolButton
+	marker   ToolMarker
+	buttons  [8]ToolButton
 	OnSelect func(int)
 }
 
@@ -65,21 +64,18 @@ func NewToolBox(x, y, w, h int) *ToolBox {
 	tb.InitWidgetBase(tb, x, y, w, h)
 	tb.InitGrouping(tb)
 	// ToolMarker生成と配置
-	tb.marker = NewToolMarker(0, 2*32+8, 16, 16)
-	tb.Grouping.AddChild(tb.marker)
+	tb.marker.InitToolMarker(tb, 0, 2*32+8, 16, 16)
 
 	// ToolButton生成と配置
-	for i := 0; i < 8; i++ {
-		b := NewToolButton(18, i*32, 32, 32, i*2+2)
-		tb.AddChild(b)
-		tb.buttons = append(tb.buttons, b)
+	for i := range tb.buttons {
+		tb.buttons[i].InitToolButton(tb, 18, i*32, 32, 32, i*2+2)
 
 		// ボタンクリック時の処理
-		b.OnClick = func() {
-			tb.marker.Y = b.Y + 8
+		tb.buttons[i].OnClick = func() {
+			tb.marker.Y = i*32 + 8
 
 			if tb.OnSelect != nil {
-				tb.OnSelect(b.Size)
+				tb.OnSelect(tb.buttons[i].Size)
 			}
 		}
 	}

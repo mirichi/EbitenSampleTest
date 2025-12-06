@@ -11,9 +11,7 @@ import (
 
 // TettBoxは文字入力と描画をするコントロール
 type TextBox struct {
-	parts.WidgetBase
-	parts.MouseInteraction
-	parts.Drawable
+	InteractiveWidget
 	parts.TextInputable
 	parts.Focusable
 
@@ -32,15 +30,13 @@ func (tb *TextBox) InitTextBox(g parts.AddChilder, x, y, w, h int, text string, 
 	// 初期テキスト
 	tb.field.SetTextAndSelection(text, len(text), len(text))
 
-	tb.InitWidgetBase(tb, x, y, w, h)
-	tb.InitMouseInteraction(tb)
-	tb.InitDrawable(tb)
-	tb.OnDraw = tb.drawTextBox
+	tb.InitInteractiveWidget(nil, x, y, w, h)
 	tb.InitTextInputable(tb, &tb.field, &tb.counter, fontSize, parts.AlignLeft, color.White, color.White, func() bool { return tb.Focused })
 	tb.InitFocusable(tb)
 	if g != nil {
 		g.AddChild(tb)
 	}
+	tb.OnDraw = tb.drawTextBox
 
 	tb.OnFocus = func() {
 		tb.field.Focus()

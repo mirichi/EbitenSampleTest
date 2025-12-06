@@ -10,9 +10,7 @@ import (
 
 // ScrollButtonはスクロールバー用のフォーカスを持たないボタン
 type ScrollButton struct {
-	parts.WidgetBase
-	parts.MouseInteraction
-	parts.Drawable
+	InteractiveWidget
 	parts.TextDrawable
 }
 
@@ -24,58 +22,19 @@ func NewScrollButton(x, y, w, h int, text string, size int) *ScrollButton {
 }
 
 func (b *ScrollButton) InitScrollButton(g parts.AddChilder, x, y, w, h int, text string, size int) {
-	b.InitWidgetBase(b, x, y, w, h)
-	b.InitMouseInteraction(b)
-	b.InitDrawable(b)
-	b.OnDraw = b.drawScrollButton
+	b.InitInteractiveWidget(nil, x, y, w, h)
 	b.InitTextDrawable(b, text, size, parts.AlignCenter, parts.AlignCenter, 0, 0, color.White, true)
 	if g != nil {
 		g.AddChild(b)
 	}
 }
 
-func (b *ScrollButton) drawScrollButton(screen *ebiten.Image) {
-	gx, gy := b.GetGlobalPos()
-	vector.FillRect(screen, float32(gx), float32(gy), float32(b.Width), float32(b.Height), color.RGBA{0x60, 0x60, 0x60, 0xff}, false)
-}
-
-// ScrollKnobはスクロールバー用のツマミ
-type ScrollKnob struct {
-	parts.WidgetBase
-	parts.MouseInteraction
-	parts.Drawable
-}
-
-// ScrollKnob生成
-func NewKnob(x, y, w, h int) *ScrollKnob {
-	k := &ScrollKnob{}
-	k.InitScrollKnob(nil, x, y, w, h)
-	return k
-}
-
-func (k *ScrollKnob) InitScrollKnob(g parts.AddChilder, x, y, w, h int) {
-	k.InitWidgetBase(k, x, y, w, h)
-	k.InitMouseInteraction(k)
-	k.InitDrawable(k)
-	k.OnDraw = k.drawKnob
-	if g != nil {
-		g.AddChild(k)
-	}
-}
-
-func (k *ScrollKnob) drawKnob(screen *ebiten.Image) {
-	gx, gy := k.GetGlobalPos()
-	vector.FillRect(screen, float32(gx), float32(gy), float32(k.Width), float32(k.Height), color.RGBA{0x60, 0x60, 0x60, 0xff}, false)
-}
-
 // ScrollSliderVはスクロールバー用のスライド範囲
 type ScrollSliderV struct {
-	parts.WidgetBase
-	parts.MouseInteraction
-	parts.Drawable
+	InteractiveWidget
 	parts.Grouping
 
-	knob                       ScrollKnob
+	knob                       InteractiveWidget
 	ViewRange, AllRange, Value float64
 	OnSlide                    func()
 }
@@ -88,13 +47,11 @@ func NewSliderV(x, y, w, h int) *ScrollSliderV {
 }
 
 func (s *ScrollSliderV) InitSliderV(g parts.AddChilder, x, y, w, h int) {
-	s.InitWidgetBase(s, x, y, w, h)
-	s.InitMouseInteraction(s)
-	s.InitDrawable(s)
+	s.InitInteractiveWidget(nil, x, y, w, h)
 	s.OnDraw = s.drawSliderV
 	s.InitGrouping(s)
 	s.ClippingFlag = false
-	s.knob.InitScrollKnob(s, 0, y, w, 60)
+	s.knob.InitInteractiveWidget(s, 0, y, w, 60)
 	s.AutoResizable = true
 	if g != nil {
 		g.AddChild(s)
@@ -179,8 +136,7 @@ func (s *ScrollSliderV) SetRange(viewrange, allrange float64) {
 
 // ScrollBarVは縦方向にスクロールするための複合コントロール
 type ScrollBarV struct {
-	parts.WidgetBase
-	parts.Grouping
+	Blank
 
 	buttonUp   ScrollButton
 	slider     ScrollSliderV
@@ -197,8 +153,7 @@ func NewScrollBarV(x, y, w, h int) *ScrollBarV {
 }
 
 func (s *ScrollBarV) InitScrollBarV(g parts.AddChilder, x, y, w, h int) {
-	s.InitWidgetBase(s, x, y, w, h)
-	s.InitGrouping(s)
+	s.InitBlank(nil, x, y, w, h)
 	s.ClippingFlag = false
 	s.buttonUp.InitScrollButton(s, 0, 0, w, w, "▲", w/2)
 	s.slider.InitSliderV(s, x, w, w, h)
@@ -234,12 +189,10 @@ func (s *ScrollBarV) GetValue() float64 {
 
 // ScrollSliderHは横方向のスクロールバー用のスライド範囲
 type ScrollSliderH struct {
-	parts.WidgetBase
-	parts.MouseInteraction
-	parts.Drawable
+	InteractiveWidget
 	parts.Grouping
 
-	knob                       ScrollKnob
+	knob                       InteractiveWidget
 	ViewRange, AllRange, Value float64
 	OnSlide                    func()
 }
@@ -252,13 +205,11 @@ func NewSliderH(x, y, w, h int) *ScrollSliderH {
 }
 
 func (s *ScrollSliderH) InitSliderH(g parts.AddChilder, x, y, w, h int) {
-	s.InitWidgetBase(s, x, y, w, h)
-	s.InitMouseInteraction(s)
-	s.InitDrawable(s)
+	s.InitInteractiveWidget(nil, x, y, w, h)
 	s.OnDraw = s.drawSliderH
 	s.InitGrouping(s)
 	s.ClippingFlag = false
-	s.knob.InitScrollKnob(s, x, 0, 60, h)
+	s.knob.InitInteractiveWidget(s, x, 0, 60, h)
 	s.AutoResizable = true
 	if g != nil {
 		g.AddChild(s)
@@ -343,8 +294,7 @@ func (s *ScrollSliderH) SetRange(viewrange, allrange float64) {
 
 // ScrollBarHは横方向にスクロールするための複合コントロール
 type ScrollBarH struct {
-	parts.WidgetBase
-	parts.Grouping
+	Blank
 
 	buttonLeft  ScrollButton
 	slider      ScrollSliderH
@@ -361,13 +311,12 @@ func NewScrollBarH(x, y, w, h int) *ScrollBarH {
 }
 
 func (s *ScrollBarH) InitScrollBarH(g parts.AddChilder, x, y, w, h int) {
-	s.InitWidgetBase(s, x, y, w, h)
-	s.InitGrouping(s)
+	s.InitBlank(nil, x, y, w, h)
 	s.ClippingFlag = false
 	s.buttonLeft.InitScrollButton(s, 0, 0, h, h, "◀", h/2)
 	s.slider.InitSliderH(s, h, 0, w, h)
 	s.buttonRight.InitScrollButton(s, 0, 0, h, h, "▶", h/2)
-	s.Grouping.AutoLayout = parts.AutoLayoutFitH
+	s.AutoLayout = parts.AutoLayoutFitH
 	if g != nil {
 		g.AddChild(s)
 	}

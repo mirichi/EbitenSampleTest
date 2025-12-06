@@ -7,10 +7,9 @@ type Updatable struct {
 }
 
 // Updatable生成
-func NewUpdatable(c Widget, f func()) *Updatable {
+func NewUpdatable(c Widget) *Updatable {
 	u := &Updatable{
-		Widget:   c,
-		OnUpdate: f,
+		Widget: c,
 	}
 
 	// コントロールのUpdate時に呼ばれる関数を登録する
@@ -21,5 +20,7 @@ func NewUpdatable(c Widget, f func()) *Updatable {
 
 // コントロールのUpdate時に呼ばれるUpdateFunction
 func (u *Updatable) updateFunction() {
-	u.OnUpdate()
+	if u.OnUpdate != nil {
+		u.OnUpdate()
+	}
 }

@@ -4,8 +4,7 @@ import "MyProject/ui/parts"
 
 // ScrollablePanelはスクロール可能なパネル
 type ScrollablePanel struct {
-	parts.WidgetBase
-	parts.Grouping
+	Blank
 
 	topGroup   Blank
 	Area       Blank
@@ -27,8 +26,7 @@ func NewScrollablePanel(x, y, w, h, sbw int) *ScrollablePanel {
 }
 
 func (sp *ScrollablePanel) InitScrollablePanel(g parts.AddChilder, x, y, w, h, sbw int) {
-	sp.InitWidgetBase(sp, x, y, w, h)
-	sp.InitGrouping(sp)
+	sp.InitBlank(nil, x, y, w, h)
 	sp.AutoLayout = parts.AutoLayoutFitV
 
 	// 上部（パネル＋縦スクロールバー）

@@ -8,19 +8,17 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-// MainScreenはコントロールツリーの最上位になる構造体
-// 全てのコントロールをこのMainScreenの子要素として登録することで、
-// MainScreenのUpdate/Drawを呼び出すだけでUI全体の更新と描画が行われる
+// MainScreenはオブジェクトツリーの最上位になる構造体
+// 全てのWidgetをこのMainScreenの子要素として登録することで、
+// MainScreenのHandleInput/Update/Drawを呼び出すだけでUI全体の更新と描画が行われる
 type MainScreen struct {
-	parts.WidgetBase
-	parts.Grouping
+	Blank
 }
 
 // MainScreen生成
 func NewMainScreen() *MainScreen {
 	ms := &MainScreen{}
-	ms.InitWidgetBase(ms, 0, 0, 0, 0)
-	ms.InitGrouping(ms)
+	ms.InitBlank(nil, 0, 0, 0, 0)
 	ms.ClippingFlag = false
 	ms.OrderChange = true
 
@@ -32,10 +30,10 @@ func NewMainScreen() *MainScreen {
 func (ms *MainScreen) HandleInput(t input.Touch) bool {
 	// ブラウザではウィンドウサイズが取得できないので固定値にする
 	if runtime.GOOS == "js" {
-		ms.WidgetBase.Width = 640
-		ms.WidgetBase.Height = 480
+		ms.Width = 640
+		ms.Height = 480
 	} else {
-		ms.WidgetBase.Width, ms.WidgetBase.Height = ebiten.WindowSize()
+		ms.Width, ms.Height = ebiten.WindowSize()
 	}
 	parts.FlameFocus = false
 	r := ms.WidgetBase.HandleInput(t)

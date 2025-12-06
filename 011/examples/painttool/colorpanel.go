@@ -1,86 +1,54 @@
 package main
 
 import (
+	"MyProject/ui"
 	"MyProject/ui/parts"
 	"image/color"
-
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
-// ColorButtonは色選択ボタンのコントロール
-type ColorButton struct {
-	parts.WidgetBase       // 基本的なコントロール機能
-	parts.MouseInteraction // マウス操作（クリックなど）の処理
-	parts.Drawable         // 描画機能
-	Color                  color.Color
-}
-
-// ColorButton生成
-func NewColorButton(x, y, w, h int, color color.Color) *ColorButton {
-	b := &ColorButton{}
-	b.InitWidgetBase(b, x, y, w, h)
-	b.InitMouseInteraction(b)
-	b.InitDrawable(b)
-	b.OnDraw = b.drawButton
-	b.Color = color
-	return b
-}
-
-// drawButtonはボタンの描画処理を行う
-func (b *ColorButton) drawButton(screen *ebiten.Image) {
-	gx, gy := b.GetGlobalPos()
-	vector.FillRect(screen, float32(gx), float32(gy), float32(b.Width), float32(b.Height), b.Color, false)
-}
-
-// ColorMarkerは色選択マーカーのコントロール
+// ColorMarkerは色選択マーカー
 type ColorMarker struct {
 	parts.WidgetBase
 	parts.TextDrawable
 }
 
-// ColorMarker生成
-func NewColorMarker(x, y, w, h int) *ColorMarker {
-	m := &ColorMarker{}
+// ColorMarker初期化
+func (m *ColorMarker) InitColorMarker(g parts.AddChilder, x, y, w, h int) {
 	m.InitWidgetBase(m, x, y, w, h)
 	m.InitTextDrawable(m, "◀", 16, parts.AlignCenter, parts.AlignCenter, 0, 0, color.RGBA{0xff, 0xff, 0x00, 0xff}, false)
-	return m
+	if g != nil {
+		g.AddChild(m)
+	}
 }
 
-// ColorPanelは色選択パネルのコントロール
+// ColorPanelは色選択パネル
 type ColorPanel struct {
-	parts.WidgetBase
-	parts.Grouping
+	ui.Blank
 
-	marker   *ColorMarker
-	buttons  []*ColorButton
+	marker   ColorMarker
+	buttons  [8]ui.InteractiveWidget
 	OnSelect func(color.Color)
 }
 
 func NewColorPanel(x, y, w, h int) *ColorPanel {
 	cp := &ColorPanel{}
-	cp.InitWidgetBase(cp, x, y, w, h)
-	cp.InitGrouping(cp)
+	cp.InitBlank(nil, x, y, w, h)
 
-	// ColorMarker生成と配置
-	cp.marker = NewColorMarker(32, 7*32+8, 16, 16)
-	cp.Grouping.AddChild(cp.marker)
+	// ColorMarker初期化
+	cp.marker.InitColorMarker(&cp.Blank, 32, 7*32+8, 16, 16)
 
-	// ColorButton生成と配置
-	c := []color.Color{color.RGBA{0x00, 0x00, 0x00, 0xff}, color.RGBA{0xff, 0x00, 0x00, 0xff}, color.RGBA{0xff, 0xff, 0x00, 0xff},
+	// ColorButton初期化
+	cols := []color.Color{color.RGBA{0x00, 0x00, 0x00, 0xff}, color.RGBA{0xff, 0x00, 0x00, 0xff}, color.RGBA{0xff, 0xff, 0x00, 0xff},
 		color.RGBA{0x00, 0xff, 0x00, 0xff}, color.RGBA{0x00, 0xff, 0xff, 0xff}, color.RGBA{0x00, 0x00, 0xff, 0xff},
 		color.RGBA{0xff, 0x00, 0xff, 0xff}, color.RGBA{0xff, 0xff, 0xff, 0xff}}
-	for i := 0; i < 8; i++ {
-		b := NewColorButton(0, i*32, 32, 32, c[i])
-		cp.AddChild(b)
-		cp.buttons = append(cp.buttons, b)
-
-		// ボタンクリック時の処理
-		b.OnClick = func() {
-			cp.marker.Y = b.Y + 8
-			cp.marker.Color = b.Color
+	for i, c := range cols {
+		cp.buttons[i].InitInteractiveWidget(cp, 0, i*32, 32, 32)
+		cp.buttons[i].Color = c
+		cp.buttons[i].OnPress = func() {
+			cp.marker.Y = i*32 + 8
+			cp.marker.Color = c
 			if cp.OnSelect != nil {
-				cp.OnSelect(b.Color)
+				cp.OnSelect(c)
 			}
 		}
 	}

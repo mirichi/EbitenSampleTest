@@ -11,10 +11,8 @@ import (
 // TitleBarはウィンドウのタイトルバーを表すコントロール
 // マウスドラッグによるウィンドウの移動機能を提供する
 type TitleBar struct {
-	parts.WidgetBase
-	parts.Drawable
+	InteractiveWidget
 	parts.TextDrawable
-	parts.MouseInteraction
 }
 
 // NewTitleBarは新しいタイトルバーを作成する
@@ -26,14 +24,12 @@ func NewTitleBar(x, y, w, h int, text string) *TitleBar {
 }
 
 func (t *TitleBar) InitTitleBar(g parts.AddChilder, x, y, w, h int, text string) {
-	t.InitWidgetBase(t, x, y, w, h)
-	t.InitDrawable(t)
-	t.OnDraw = t.drawTitleBar
+	t.InitInteractiveWidget(nil, x, y, w, h)
 	t.InitTextDrawable(t, text, h*2/3, parts.AlignCenter, parts.AlignCenter, 0, 0, color.White, true)
-	t.InitMouseInteraction(t)
 	if g != nil {
 		g.AddChild(t)
 	}
+	t.OnDraw = t.drawTitleBar
 
 	// TitleBarをドラッグすると親のWindowが移動するように設定
 	var dragOffsetX, dragOffsetY int
@@ -62,9 +58,7 @@ func (t *TitleBar) drawTitleBar(screen *ebiten.Image) {
 // ClientAreaはウィンドウのクライアント領域を表すコントロール
 // ウィンドウ内に配置される他のコントロールを保持する
 type ClientArea struct {
-	parts.WidgetBase
-	parts.Drawable
-	parts.MouseInteraction
+	InteractiveWidget
 	parts.Grouping
 }
 
@@ -77,14 +71,12 @@ func NewClientArea(x, y, w, h int) *ClientArea {
 }
 
 func (c *ClientArea) InitClientArea(g parts.AddChilder, x, y, w, h int) {
-	c.InitWidgetBase(c, x, y, w, h)
-	c.InitDrawable(c)
-	c.OnDraw = c.drawClientArea
-	c.InitMouseInteraction(c)
+	c.InitInteractiveWidget(nil, x, y, w, h)
 	c.InitGrouping(c)
 	if g != nil {
 		g.AddChild(c)
 	}
+	c.OnDraw = c.drawClientArea
 	c.AutoResizable = true
 
 	// ClientAreaをドラッグすると親のWindowが移動する

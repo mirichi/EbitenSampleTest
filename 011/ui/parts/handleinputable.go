@@ -9,10 +9,9 @@ type HandleInputable struct {
 }
 
 // HandleInputable生成
-func NewHandleInputable(c Widget, f func(t input.Touch) bool) *HandleInputable {
+func NewHandleInputable(c Widget) *HandleInputable {
 	u := &HandleInputable{
-		Widget:        c,
-		OnHandleInput: f,
+		Widget: c,
 	}
 
 	// コントロールのHandleInput時に呼ばれる関数を登録する
@@ -23,5 +22,8 @@ func NewHandleInputable(c Widget, f func(t input.Touch) bool) *HandleInputable {
 
 // コントロールのHandleInput時に呼ばれるHandleInputFunction
 func (u *HandleInputable) handleInputFunction(t input.Touch) bool {
-	return u.OnHandleInput(t)
+	if u.OnHandleInput != nil {
+		return u.OnHandleInput(t)
+	}
+	return false
 }

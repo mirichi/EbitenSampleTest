@@ -13,14 +13,29 @@ import (
 // MainScreenのHandleInput/Update/Drawを呼び出すだけでUI全体の更新と描画が行われる
 type MainScreen struct {
 	GroupingWidget
+	parts.Updatable
+	parts.Drawable
 }
 
 // MainScreen生成
 func NewMainScreen() *MainScreen {
 	ms := &MainScreen{}
+	ms.InitUpdatable(ms)
 	ms.InitGroupingWidget(0, 0, 0, 0)
+	ms.InitDrawable(ms)
 	ms.ClippingFlag = false
 	ms.OrderChange = true
+
+	PopupWidgets = NewPopupContainer()
+
+	ms.OnUpdate = func() {
+		PopupWidgets.Update()
+		parts.FinalizeCursor()
+	}
+
+	ms.OnDraw = func(screen *ebiten.Image) {
+		PopupWidgets.Draw(screen)
+	}
 
 	return ms
 }
@@ -36,14 +51,12 @@ func (ms *MainScreen) HandleInput(t input.Touch) bool {
 		ms.Width, ms.Height = ebiten.WindowSize()
 	}
 	parts.FlameFocus = false
-	r := ms.WidgetBase.HandleInput(t)
+	r := PopupWidgets.HandleInput(t)
+	if !r {
+		r = ms.GroupingWidget.HandleInput(t)
+	}
 	if !parts.FlameFocus && t != nil && t.IsJustPressed() && parts.FocusedWidget != nil {
 		parts.FocusedWidget.Blur()
 	}
 	return r
-}
-
-func (ms *MainScreen) Update() {
-	ms.WidgetBase.Update()
-	parts.FinalizeCursor()
 }

@@ -77,6 +77,12 @@ func createWindow(x, y, w, h int, str string) *ui.Window {
 	textbox := ui.NewTextBox(50, 300, 200, 30, "日本語入力", 20)
 	window.AddChild(textbox)
 
+	b := ui.NewButton(0, 0, 200, 50, "Popup", 30)
+	b.OnClick = func() {
+		ui.PopupWidgets.AddChild(ui.NewPopupMenu(100, 100, []string{"あ", "い", "う", "え", "お"}))
+	}
+	window.AddChild(b)
+
 	// ClientAreaのAutoLayoutを設定してオートレイアウト実行
 	window.ClientArea.AutoLayout = parts.AutoLayoutV
 	window.Layout()

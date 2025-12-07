@@ -15,6 +15,7 @@ type MouseInteraction struct {
 	OnDrag      func(x, y int)
 	OnDragEnd   func()
 	OnPressing  func() // 押されている間毎フレーム呼ばれる
+	OnRelease   func()
 	OnRepeat    func() // オートリピート（押しっぱなしで連続実行）
 
 	RepeatDelay    int // リピート開始までの待機フレーム数
@@ -51,21 +52,36 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 		if gx <= x && x < gx+cb.Width && gy <= y && y < gy+cb.Height {
 			if t.IsJustPressed() { // 今回押された
 				m.touch = t
+
 				if m.OnPress != nil {
 					m.OnPress()
 				}
+
 				if m.OnDragStart != nil {
 					m.OnDragStart(x, y)
 				}
 			}
-			if !t.IsPressed() { // 押されていない
+
+			if t.IsPressed() { // 押されている
+				if m.OnPressing != nil {
+					m.OnPressing()
+				}
+			} else { // 押されていない
 				if m.OnHover != nil {
 					m.OnHover()
 				}
 			}
+
+			if t.IsJustReleased() { // 今回離された
+				if m.OnRelease != nil {
+					m.OnRelease()
+				}
+			}
+
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -76,9 +92,15 @@ func (m *MouseInteraction) updateFunction() {
 		if m.touch.IsJustReleased() { // 今回離された
 			m.touch = nil
 			m.pressDuration = 0
+
+			if m.OnRelease != nil {
+				m.OnRelease()
+			}
+
 			if m.OnClick != nil {
 				m.OnClick()
 			}
+
 			if m.OnDragEnd != nil {
 				m.OnDragEnd()
 			}

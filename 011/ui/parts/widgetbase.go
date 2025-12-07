@@ -72,10 +72,8 @@ func (cb *WidgetBase) AddUpdateFunction(f func()) {
 
 // 登録されたUpdateFunctionsを順次実行する
 func (cb *WidgetBase) Update() {
-	if cb.Visible {
-		for i := len(cb.updateFunctions) - 1; i >= 0; i-- {
-			cb.updateFunctions[i]()
-		}
+	for i := len(cb.updateFunctions) - 1; i >= 0; i-- {
+		cb.updateFunctions[i]()
 	}
 }
 

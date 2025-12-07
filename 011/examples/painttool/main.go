@@ -47,12 +47,11 @@ func main() {
 	// スクロール可能なパネル生成
 	sp := ui.NewScrollablePanel(0, 0, 0, 0, 20)
 	sp.AutoResizable = true
+	win.AddChild(sp)
 
 	// キャンバス生成
 	canvas := NewCanvas(0, 0, 480, 320)
 	sp.AddChild(canvas)
-	win.AddChild(sp)
-
 	sp.SetMaxRange(&canvas.Width, &canvas.Height)
 
 	// ToolBox生成

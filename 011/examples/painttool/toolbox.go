@@ -55,11 +55,11 @@ func NewToolBox(x, y, w, h int) *ToolBox {
 		tb.AddChild(&tb.buttons[i])
 
 		// ボタンクリック時の処理
-		tb.buttons[i].OnClick = func() {
+		tb.buttons[i].OnPress = func() {
 			tb.marker.Y = i*32 + 8
 
 			if tb.OnSelect != nil {
-				tb.OnSelect(tb.buttons[i].Size)
+				tb.OnSelect(i*2 + 2)
 			}
 		}
 	}

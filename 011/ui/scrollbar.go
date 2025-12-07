@@ -45,7 +45,7 @@ func (s *ScrollSliderV) InitSliderV(x, y, w, h int) {
 	s.InitInteractiveWidget(x, y, w, h)
 	s.InitGrouping(s)
 
-	s.Color = color.RGBA{0x20, 0x20, 0x20, 0xff}
+	s.BackColor = color.RGBA{0x20, 0x20, 0x20, 0xff}
 	s.ClippingFlag = false
 	s.AutoResizable = true
 
@@ -203,7 +203,7 @@ func (s *ScrollSliderH) InitSliderH(x, y, w, h int) {
 	s.InitInteractiveWidget(x, y, w, h)
 	s.InitGrouping(s)
 
-	s.Color = color.RGBA{0x20, 0x20, 0x20, 0xff}
+	s.BackColor = color.RGBA{0x20, 0x20, 0x20, 0xff}
 	s.ClippingFlag = false
 	s.AutoResizable = true
 

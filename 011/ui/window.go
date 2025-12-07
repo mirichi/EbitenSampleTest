@@ -23,7 +23,7 @@ func NewTitleBar(x, y, w, h int, text string) *TitleBar {
 func (t *TitleBar) InitTitleBar(x, y, w, h int, text string) {
 	t.InitInteractiveWidget(x, y, w, h)
 	t.InitTextDrawable(t, text, h*2/3, parts.AlignCenter, parts.AlignCenter, 0, 0, color.White, true)
-	t.Color = color.RGBA{0x00, 0x40, 0x00, 0xff}
+	t.BackColor = color.RGBA{0x00, 0x40, 0x00, 0xff}
 
 	// TitleBarをドラッグすると親のWindowが移動するように設定
 	var dragOffsetX, dragOffsetY int
@@ -62,7 +62,7 @@ func NewClientArea(x, y, w, h int) *ClientArea {
 func (c *ClientArea) InitClientArea(x, y, w, h int) {
 	c.InitInteractiveWidget(x, y, w, h)
 	c.InitGrouping(c)
-	c.Color = color.RGBA{0x30, 0x30, 0x30, 0xff}
+	c.BackColor = color.RGBA{0x30, 0x30, 0x30, 0xff}
 	c.AutoResizable = true
 
 	// ClientAreaをドラッグすると親のWindowが移動する

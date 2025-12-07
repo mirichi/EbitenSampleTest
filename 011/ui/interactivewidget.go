@@ -14,7 +14,7 @@ type InteractiveWidget struct {
 	parts.MouseInteraction // マウス操作（クリックなど）の処理
 	parts.Drawable         // 描画機能
 
-	Color color.Color
+	BackColor color.Color
 }
 
 // InteractiveWidget生成
@@ -32,8 +32,8 @@ func (b *InteractiveWidget) InitInteractiveWidget(x, y, w, h int) {
 
 	b.OnDraw = func(screen *ebiten.Image) {
 		gx, gy := b.GetGlobalPos()
-		vector.FillRect(screen, float32(gx), float32(gy), float32(b.Width), float32(b.Height), b.Color, false)
+		vector.FillRect(screen, float32(gx), float32(gy), float32(b.Width), float32(b.Height), b.BackColor, false)
 	}
 
-	b.Color = color.RGBA{0x60, 0x60, 0x60, 0xff}
+	b.BackColor = color.RGBA{0x60, 0x60, 0x60, 0xff}
 }

@@ -29,7 +29,7 @@ func NewColorPanel(x, y, w, h int) *ColorPanel {
 	for i, c := range cols {
 		cp.buttons[i].InitInteractiveWidget(0, i*32, 32, 32)
 		cp.AddChild(&cp.buttons[i])
-		cp.buttons[i].Color = c
+		cp.buttons[i].BackColor = c
 		cp.buttons[i].OnPress = func() {
 			cp.marker.Y = i*32 + 8
 			cp.marker.TextColor = c

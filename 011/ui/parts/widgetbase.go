@@ -14,8 +14,8 @@ type Widget interface {
 	GetWidgetBase() *WidgetBase
 }
 
-// WidgetBaseはコントロールの基本機能を実装した構造体
-// 親コントロールの参照、座標、サイズ、可視性などの共通プロパティを管理する
+// WidgetBaseはWidgetインターフェース基本機能を実装した構造体
+// 親ウィジェットの参照、座標、サイズ、可視性などの共通プロパティを管理する
 // また、HandleInput/Update/Drawの各フェーズで実行される関数リストを保持している
 type WidgetBase struct {
 	Widget               Widget

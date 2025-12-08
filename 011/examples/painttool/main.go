@@ -73,6 +73,11 @@ func main() {
 		canvas.LineWidth = s
 	}
 
+	canvas.OnRightClick = func() {
+		ui.PopupWidgets.AddChild(ui.NewPopupMenu(0, 0, []string{"Clear"}))
+		canvas.Image.Fill(color.Black)
+	}
+
 	game := &Game{
 		mainscreen: ms,
 	}

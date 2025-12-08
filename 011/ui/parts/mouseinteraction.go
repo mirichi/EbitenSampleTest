@@ -8,15 +8,16 @@ type MouseInteraction struct {
 	Widget Widget
 	touch  input.Touch
 
-	OnPress     func()
-	OnHover     func()
-	OnClick     func()
-	OnDragStart func(x, y int)
-	OnDrag      func(x, y int)
-	OnDragEnd   func()
-	OnPressing  func() // 押されている間毎フレーム呼ばれる
-	OnRelease   func()
-	OnRepeat    func() // オートリピート（押しっぱなしで連続実行）
+	OnPress      func()
+	OnHover      func()
+	OnClick      func()
+	OnRightClick func() // 右クリック
+	OnDragStart  func(x, y int)
+	OnDrag       func(x, y int)
+	OnDragEnd    func()
+	OnPressing   func() // 押されている間毎フレーム呼ばれる
+	OnRelease    func()
+	OnRepeat     func() // オートリピート（押しっぱなしで連続実行）
 
 	RepeatDelay    int // リピート開始までの待機フレーム数
 	RepeatInterval int // リピート間隔のフレーム数
@@ -134,6 +135,19 @@ func (m *MouseInteraction) updateFunction() {
 				if x < gx || gx+cb.Width <= x || y < gy || gy+cb.Height <= y {
 					m.touch = nil
 				}
+			}
+		}
+	}
+
+	cb := m.Widget.GetWidgetBase()
+	gx, gy := cb.GetGlobalPos()
+	x, y := input.GetMouseTouch().Pos()
+	// 座標判定
+	if gx <= x && x < gx+cb.Width && gy <= y && y < gy+cb.Height {
+		// 右クリック検出
+		if input.IsRightJustReleased() {
+			if m.OnRightClick != nil {
+				m.OnRightClick()
 			}
 		}
 	}

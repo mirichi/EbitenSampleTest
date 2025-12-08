@@ -50,13 +50,17 @@ func (ms *MainScreen) HandleInput(t input.Touch) bool {
 	} else {
 		ms.Width, ms.Height = ebiten.WindowSize()
 	}
+
 	parts.FlameFocus = false
+
 	r := PopupWidgets.HandleInput(t)
 	if !r {
 		r = ms.GroupingWidget.HandleInput(t)
 	}
+
 	if !parts.FlameFocus && t != nil && t.IsJustPressed() && parts.FocusedWidget != nil {
 		parts.FocusedWidget.Blur()
 	}
+
 	return r
 }

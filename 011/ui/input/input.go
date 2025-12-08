@@ -159,3 +159,16 @@ func GetPointer() Touch {
 	}
 	return &mouseTouch
 }
+
+// 右クリック関連
+func IsRightJustPressed() bool {
+	return inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight)
+}
+
+func IsRightPressed() bool {
+	return ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight)
+}
+
+func IsRightJustReleased() bool {
+	return inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonRight)
+}

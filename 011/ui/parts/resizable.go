@@ -101,7 +101,7 @@ func (r *Resizable) updateCursor(m int) {
 
 // コントロールのHandleInput時に呼ばれるHandleInputFunction
 func (r *Resizable) handleInputFunction(t input.Touch) bool {
-	if r.touch == nil {
+	if r.touch == nil && t != nil {
 		if t.IsJustPressed() { // 今回押された
 			mx, my := t.Pos()
 			r.mode = r.judgeResize(mx, my)

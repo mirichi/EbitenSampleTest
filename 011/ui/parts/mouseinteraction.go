@@ -45,6 +45,10 @@ func (m *MouseInteraction) InitMouseInteraction(c Widget) {
 // handleInputFunctionは入力イベントを処理します。
 // クリック開始、ドラッグ開始、ホバー状態の判定を行います。
 func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
+	if t == nil {
+		return false
+	}
+
 	if m.touch == nil {
 		cb := m.Widget.GetWidgetBase()
 		gx, gy := cb.GetGlobalPos()

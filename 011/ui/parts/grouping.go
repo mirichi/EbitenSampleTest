@@ -51,13 +51,17 @@ func (g *Grouping) AddChild(c Widget) {
 
 // コントロールのHandleInput時に呼ばれるHandleInputFunction
 func (c *Grouping) handleInputFunction(t input.Touch) bool {
+	handle := false
 	cb := c.Widget.GetWidgetBase()
 	gx, gy := cb.GetGlobalPos()
-	x, y := t.Pos()
-	if c.ClippingFlag {
-		if gx <= x && x < gx+cb.Width && gy <= y && y < gy+cb.Height {
-		} else {
-			return false // 範囲に入っていなければ戻る
+	if t != nil {
+		x, y := t.Pos()
+		if c.ClippingFlag {
+			if gx <= x && x < gx+cb.Width && gy <= y && y < gy+cb.Height {
+			} else {
+				// 範囲に入っていなければ入力を渡さない
+				t = nil
+			}
 		}
 	}
 
@@ -69,11 +73,14 @@ func (c *Grouping) handleInputFunction(t input.Touch) bool {
 				c.Children = append(c.Children, c.Children[i])
 				c.Children = append(c.Children[:i], c.Children[i+1:]...)
 			}
-			return true
+
+			// 入力を処理したら消費する
+			t = nil
+			handle = true
 		}
 	}
 
-	return false
+	return handle
 }
 
 // コントロールのUpdate時に呼ばれるUpdateFunction

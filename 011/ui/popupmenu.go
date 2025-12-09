@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"MyProject/ui/input"
 	"MyProject/ui/parts"
 	"image/color"
 
@@ -14,7 +13,6 @@ type PopupMenu struct {
 	parts.WidgetBase
 	parts.Drawable
 	parts.Grouping
-	parts.HandleInputable
 
 	Items       []string
 	OnSelect    func(index int)
@@ -46,7 +44,6 @@ func (pm *PopupMenu) InitPopupMenu(x, y int, items []string) {
 	pm.InitWidgetBase(pm, x, y, width, height)
 	pm.InitDrawable(pm)
 	pm.InitGrouping(pm)
-	pm.InitHandleInputable(pm)
 	pm.ClippingFlag = false
 
 	// 背景描画
@@ -65,13 +62,12 @@ func (pm *PopupMenu) InitPopupMenu(x, y int, items []string) {
 		pm.AddChild(item)
 	}
 
-	// ホバー状態を解除
-	pm.OnHandleInput = func(t input.Touch) bool {
-		for _, child := range pm.Children {
-			child.(*popupMenuItem).IsHovering = false
-		}
-		return false
-	}
+	// // ホバー状態を解除
+	// pm.OnBeforeHandleInput = func() {
+	// 	for _, child := range pm.Children {
+	// 		child.(*popupMenuItem).IsHovering = false
+	// 	}
+	// }
 }
 
 // Close はメニューを閉じる
@@ -105,6 +101,11 @@ func newPopupMenuItem(menu *PopupMenu, index int, text string, width, height int
 		if item.IsHovering {
 			vector.FillRect(screen, float32(gx), float32(gy), float32(item.Width), float32(item.Height), menu.hoverColor, false)
 		}
+	}
+
+	// ホバー状態を解除
+	item.OnBeforeHandleInput = func() {
+		item.IsHovering = false
 	}
 
 	// ホバー

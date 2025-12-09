@@ -27,6 +27,8 @@ type WidgetBase struct {
 	handleInputFunctions []func(t input.Touch) bool
 	updateFunctions      []func()
 	drawFunctions        []func(screen *ebiten.Image)
+	OnBeforeHandleInput  func()
+	OnBeforeUpdate       func()
 }
 
 func NewWidgetBase(c Widget, x, y, w, h int) *WidgetBase {
@@ -53,15 +55,21 @@ func (cb *WidgetBase) AddHandleInputFunction(f func(t input.Touch) bool) {
 
 // 登録されたHandleInputFunctionsを順次実行する
 func (cb *WidgetBase) HandleInput(t input.Touch) bool {
-	if cb.Visible && t != nil {
+	handle := false
+	if cb.OnBeforeHandleInput != nil {
+		cb.OnBeforeHandleInput()
+	}
+
+	if cb.Visible {
 		for i := len(cb.handleInputFunctions) - 1; i >= 0; i-- {
 			if cb.handleInputFunctions[i](t) {
-				return true
+				t = nil
+				handle = true
 			}
 		}
 	}
 
-	return false
+	return handle
 }
 
 // AddUpdateFunctionは、Updateメソッド呼び出し時に実行される関数を登録する
@@ -72,6 +80,10 @@ func (cb *WidgetBase) AddUpdateFunction(f func()) {
 
 // 登録されたUpdateFunctionsを順次実行する
 func (cb *WidgetBase) Update() {
+	if cb.OnBeforeUpdate != nil {
+		cb.OnBeforeUpdate()
+	}
+
 	for i := len(cb.updateFunctions) - 1; i >= 0; i-- {
 		cb.updateFunctions[i]()
 	}

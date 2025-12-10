@@ -8,7 +8,6 @@ import (
 // Buttonはクリック可能なボタン
 type Button struct {
 	InteractiveControl // マウス処理と描画機能を持つ基本セット
-	parts.Updatable
 	parts.TextDrawable // テキスト描画機能
 	parts.Focusable    // フォーカス制御機能
 
@@ -26,7 +25,6 @@ func NewButton(x, y, w, h int, text string, size int) *Button {
 
 func (b *Button) InitButton(x, y, w, h int, text string, size int) {
 	b.InitInteractiveControl(x, y, w, h)
-	b.InitUpdatable(b)
 	b.InitTextDrawable(b, text, size, parts.AlignCenter, parts.AlignCenter, 0, 0, color.White, true)
 	b.InitFocusable(b)
 
@@ -38,7 +36,7 @@ func (b *Button) InitButton(x, y, w, h int, text string, size int) {
 	b.HoverColor = color.RGBA{0x80, 0x80, 0x80, 0xff}
 	b.PressColor = color.RGBA{0x40, 0x40, 0x40, 0xff}
 
-	b.OnUpdate = func() {
+	b.OnAfterUpdate = func() {
 		if b.IsHovering {
 			b.BackColor = b.HoverColor
 		} else if b.IsPressed {

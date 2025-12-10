@@ -5,6 +5,26 @@ import (
 	"image/color"
 )
 
+// 値をクランプする
+func clampValue(value float64, allRange, viewRange int) float64 {
+	if value < 0 {
+		return 0
+	}
+	max := float64(allRange - viewRange)
+	if value > max {
+		return max
+	}
+	return value
+}
+
+// スライダーのツマミ位置を計算
+func calculateKnobPos(value float64, sliderSize, knobSize, viewRange, allRange int) int {
+	if allRange > viewRange {
+		return int(value * float64(sliderSize-knobSize) / float64(allRange-viewRange))
+	}
+	return 0
+}
+
 // ScrollButtonはスクロールバー用のフォーカスを持たないボタン
 type ScrollButton struct {
 	InteractiveControl
@@ -80,20 +100,8 @@ func (s *ScrollSliderV) InitSliderV(x, y, w, h int) {
 
 // 指定した量だけスクロールする
 func (s *ScrollSliderV) Move(delta float64) {
-	s.Value += delta
-	if s.Value < 0 {
-		s.Value = 0
-	}
-	if s.Value > float64(*s.AllRange-*s.ViewRange) {
-		s.Value = float64(*s.AllRange - *s.ViewRange)
-	}
-
-	// ツマミの位置を更新
-	if *s.AllRange > *s.ViewRange {
-		s.knob.Y = int(float64(s.Value) * float64(s.Height-s.knob.Height) / float64(*s.AllRange-*s.ViewRange))
-	} else {
-		s.knob.Y = 0
-	}
+	s.Value = clampValue(s.Value+delta, *s.AllRange, *s.ViewRange)
+	s.knob.Y = calculateKnobPos(s.Value, s.Height, s.knob.Height, *s.ViewRange, *s.AllRange)
 
 	if s.OnSlide != nil {
 		s.OnSlide()
@@ -238,20 +246,8 @@ func (s *ScrollSliderH) InitSliderH(x, y, w, h int) {
 
 // 指定した量だけスクロールする
 func (s *ScrollSliderH) Move(delta float64) {
-	s.Value += delta
-	if s.Value < 0 {
-		s.Value = 0
-	}
-	if s.Value > float64(*s.AllRange-*s.ViewRange) {
-		s.Value = float64(*s.AllRange - *s.ViewRange)
-	}
-
-	// ツマミの位置を更新
-	if *s.AllRange > *s.ViewRange {
-		s.knob.X = int(float64(s.Value) * float64(s.Width-s.knob.Width) / float64(*s.AllRange-*s.ViewRange))
-	} else {
-		s.knob.X = 0
-	}
+	s.Value = clampValue(s.Value+delta, *s.AllRange, *s.ViewRange)
+	s.knob.X = calculateKnobPos(s.Value, s.Width, s.knob.Width, *s.ViewRange, *s.AllRange)
 
 	if s.OnSlide != nil {
 		s.OnSlide()

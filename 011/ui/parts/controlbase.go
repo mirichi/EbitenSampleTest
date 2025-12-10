@@ -28,7 +28,9 @@ type ControlBase struct {
 	updateFunctions      []func()
 	drawFunctions        []func(screen *ebiten.Image)
 	OnBeforeHandleInput  func()
+	OnAfterHandleInput   func()
 	OnBeforeUpdate       func()
+	OnAfterUpdate        func()
 }
 
 func NewControlBase(c Control, x, y, w, h int) *ControlBase {
@@ -69,6 +71,10 @@ func (cb *ControlBase) HandleInput(t input.Touch) bool {
 		}
 	}
 
+	if cb.OnAfterHandleInput != nil {
+		cb.OnAfterHandleInput()
+	}
+
 	return handle
 }
 
@@ -86,6 +92,10 @@ func (cb *ControlBase) Update() {
 
 	for i := len(cb.updateFunctions) - 1; i >= 0; i-- {
 		cb.updateFunctions[i]()
+	}
+
+	if cb.OnAfterUpdate != nil {
+		cb.OnAfterUpdate()
 	}
 }
 

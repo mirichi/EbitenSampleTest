@@ -49,6 +49,16 @@ func (g *Grouping) AddChild(c Control) {
 	g.Children = append(g.Children, c)
 }
 
+// 子コントロールを削除する
+func (g *Grouping) RemoveChild(c Control) {
+	for i, child := range g.Children {
+		if child == c {
+			g.Children = append(g.Children[:i], g.Children[i+1:]...)
+			break
+		}
+	}
+}
+
 // コントロールのHandleInput時に呼ばれるHandleInputFunction
 func (c *Grouping) handleInputFunction(t input.Touch) bool {
 	handle := false

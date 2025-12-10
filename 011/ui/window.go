@@ -28,19 +28,16 @@ func (t *TitleBar) InitTitleBar(x, y, w, h int, text string) {
 	// TitleBarをドラッグすると親のWindowが移動するように設定
 	var dragOffsetX, dragOffsetY int
 	t.OnDragStart = func(x, y int) {
-		// ドラッグ開始時のマウス位置とウィンドウ位置のオフセットを保存
+		// 親のWindowとの相対座標を保存
 		cb := t.Parent.GetControlBase()
-		gx, gy := cb.GetGlobalPos()
-		dragOffsetX = x - gx
-		dragOffsetY = y - gy
+		dragOffsetX = x - cb.X
+		dragOffsetY = y - cb.Y
 	}
 	t.OnDrag = func(x, y int) {
-		// マウス位置からオフセットを引いてウィンドウの新しい位置を計算
-		// さらに親コントロール（通常はMainScreen）の座標を引いてローカル座標に変換
+		// 親のWindowの座標を更新
 		cb := t.Parent.GetControlBase()
-		ox, oy := cb.Parent.GetControlBase().GetGlobalPos()
-		cb.X = x - dragOffsetX - ox
-		cb.Y = y - dragOffsetY - oy
+		cb.X = x - dragOffsetX
+		cb.Y = y - dragOffsetY
 	}
 }
 
@@ -68,18 +65,16 @@ func (c *ClientArea) InitClientArea(x, y, w, h int) {
 	// ClientAreaをドラッグすると親のWindowが移動する
 	var dragOffsetX, dragOffsetY int
 	c.OnDragStart = func(x, y int) {
-		// 親のWindowの座標を保存
+		// 親のWindowとの相対座標を保存
 		cb := c.Parent.GetControlBase()
-		gx, gy := cb.GetGlobalPos()
-		dragOffsetX = x - gx
-		dragOffsetY = y - gy
+		dragOffsetX = x - cb.X
+		dragOffsetY = y - cb.Y
 	}
 	c.OnDrag = func(x, y int) {
 		// 親のWindowの座標を更新
 		cb := c.Parent.GetControlBase()
-		ox, oy := cb.Parent.GetControlBase().GetGlobalPos()
-		cb.X = x - dragOffsetX - ox
-		cb.Y = y - dragOffsetY - oy
+		cb.X = x - dragOffsetX
+		cb.Y = y - dragOffsetY
 	}
 }
 

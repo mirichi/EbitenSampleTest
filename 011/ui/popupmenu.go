@@ -85,7 +85,7 @@ func newPopupMenuItem(menu *PopupMenu, index int, text string, width, height int
 	// 描画
 	item.OnDraw = func(screen *ebiten.Image) {
 		gx, gy := item.GetGlobalPos()
-		if item.IsOver {
+		if item.IsMouseOver {
 			vector.FillRect(screen, float32(gx), float32(gy), float32(item.Width), float32(item.Height), theme.PopupHover, false)
 		}
 	}

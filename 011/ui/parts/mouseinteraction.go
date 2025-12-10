@@ -2,8 +2,8 @@ package parts
 
 import "MyProject/ui/input"
 
-// MouseInteractionはマウスやタッチ操作（クリック、ドラッグ、プレス）を処理する機能を提供します。
-// コントロールに埋め込んで使用します。
+// MouseInteractionはマウスやタッチ操作（クリック、ドラッグ、プレス）を処理する機能
+// コントロールに埋め込むことで使用する
 type MouseInteraction struct {
 	Control Control
 	touch   input.Touch
@@ -21,10 +21,10 @@ type MouseInteraction struct {
 	RepeatInterval int // リピート間隔のフレーム数
 	pressDuration  int // 押されている時間
 
-	IsPressed  bool // 押されている状態
-	IsDragging bool // ドラッグ中の状態
-	IsHovering bool // カーソルが上に乗っている状態(押されていない)
-	IsOver     bool // カーソルが上に乗っている状態(押されていても)
+	IsPressed   bool // 押されている状態
+	IsDragging  bool // ドラッグ中の状態
+	IsHovering  bool // カーソルが上に乗っている状態(押されていない)
+	IsMouseOver bool // カーソルが上に乗っている状態(押されていても)
 }
 
 func NewMouseInteraction(c Control) *MouseInteraction {
@@ -42,8 +42,8 @@ func (m *MouseInteraction) InitMouseInteraction(c Control) {
 	c.GetControlBase().AddHandleInputFunction(m.handleInputFunction)
 }
 
-// handleInputFunctionは入力イベントを処理します。
-// クリック開始、ドラッグ開始、ホバー状態の判定を行います。
+// handleInputFunctionは入力イベントを処理する
+// クリック開始、ドラッグ開始、ホバー状態の判定を行う
 func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 	cb := m.Control.GetControlBase()
 	gx, gy := cb.GetGlobalPos()
@@ -51,7 +51,7 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 	m.IsPressed = false
 	m.IsDragging = false
 	m.IsHovering = false
-	m.IsOver = false
+	m.IsMouseOver = false
 
 	if m.touch == nil && t != nil {
 		x, y := t.Pos()
@@ -82,7 +82,7 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 				}
 			}
 
-			m.IsOver = true
+			m.IsMouseOver = true
 
 			return true
 		}
@@ -109,7 +109,7 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 				}
 
 				m.IsHovering = true
-				m.IsOver = true
+				m.IsMouseOver = true
 			}
 		} else { // 継続して押されている
 			m.pressDuration++
@@ -131,7 +131,7 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 
 			if gx <= x && x < gx+cb.Width && gy <= y && y < gy+cb.Height {
 				m.IsPressed = true
-				m.IsOver = true
+				m.IsMouseOver = true
 			}
 
 			m.IsDragging = true

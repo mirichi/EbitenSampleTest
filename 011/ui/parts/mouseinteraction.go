@@ -9,7 +9,6 @@ type MouseInteraction struct {
 	touch   input.Touch
 
 	OnPress      func()
-	OnHover      func()
 	OnClick      func()
 	OnRightClick func() // 右クリック
 	OnDragStart  func(x, y int)
@@ -21,6 +20,11 @@ type MouseInteraction struct {
 	RepeatDelay    int // リピート開始までの待機フレーム数
 	RepeatInterval int // リピート間隔のフレーム数
 	pressDuration  int // 押されている時間
+
+	IsPressed  bool // 押されている状態
+	IsDragging bool // ドラッグ中の状態
+	IsHovering bool // カーソルが上に乗っている状態(押されていない)
+	IsOver     bool // カーソルが上に乗っている状態(押されていても)
 }
 
 func NewMouseInteraction(c Control) *MouseInteraction {
@@ -36,17 +40,20 @@ func (m *MouseInteraction) InitMouseInteraction(c Control) {
 
 	// コントロールのHandleInput時に呼ばれる関数を登録する
 	c.GetControlBase().AddHandleInputFunction(m.handleInputFunction)
-
-	// コントロールのUpdate時に呼ばれる関数を登録する
-	c.GetControlBase().AddUpdateFunction(m.updateFunction)
 }
 
 // handleInputFunctionは入力イベントを処理します。
 // クリック開始、ドラッグ開始、ホバー状態の判定を行います。
 func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
+	cb := m.Control.GetControlBase()
+	gx, gy := cb.GetGlobalPos()
+
+	m.IsPressed = false
+	m.IsDragging = false
+	m.IsHovering = false
+	m.IsOver = false
+
 	if m.touch == nil && t != nil {
-		cb := m.Control.GetControlBase()
-		gx, gy := cb.GetGlobalPos()
 		x, y := t.Pos()
 		// 座標判定
 		if gx <= x && x < gx+cb.Width && gy <= y && y < gy+cb.Height {
@@ -60,12 +67,13 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 				if m.OnDragStart != nil {
 					m.OnDragStart(x, y)
 				}
+
+				m.IsPressed = true
+				m.IsDragging = true
 			}
 
 			if !t.IsPressed() { // 押されていない
-				if m.OnHover != nil {
-					m.OnHover()
-				}
+				m.IsHovering = true
 			}
 
 			if t.IsJustReleased() { // 今回離された
@@ -74,11 +82,15 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 				}
 			}
 
+			m.IsOver = true
+
 			return true
 		}
 	}
 
 	if m.touch != nil {
+		x, y := m.touch.Pos()
+
 		if m.touch.IsJustReleased() { // 今回離された
 			m.touch = nil
 			m.pressDuration = 0
@@ -87,12 +99,17 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 				m.OnRelease()
 			}
 
-			if m.OnClick != nil {
-				m.OnClick()
-			}
-
 			if m.OnDragEnd != nil {
 				m.OnDragEnd()
+			}
+
+			if gx <= x && x < gx+cb.Width && gy <= y && y < gy+cb.Height {
+				if m.OnClick != nil {
+					m.OnClick()
+				}
+
+				m.IsHovering = true
+				m.IsOver = true
 			}
 		} else { // 継続して押されている
 			m.pressDuration++
@@ -107,25 +124,20 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 				}
 			}
 
-			x, y := m.touch.Pos()
-
 			if m.OnDrag != nil {
 				// ドラッグ動作：範囲外に出ても継続し、移動先を通知する
 				m.OnDrag(x, y)
-			} else {
-				// クリック動作：範囲外に出たらキャンセルする
-				cb := m.Control.GetControlBase()
-				gx, gy := cb.GetGlobalPos()
-				// 範囲外に移動した判定
-				if x < gx || gx+cb.Width <= x || y < gy || gy+cb.Height <= y {
-					m.touch = nil
-				}
 			}
+
+			if gx <= x && x < gx+cb.Width && gy <= y && y < gy+cb.Height {
+				m.IsPressed = true
+				m.IsOver = true
+			}
+
+			m.IsDragging = true
 		}
 	}
 
-	cb := m.Control.GetControlBase()
-	gx, gy := cb.GetGlobalPos()
 	x, y := input.GetMouseTouch().Pos()
 	// 座標判定
 	if gx <= x && x < gx+cb.Width && gy <= y && y < gy+cb.Height {
@@ -138,11 +150,6 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 	}
 
 	return false
-}
-
-// updateFunctionは毎フレームの更新処理を行います。
-// クリック完了、ドラッグ中の移動、ドラッグ終了の判定を行います。
-func (m *MouseInteraction) updateFunction() {
 }
 
 // 現在のマウス/タッチ位置を取得する

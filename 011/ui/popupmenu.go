@@ -61,13 +61,6 @@ func (pm *PopupMenu) InitPopupMenu(x, y int, items []string) {
 		item.Y = i * pm.ItemHeight
 		pm.AddChild(item)
 	}
-
-	// // ホバー状態を解除
-	// pm.OnBeforeHandleInput = func() {
-	// 	for _, child := range pm.Children {
-	// 		child.(*popupMenuItem).IsHovering = false
-	// 	}
-	// }
 }
 
 // Close はメニューを閉じる
@@ -82,9 +75,8 @@ type popupMenuItem struct {
 	InteractiveControl
 	parts.TextDrawable
 
-	menu       *PopupMenu
-	index      int
-	IsHovering bool
+	menu  *PopupMenu
+	index int
 }
 
 func newPopupMenuItem(menu *PopupMenu, index int, text string, width, height int) *popupMenuItem {
@@ -98,19 +90,9 @@ func newPopupMenuItem(menu *PopupMenu, index int, text string, width, height int
 	// 描画
 	item.OnDraw = func(screen *ebiten.Image) {
 		gx, gy := item.GetGlobalPos()
-		if item.IsHovering {
+		if item.IsOver {
 			vector.FillRect(screen, float32(gx), float32(gy), float32(item.Width), float32(item.Height), menu.hoverColor, false)
 		}
-	}
-
-	// ホバー状態を解除
-	item.OnBeforeHandleInput = func() {
-		item.IsHovering = false
-	}
-
-	// ホバー
-	item.OnHover = func() {
-		item.IsHovering = true
 	}
 
 	// クリック

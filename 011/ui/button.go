@@ -7,7 +7,7 @@ import (
 
 // Buttonはクリック可能なボタン
 type Button struct {
-	InteractiveWidget  // マウス処理と描画機能を持つ基本セット
+	InteractiveControl // マウス処理と描画機能を持つ基本セット
 	parts.TextDrawable // テキスト描画機能
 	parts.Focusable    // フォーカス制御機能
 
@@ -23,7 +23,7 @@ func NewButton(x, y, w, h int, text string, size int) *Button {
 }
 
 func (b *Button) InitButton(x, y, w, h int, text string, size int) {
-	b.InitInteractiveWidget(x, y, w, h)
+	b.InitInteractiveControl(x, y, w, h)
 	b.InitTextDrawable(b, text, size, parts.AlignCenter, parts.AlignCenter, 0, 0, color.White, true)
 	b.InitFocusable(b)
 

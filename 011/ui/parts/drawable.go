@@ -6,21 +6,21 @@ import (
 
 // Drawableは何かしらを描画する機能
 type Drawable struct {
-	Widget Widget
+	Widget Control
 	OnDraw func(screen *ebiten.Image)
 }
 
-func NewDrawable(c Widget) *Drawable {
+func NewDrawable(c Control) *Drawable {
 	d := &Drawable{}
 	d.InitDrawable(c)
 	return d
 }
 
-func (d *Drawable) InitDrawable(c Widget) {
+func (d *Drawable) InitDrawable(c Control) {
 	d.Widget = c
 
 	// コントロールのDraw時に呼ばれる関数を登録する
-	c.GetWidgetBase().AddDrawFunction(d.drawFunction)
+	c.GetControlBase().AddDrawFunction(d.drawFunction)
 }
 
 // コントロールのDraw時に呼ばれるDrawFunction

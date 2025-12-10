@@ -7,16 +7,16 @@ import (
 
 // ColorPanelは色選択パネル
 type ColorPanel struct {
-	ui.GroupingWidget
+	ui.GroupingControl
 
 	marker   ui.Label
-	buttons  [8]ui.InteractiveWidget
+	buttons  [8]ui.InteractiveControl
 	OnSelect func(color.Color)
 }
 
 func NewColorPanel(x, y, w, h int) *ColorPanel {
 	cp := &ColorPanel{}
-	cp.InitGroupingWidget(x, y, w, h)
+	cp.InitGroupingControl(x, y, w, h)
 
 	// ColorMarker初期化
 	cp.marker.InitLabel(32, 7*32+8, 16, 16, "◀", 16)
@@ -27,7 +27,7 @@ func NewColorPanel(x, y, w, h int) *ColorPanel {
 		color.RGBA{0x00, 0xff, 0x00, 0xff}, color.RGBA{0x00, 0xff, 0xff, 0xff}, color.RGBA{0x00, 0x00, 0xff, 0xff},
 		color.RGBA{0xff, 0x00, 0xff, 0xff}, color.RGBA{0xff, 0xff, 0xff, 0xff}}
 	for i, c := range cols {
-		cp.buttons[i].InitInteractiveWidget(0, i*32, 32, 32)
+		cp.buttons[i].InitInteractiveControl(0, i*32, 32, 32)
 		cp.AddChild(&cp.buttons[i])
 		cp.buttons[i].BackColor = c
 		cp.buttons[i].OnPress = func() {

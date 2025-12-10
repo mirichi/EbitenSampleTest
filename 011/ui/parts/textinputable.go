@@ -15,7 +15,7 @@ import (
 // TextInputableはテキスト入力機能を提供する構造体です。
 // テキストボックスなどのコントロールに埋め込んで使用します。
 type TextInputable struct {
-	Widget    Widget           // 親コントロール
+	Widget    Control          // 親コントロール
 	Field     *textinput.Field // Ebitengineのテキスト入力フィールド
 	Counter   *int             // カーソル点滅用カウンタ
 	isFocused func() bool      // フォーカス状態判定関数
@@ -29,13 +29,13 @@ type TextInputable struct {
 	selectionStartIdx int  // ドラッグ選択開始時の文字インデックス
 }
 
-func NewTextInputable(c Widget, field *textinput.Field, counter *int, fontSize int, alignX TextAlign, color, cursorColor color.Color, isFocused func() bool) *TextInputable {
+func NewTextInputable(c Control, field *textinput.Field, counter *int, fontSize int, alignX TextAlign, color, cursorColor color.Color, isFocused func() bool) *TextInputable {
 	t := &TextInputable{}
 	t.InitTextInputable(c, field, counter, fontSize, alignX, color, cursorColor, isFocused)
 	return t
 }
 
-func (u *TextInputable) InitTextInputable(c Widget, field *textinput.Field, counter *int, fontSize int, alignX TextAlign, color, cursorColor color.Color, isFocused func() bool) {
+func (u *TextInputable) InitTextInputable(c Control, field *textinput.Field, counter *int, fontSize int, alignX TextAlign, color, cursorColor color.Color, isFocused func() bool) {
 	u.Widget = c
 	u.Field = field
 	u.Counter = counter
@@ -47,10 +47,10 @@ func (u *TextInputable) InitTextInputable(c Widget, field *textinput.Field, coun
 	u.selectionAnchor = true
 
 	// コントロールのUpdate時に呼ばれる関数を登録する
-	c.GetWidgetBase().AddUpdateFunction(u.updateFunction)
+	c.GetControlBase().AddUpdateFunction(u.updateFunction)
 
 	// コントロールのDraw時に呼ばれる関数を登録する
-	c.GetWidgetBase().AddDrawFunction(u.drawFunction)
+	c.GetControlBase().AddDrawFunction(u.drawFunction)
 }
 
 // updateFunctionは毎フレームの更新処理を行います。
@@ -61,7 +61,7 @@ func (u *TextInputable) updateFunction() {
 			*u.Counter++
 		}
 
-		cb := u.Widget.GetWidgetBase()
+		cb := u.Widget.GetControlBase()
 		gx, gy := cb.GetGlobalPos()
 		x, y := gx, gy
 
@@ -200,7 +200,7 @@ func (d *TextInputable) drawFunction(screen *ebiten.Image) {
 	mw, _ := text.Measure(txt, f, 0)
 
 	// 描画座標算出
-	cb := d.Widget.GetWidgetBase()
+	cb := d.Widget.GetControlBase()
 	gx, gy := cb.GetGlobalPos()
 	x, y := float64(gx), float64(gy)
 
@@ -282,7 +282,7 @@ func (u *TextInputable) getIndexFromPos(x, y int) int {
 
 	// 描画座標算出
 	// 描画座標算出
-	cb := u.Widget.GetWidgetBase()
+	cb := u.Widget.GetControlBase()
 	gx, _ := cb.GetGlobalPos()
 	baseX := float64(gx)
 

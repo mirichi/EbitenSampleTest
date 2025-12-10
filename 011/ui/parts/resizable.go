@@ -10,10 +10,10 @@ const (
 	resizeMargin = 7
 )
 
-// Resizableはマウスドラッグによるコントロールのサイズ変更機能を提供する
-// コントロールの端をドラッグすることでリサイズが可能になる
+// Resizableはマウスドラッグによるウィジェットのサイズ変更機能を提供する
+// ウィジェットの端をドラッグすることでリサイズが可能になる
 type Resizable struct {
-	Widget   Widget
+	Widget   Control
 	touch    input.Touch
 	mode     int    // 12346789でサイズ変更中を表す
 	OnResize func() // リサイズ時に呼ぶ関数
@@ -24,25 +24,22 @@ type Resizable struct {
 	startW, startH   int
 }
 
-func NewResizable(c Widget) *Resizable {
+func NewResizable(c Control) *Resizable {
 	r := &Resizable{}
 	r.InitResizable(c)
 	return r
 }
 
-func (r *Resizable) InitResizable(c Widget) {
+func (r *Resizable) InitResizable(c Control) {
 	r.Widget = c
 
-	// コントロールのHandleInput時に呼ばれる関数を登録する
-	c.GetWidgetBase().AddHandleInputFunction(r.handleInputFunction)
-
-	// コントロールのUpdate時に呼ばれる関数を登録する
-	c.GetWidgetBase().AddUpdateFunction(r.updateFunction)
+	// ウィジェットのHandleInput時に呼ばれる関数を登録する
+	c.GetControlBase().AddHandleInputFunction(r.handleInputFunction)
 }
 
 // 8方向のリサイズ判定
 func (r *Resizable) judgeResize(mx, my int) int {
-	c := r.Widget.GetWidgetBase()
+	c := r.Widget.GetControlBase()
 	gx, gy := c.GetGlobalPos()
 	x := gx
 	y := gy
@@ -99,7 +96,7 @@ func (r *Resizable) updateCursor(m int) {
 	}
 }
 
-// コントロールのHandleInput時に呼ばれるHandleInputFunction
+// ウィジェットのHandleInput時に呼ばれるHandleInputFunction
 func (r *Resizable) handleInputFunction(t input.Touch) bool {
 	if r.touch == nil && t != nil {
 		if t.IsJustPressed() { // 今回押された
@@ -109,7 +106,7 @@ func (r *Resizable) handleInputFunction(t input.Touch) bool {
 				r.touch = t
 				// ドラッグ開始時の状態を保存
 				r.startMX, r.startMY = mx, my
-				c := r.Widget.GetWidgetBase()
+				c := r.Widget.GetControlBase()
 				r.startX, r.startY = c.X, c.Y
 				r.startW, r.startH = c.Width, c.Height
 				return true
@@ -126,11 +123,6 @@ func (r *Resizable) handleInputFunction(t input.Touch) bool {
 		}
 	}
 
-	return false
-}
-
-// コントロールのUpdate時に呼ばれるUpdateFunction
-func (r *Resizable) updateFunction() {
 	if r.touch != nil {
 		if r.touch.IsJustReleased() { // 今回離された
 			r.mode = 0
@@ -142,7 +134,7 @@ func (r *Resizable) updateFunction() {
 			mx, my := r.touch.Pos()
 			dx := mx - r.startMX
 			dy := my - r.startMY
-			c := r.Widget.GetWidgetBase()
+			c := r.Widget.GetControlBase()
 
 			// 計算用の一時変数
 			newX, newY := r.startX, r.startY
@@ -197,4 +189,6 @@ func (r *Resizable) updateFunction() {
 			}
 		}
 	}
+
+	return false
 }

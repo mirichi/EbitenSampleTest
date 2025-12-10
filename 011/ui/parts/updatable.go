@@ -2,21 +2,21 @@ package parts
 
 // Updatableは独自の更新ロジックを持つ機能
 type Updatable struct {
-	Widget   Widget
+	Widget   Control
 	OnUpdate func()
 }
 
-func NewUpdatable(c Widget) *Updatable {
+func NewUpdatable(c Control) *Updatable {
 	u := &Updatable{}
 	u.InitUpdatable(c)
 	return u
 }
 
-func (u *Updatable) InitUpdatable(c Widget) {
+func (u *Updatable) InitUpdatable(c Control) {
 	u.Widget = c
 
 	// コントロールのUpdate時に呼ばれる関数を登録する
-	c.GetWidgetBase().AddUpdateFunction(u.updateFunction)
+	c.GetControlBase().AddUpdateFunction(u.updateFunction)
 }
 
 // コントロールのUpdate時に呼ばれるUpdateFunction

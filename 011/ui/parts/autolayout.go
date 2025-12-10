@@ -4,13 +4,13 @@ package parts
 // AutoResizableな子コントロールのサイズを親に合わせて調整する
 func DefaultLayout(g *Grouping) {
 	for _, c := range g.Children {
-		cb := c.GetWidgetBase()
+		cb := c.GetControlBase()
 
 		if cb.Visible {
 			// AutoResizableがあった場合
 			if cb.AutoResizable {
 				// Groupingコントロールのサイズに合わせたサイズに更新する
-				pcb := g.Widget.GetWidgetBase()
+				pcb := g.Widget.GetControlBase()
 				cb.Width = pcb.Width
 				cb.Height = pcb.Height
 			}
@@ -26,7 +26,7 @@ func DefaultLayout(g *Grouping) {
 // AutoLayoutVでは親コントロールのサイズに合わせて、子コントロールを等間隔に垂直配置する
 // リサイズ時に呼び出されることを想定する
 func AutoLayoutV(gr *Grouping) {
-	con := gr.Widget.GetWidgetBase()
+	con := gr.Widget.GetControlBase()
 
 	// 範囲取得。この中にコントロールを配置する
 	maxWidth := con.Width
@@ -38,7 +38,7 @@ func AutoLayoutV(gr *Grouping) {
 	// コントロールサイズの合計算出
 	total := 0
 	for _, c := range gr.Children {
-		ccon := c.GetWidgetBase()
+		ccon := c.GetControlBase()
 		if ccon.Visible {
 			total += ccon.Height
 			count++
@@ -50,7 +50,7 @@ func AutoLayoutV(gr *Grouping) {
 
 	y := 0
 	for _, c := range gr.Children {
-		ccon := c.GetWidgetBase()
+		ccon := c.GetControlBase()
 		if ccon.Visible {
 			ccon.X = maxWidth/2 - ccon.Width/2
 			y += r
@@ -62,16 +62,16 @@ func AutoLayoutV(gr *Grouping) {
 
 // オートレイアウト処理(水平方向)
 func AutoLayoutFitH(gr *Grouping) {
-	con := gr.Widget.GetWidgetBase()
+	con := gr.Widget.GetControlBase()
 
 	// コントロールの数
 	count := 0
 
 	// 固定サイズのコントロールサイズ合計算出
 	total := 0
-	var arc Widget = nil
+	var arc Control = nil
 	for _, c := range gr.Children {
-		ccon := c.GetWidgetBase()
+		ccon := c.GetControlBase()
 		if ccon.Visible {
 			// AutoResizeが設定されていないコントロールを合計する
 			if ccon.AutoResizable {
@@ -86,13 +86,13 @@ func AutoLayoutFitH(gr *Grouping) {
 	// コントロールサイズを除いたあまりサイズをAutoResizableコントロールに設定
 	// このため現状ではAutoResizableは1つに限定
 	if arc != nil {
-		arc.GetWidgetBase().Width = con.Width - total
+		arc.GetControlBase().Width = con.Width - total
 	}
 
 	// コントロールサイズをもとに左詰めで位置を設定
 	x := 0
 	for _, c := range gr.Children {
-		ccon := c.GetWidgetBase()
+		ccon := c.GetControlBase()
 		if ccon.Visible {
 			ccon.X = x
 			ccon.Height = con.Height // TODO: 縦方向のサイズ調整ポリシーを検討する
@@ -108,16 +108,16 @@ func AutoLayoutFitH(gr *Grouping) {
 
 // オートレイアウト処理(垂直方向)
 func AutoLayoutFitV(gr *Grouping) {
-	con := gr.Widget.GetWidgetBase()
+	con := gr.Widget.GetControlBase()
 
 	// コントロールの数
 	count := 0
 
 	// 固定サイズのコントロールサイズ合計算出
 	total := 0
-	var arc Widget = nil
+	var arc Control = nil
 	for _, c := range gr.Children {
-		ccon := c.GetWidgetBase()
+		ccon := c.GetControlBase()
 		if ccon.Visible {
 			if ccon.AutoResizable {
 				arc = c
@@ -131,13 +131,13 @@ func AutoLayoutFitV(gr *Grouping) {
 	// コントロールサイズを除いたあまりサイズをAutoResizableコントロールに設定
 	// このため現状ではAutoResizableは1つに限定
 	if arc != nil {
-		arc.GetWidgetBase().Height = con.Height - total
+		arc.GetControlBase().Height = con.Height - total
 	}
 
 	// コントロールサイズをもとに左詰めで位置を設定
 	y := 0
 	for _, c := range gr.Children {
-		ccon := c.GetWidgetBase()
+		ccon := c.GetControlBase()
 		if ccon.Visible {
 			ccon.Y = y
 			ccon.Width = con.Width // TODO: 横方向のサイズ調整ポリシーを検討する

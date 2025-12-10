@@ -11,7 +11,7 @@ import (
 
 // TextBoxは文字入力と描画をするWidget
 type TextBox struct {
-	InteractiveWidget
+	InteractiveControl
 	parts.TextInputable
 	parts.Focusable
 
@@ -30,7 +30,7 @@ func (tb *TextBox) InitTextBox(x, y, w, h int, text string, fontSize int) {
 	// 初期テキスト
 	tb.field.SetTextAndSelection(text, len(text), len(text))
 
-	tb.InitInteractiveWidget(x, y, w, h)
+	tb.InitInteractiveControl(x, y, w, h)
 	tb.InitTextInputable(tb, &tb.field, &tb.counter, fontSize, parts.AlignLeft, color.White, color.White, func() bool { return tb.Focused })
 	tb.InitFocusable(tb)
 	tb.OnDraw = tb.drawTextBox

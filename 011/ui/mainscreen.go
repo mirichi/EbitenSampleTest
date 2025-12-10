@@ -9,10 +9,10 @@ import (
 )
 
 // MainScreenはオブジェクトツリーの最上位になる構造体
-// 全てのWidgetをこのMainScreenの子要素として登録することで、
+// 全てのControlをこのMainScreenの子要素として登録することで、
 // MainScreenのHandleInput/Update/Drawを呼び出すだけでUI全体の更新と描画が行われる
 type MainScreen struct {
-	GroupingWidget
+	GroupingControl
 	parts.Updatable
 	parts.Drawable
 }
@@ -21,20 +21,20 @@ type MainScreen struct {
 func NewMainScreen() *MainScreen {
 	ms := &MainScreen{}
 	ms.InitUpdatable(ms)
-	ms.InitGroupingWidget(0, 0, 0, 0)
+	ms.InitGroupingControl(0, 0, 0, 0)
 	ms.InitDrawable(ms)
 	ms.ClippingFlag = false
 	ms.OrderChange = true
 
-	PopupWidgets = NewPopupContainer()
+	PopupContainer = NewPopupContainer()
 
 	ms.OnUpdate = func() {
-		PopupWidgets.Update()
+		PopupContainer.Update()
 		parts.FinalizeCursor()
 	}
 
 	ms.OnDraw = func(screen *ebiten.Image) {
-		PopupWidgets.Draw(screen)
+		PopupContainer.Draw(screen)
 	}
 
 	return ms
@@ -53,9 +53,9 @@ func (ms *MainScreen) HandleInput(t input.Touch) bool {
 
 	parts.FlameFocus = false
 
-	r := PopupWidgets.HandleInput(t)
+	r := PopupContainer.HandleInput(t)
 	if !r {
-		r = ms.GroupingWidget.HandleInput(t)
+		r = ms.GroupingControl.HandleInput(t)
 	}
 
 	if !parts.FlameFocus && t != nil && t.IsJustPressed() && parts.FocusedWidget != nil {

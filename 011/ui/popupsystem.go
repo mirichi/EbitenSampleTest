@@ -7,23 +7,25 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-var PopupWidgets *PopupContainer
+var PopupContainer *popupContainer
 
-type PopupContainer struct {
+type popupContainer struct {
+	parts.ControlBase
 	parts.MouseInteraction
-	GroupingWidget
+	parts.Grouping
 	parts.Updatable
 }
 
-func NewPopupContainer() *PopupContainer {
-	p := &PopupContainer{}
+func NewPopupContainer() *popupContainer {
+	p := &popupContainer{}
 	p.InitPopupContainer()
 	return p
 }
 
-func (p *PopupContainer) InitPopupContainer() {
+func (p *popupContainer) InitPopupContainer() {
+	p.InitControlBase(p, 0, 0, 0, 0)
 	p.InitMouseInteraction(p)
-	p.InitGroupingWidget(0, 0, 0, 0)
+	p.InitGrouping(p)
 	p.InitUpdatable(p)
 	p.ClippingFlag = false
 	p.Visible = false
@@ -45,7 +47,7 @@ func (p *PopupContainer) InitPopupContainer() {
 	}
 }
 
-func (p *PopupContainer) Close() {
-	p.Children = []parts.Widget{}
+func (p *popupContainer) Close() {
+	p.Children = []parts.Control{}
 	p.Visible = false
 }

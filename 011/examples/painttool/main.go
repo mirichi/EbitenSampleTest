@@ -74,7 +74,7 @@ func main() {
 	}
 
 	canvas.OnRightClick = func() {
-		ui.PopupWidgets.AddChild(ui.NewPopupMenu(0, 0, []string{"Clear"}))
+		ui.PopupContainer.AddChild(ui.NewPopupMenu(0, 0, []string{"Clear"}))
 		canvas.Image.Fill(color.Black)
 	}
 

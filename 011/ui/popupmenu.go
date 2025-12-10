@@ -10,7 +10,7 @@ import (
 
 // PopupMenuはドロップダウンやコンテキストメニューに使用するポップアップメニュー
 type PopupMenu struct {
-	parts.WidgetBase
+	parts.ControlBase
 	parts.Drawable
 	parts.Grouping
 
@@ -41,7 +41,7 @@ func (pm *PopupMenu) InitPopupMenu(x, y int, items []string) {
 	width := 150
 	height := len(items) * pm.ItemHeight
 
-	pm.InitWidgetBase(pm, x, y, width, height)
+	pm.InitControlBase(pm, x, y, width, height)
 	pm.InitDrawable(pm)
 	pm.InitGrouping(pm)
 	pm.ClippingFlag = false
@@ -72,14 +72,14 @@ func (pm *PopupMenu) InitPopupMenu(x, y int, items []string) {
 
 // Close はメニューを閉じる
 func (pm *PopupMenu) Close() {
-	PopupWidgets.Close()
+	PopupContainer.Close()
 }
 
 // --- PopupMenuItem ---
 
 // popupMenuItemはPopupMenuの各項目
 type popupMenuItem struct {
-	InteractiveWidget
+	InteractiveControl
 	parts.TextDrawable
 
 	menu       *PopupMenu
@@ -92,7 +92,7 @@ func newPopupMenuItem(menu *PopupMenu, index int, text string, width, height int
 	item.menu = menu
 	item.index = index
 
-	item.InitInteractiveWidget(0, 0, width, height)
+	item.InitInteractiveControl(0, 0, width, height)
 	item.InitTextDrawable(item, text, 14, parts.AlignLeft, parts.AlignCenter, 8, 0, color.White, true)
 
 	// 描画

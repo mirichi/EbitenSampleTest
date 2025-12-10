@@ -11,14 +11,14 @@ import (
 
 // ToolButtonはツール選択ボタン
 type ToolButton struct {
-	ui.InteractiveWidget
+	ui.InteractiveControl
 
 	Size int
 }
 
 // ToolButton初期化
 func (b *ToolButton) InitToolButton(x, y, w, h, size int) {
-	b.InitInteractiveWidget(x, y, w, h)
+	b.InitInteractiveControl(x, y, w, h)
 	b.OnDraw = b.drawToolButton
 	b.Size = size
 }
@@ -32,7 +32,7 @@ func (b *ToolButton) drawToolButton(screen *ebiten.Image) {
 
 // ToolBoxはツール選択ボックス
 type ToolBox struct {
-	parts.WidgetBase
+	parts.ControlBase
 	parts.Grouping
 
 	marker   ui.Label
@@ -43,7 +43,7 @@ type ToolBox struct {
 // ToolBox生成
 func NewToolBox(x, y, w, h int) *ToolBox {
 	tb := &ToolBox{}
-	tb.InitWidgetBase(tb, x, y, w, h)
+	tb.InitControlBase(tb, x, y, w, h)
 	tb.InitGrouping(tb)
 	// ToolMarker初期化
 	tb.marker.InitLabel(0, 2*32+8, 16, 16, "▶", 16)

@@ -6,7 +6,7 @@ import (
 )
 
 type Label struct {
-	parts.WidgetBase
+	parts.ControlBase
 	parts.TextDrawable
 }
 
@@ -17,6 +17,6 @@ func NewLabel(x, y, w, h int, text string, size int) *Label {
 }
 
 func (l *Label) InitLabel(x, y, w, h int, text string, size int) {
-	l.InitWidgetBase(l, x, y, w, h)
+	l.InitControlBase(l, x, y, w, h)
 	l.InitTextDrawable(l, text, size, parts.AlignLeft, parts.AlignCenter, 0, 0, color.White, true)
 }

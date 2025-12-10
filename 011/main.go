@@ -79,7 +79,7 @@ func createWindow(x, y, w, h int, str string) *ui.Window {
 
 	b := ui.NewButton(0, 0, 200, 50, "Popup", 30)
 	b.OnClick = func() {
-		ui.PopupWidgets.AddChild(ui.NewPopupMenu(100, 100, []string{"あ", "い", "う", "え", "お"}))
+		ui.PopupContainer.AddChild(ui.NewPopupMenu(100, 100, []string{"あ", "い", "う", "え", "お"}))
 	}
 	window.AddChild(b)
 

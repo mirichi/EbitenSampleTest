@@ -7,7 +7,7 @@ import (
 
 // ScrollButtonはスクロールバー用のフォーカスを持たないボタン
 type ScrollButton struct {
-	InteractiveWidget
+	InteractiveControl
 	parts.TextDrawable
 }
 
@@ -19,16 +19,16 @@ func NewScrollButton(x, y, w, h int, text string, size int) *ScrollButton {
 }
 
 func (b *ScrollButton) InitScrollButton(x, y, w, h int, text string, size int) {
-	b.InitInteractiveWidget(x, y, w, h)
+	b.InitInteractiveControl(x, y, w, h)
 	b.InitTextDrawable(b, text, size, parts.AlignCenter, parts.AlignCenter, 0, 0, color.White, true)
 }
 
 // ScrollSliderVはスクロールバー用のスライド範囲
 type ScrollSliderV struct {
-	InteractiveWidget
+	InteractiveControl
 	parts.Grouping
 
-	knob                InteractiveWidget
+	knob                InteractiveControl
 	ViewRange, AllRange *int
 	Value               float64
 	OnSlide             func()
@@ -42,14 +42,14 @@ func NewSliderV(x, y, w, h int) *ScrollSliderV {
 }
 
 func (s *ScrollSliderV) InitSliderV(x, y, w, h int) {
-	s.InitInteractiveWidget(x, y, w, h)
+	s.InitInteractiveControl(x, y, w, h)
 	s.InitGrouping(s)
 
 	s.BackColor = color.RGBA{0x20, 0x20, 0x20, 0xff}
 	s.ClippingFlag = false
 	s.AutoResizable = true
 
-	s.knob.InitInteractiveWidget(x, y, w, 60)
+	s.knob.InitInteractiveControl(x, y, w, 60)
 	s.AddChild(&s.knob)
 
 	dragOffsetY := 0
@@ -124,7 +124,7 @@ func (s *ScrollSliderV) Layout() {
 
 // ScrollBarVは縦方向にスクロールするための複合Widget
 type ScrollBarV struct {
-	GroupingWidget
+	GroupingControl
 
 	buttonUp   ScrollButton
 	slider     ScrollSliderV
@@ -141,7 +141,7 @@ func NewScrollBarV(x, y, w, h int) *ScrollBarV {
 }
 
 func (s *ScrollBarV) InitScrollBarV(x, y, w, h int) {
-	s.InitGroupingWidget(x, y, w, h)
+	s.InitGroupingControl(x, y, w, h)
 	s.ClippingFlag = false
 	s.AutoLayout = parts.AutoLayoutFitV
 
@@ -183,10 +183,10 @@ func (s *ScrollBarV) GetValue() float64 {
 
 // ScrollSliderHは横方向のスクロールバー用のスライド範囲
 type ScrollSliderH struct {
-	InteractiveWidget
+	InteractiveControl
 	parts.Grouping
 
-	knob                InteractiveWidget
+	knob                InteractiveControl
 	ViewRange, AllRange *int
 	Value               float64
 	OnSlide             func()
@@ -200,14 +200,14 @@ func NewSliderH(x, y, w, h int) *ScrollSliderH {
 }
 
 func (s *ScrollSliderH) InitSliderH(x, y, w, h int) {
-	s.InitInteractiveWidget(x, y, w, h)
+	s.InitInteractiveControl(x, y, w, h)
 	s.InitGrouping(s)
 
 	s.BackColor = color.RGBA{0x20, 0x20, 0x20, 0xff}
 	s.ClippingFlag = false
 	s.AutoResizable = true
 
-	s.knob.InitInteractiveWidget(x, 0, 60, h)
+	s.knob.InitInteractiveControl(x, 0, 60, h)
 	s.AddChild(&s.knob)
 
 	var dragOffsetX int
@@ -282,7 +282,7 @@ func (s *ScrollSliderH) Layout() {
 
 // ScrollBarHは横方向にスクロールするための複合Widget
 type ScrollBarH struct {
-	GroupingWidget
+	GroupingControl
 
 	buttonLeft  ScrollButton
 	slider      ScrollSliderH
@@ -299,7 +299,7 @@ func NewScrollBarH(x, y, w, h int) *ScrollBarH {
 }
 
 func (s *ScrollBarH) InitScrollBarH(x, y, w, h int) {
-	s.InitGroupingWidget(x, y, w, h)
+	s.InitGroupingControl(x, y, w, h)
 	s.ClippingFlag = false
 	s.AutoLayout = parts.AutoLayoutFitH
 

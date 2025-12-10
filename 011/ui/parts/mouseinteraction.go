@@ -5,7 +5,7 @@ import "MyProject/ui/input"
 // MouseInteractionはマウスやタッチ操作（クリック、ドラッグ、プレス）を処理する機能を提供します。
 // コントロールに埋め込んで使用します。
 type MouseInteraction struct {
-	Widget Widget
+	Widget Control
 	touch  input.Touch
 
 	OnPress      func()
@@ -24,33 +24,29 @@ type MouseInteraction struct {
 	pressDuration  int // 押されている時間
 }
 
-func NewMouseInteraction(c Widget) *MouseInteraction {
+func NewMouseInteraction(c Control) *MouseInteraction {
 	m := &MouseInteraction{}
 	m.InitMouseInteraction(c)
 	return m
 }
 
-func (m *MouseInteraction) InitMouseInteraction(c Widget) {
+func (m *MouseInteraction) InitMouseInteraction(c Control) {
 	m.Widget = c
 	m.RepeatDelay = 30
 	m.RepeatInterval = 5
 
 	// コントロールのHandleInput時に呼ばれる関数を登録する
-	c.GetWidgetBase().AddHandleInputFunction(m.handleInputFunction)
+	c.GetControlBase().AddHandleInputFunction(m.handleInputFunction)
 
 	// コントロールのUpdate時に呼ばれる関数を登録する
-	c.GetWidgetBase().AddUpdateFunction(m.updateFunction)
+	c.GetControlBase().AddUpdateFunction(m.updateFunction)
 }
 
 // handleInputFunctionは入力イベントを処理します。
 // クリック開始、ドラッグ開始、ホバー状態の判定を行います。
 func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
-	if t == nil {
-		return false
-	}
-
-	if m.touch == nil {
-		cb := m.Widget.GetWidgetBase()
+	if m.touch == nil && t != nil {
+		cb := m.Widget.GetControlBase()
 		gx, gy := cb.GetGlobalPos()
 		x, y := t.Pos()
 		// 座標判定
@@ -67,11 +63,7 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 				}
 			}
 
-			if t.IsPressed() { // 押されている
-				if m.OnPressing != nil {
-					m.OnPressing()
-				}
-			} else { // 押されていない
+			if !t.IsPressed() { // 押されていない
 				if m.OnHover != nil {
 					m.OnHover()
 				}
@@ -87,12 +79,6 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 		}
 	}
 
-	return false
-}
-
-// updateFunctionは毎フレームの更新処理を行います。
-// クリック完了、ドラッグ中の移動、ドラッグ終了の判定を行います。
-func (m *MouseInteraction) updateFunction() {
 	if m.touch != nil {
 		if m.touch.IsJustReleased() { // 今回離された
 			m.touch = nil
@@ -133,7 +119,7 @@ func (m *MouseInteraction) updateFunction() {
 				m.OnDrag(x, y)
 			} else {
 				// クリック動作：範囲外に出たらキャンセルする
-				cb := m.Widget.GetWidgetBase()
+				cb := m.Widget.GetControlBase()
 				gx, gy := cb.GetGlobalPos()
 				// 範囲外に移動した判定
 				if x < gx || gx+cb.Width <= x || y < gy || gy+cb.Height <= y {
@@ -143,7 +129,7 @@ func (m *MouseInteraction) updateFunction() {
 		}
 	}
 
-	cb := m.Widget.GetWidgetBase()
+	cb := m.Widget.GetControlBase()
 	gx, gy := cb.GetGlobalPos()
 	x, y := input.GetMouseTouch().Pos()
 	// 座標判定
@@ -155,6 +141,13 @@ func (m *MouseInteraction) updateFunction() {
 			}
 		}
 	}
+
+	return false
+}
+
+// updateFunctionは毎フレームの更新処理を行います。
+// クリック完了、ドラッグ中の移動、ドラッグ終了の判定を行います。
+func (m *MouseInteraction) updateFunction() {
 }
 
 // 現在のマウス/タッチ位置を取得する

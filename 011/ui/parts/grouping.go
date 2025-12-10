@@ -14,45 +14,45 @@ type Layouter interface {
 // Groupingは子コントロールを管理する機能を提供します。
 // 子コントロールの追加、入力イベントの伝播、更新、描画を統括します。
 type Grouping struct {
-	Widget       Widget
-	Children     []Widget
+	Widget       Control
+	Children     []Control
 	OrderChange  bool
 	AutoLayout   func(g *Grouping)
 	OnLayout     func()
 	ClippingFlag bool
 }
 
-func NewGrouping(c Widget) *Grouping {
+func NewGrouping(c Control) *Grouping {
 	g := &Grouping{}
 	g.InitGrouping(c)
 	return g
 }
 
-func (g *Grouping) InitGrouping(c Widget) {
+func (g *Grouping) InitGrouping(c Control) {
 	g.Widget = c
 	g.AutoLayout = DefaultLayout
 	g.ClippingFlag = true
 
 	// コントロールのHandleInput時に呼ばれる関数を登録する
-	c.GetWidgetBase().AddHandleInputFunction(g.handleInputFunction)
+	c.GetControlBase().AddHandleInputFunction(g.handleInputFunction)
 
 	// コントロールのUpdate時に呼ばれる関数を登録する
-	c.GetWidgetBase().AddUpdateFunction(g.updateFunction)
+	c.GetControlBase().AddUpdateFunction(g.updateFunction)
 
 	// コントロールのDraw時に呼ばれる関数を登録する
-	c.GetWidgetBase().AddDrawFunction(g.drawFunction)
+	c.GetControlBase().AddDrawFunction(g.drawFunction)
 }
 
 // 子コントロールを登録する
-func (g *Grouping) AddChild(c Widget) {
-	c.GetWidgetBase().Parent = g.Widget
+func (g *Grouping) AddChild(c Control) {
+	c.GetControlBase().Parent = g.Widget
 	g.Children = append(g.Children, c)
 }
 
 // コントロールのHandleInput時に呼ばれるHandleInputFunction
 func (c *Grouping) handleInputFunction(t input.Touch) bool {
 	handle := false
-	cb := c.Widget.GetWidgetBase()
+	cb := c.Widget.GetControlBase()
 	gx, gy := cb.GetGlobalPos()
 	if t != nil {
 		x, y := t.Pos()
@@ -92,7 +92,7 @@ func (c *Grouping) updateFunction() {
 
 // コントロールのDraw時に呼ばれるDrawFunction
 func (c *Grouping) drawFunction(screen *ebiten.Image) {
-	cb := c.Widget.GetWidgetBase()
+	cb := c.Widget.GetControlBase()
 	ox, oy := cb.GetGlobalPos()
 	if c.ClippingFlag {
 		// クリッピング用SubImage。SubImageのSubImageは元の画像に対しての座標になるので入れ子構造でも大丈夫

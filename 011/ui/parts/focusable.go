@@ -8,7 +8,7 @@ import (
 )
 
 type Focusable struct {
-	Widget  Control
+	Control Control
 	Focused bool
 
 	OnFocus func()
@@ -25,7 +25,7 @@ type FocusableInterface interface {
 	Blur()
 }
 
-var FocusedWidget FocusableInterface
+var FocusedControl FocusableInterface
 var FlameFocus bool
 
 func NewFocusable(c Control) *Focusable {
@@ -35,7 +35,7 @@ func NewFocusable(c Control) *Focusable {
 }
 
 func (f *Focusable) InitFocusable(c Control) {
-	f.Widget = c
+	f.Control = c
 	f.DrawFocusBorder = true
 	f.FocusBorderColor = color.RGBA{0xD0, 0xD0, 0xD0, 0xff}
 	f.FocusBorderWidth = 2
@@ -45,12 +45,12 @@ func (f *Focusable) InitFocusable(c Control) {
 }
 
 func (f *Focusable) Focus() {
-	if FocusedWidget != f.Widget.(FocusableInterface) {
-		if FocusedWidget != nil {
-			FocusedWidget.Blur()
+	if FocusedControl != f.Control.(FocusableInterface) {
+		if FocusedControl != nil {
+			FocusedControl.Blur()
 		}
 		f.Focused = true
-		FocusedWidget = f.Widget.(FocusableInterface)
+		FocusedControl = f.Control.(FocusableInterface)
 		if f.OnFocus != nil {
 			f.OnFocus()
 		}
@@ -60,7 +60,7 @@ func (f *Focusable) Focus() {
 
 func (f *Focusable) Blur() {
 	f.Focused = false
-	FocusedWidget = nil
+	FocusedControl = nil
 	if f.OnBlur != nil {
 		f.OnBlur()
 	}
@@ -72,7 +72,7 @@ func (f *Focusable) drawFocusBorder(screen *ebiten.Image) {
 		return
 	}
 
-	cb := f.Widget.GetControlBase()
+	cb := f.Control.GetControlBase()
 	gx, gy := cb.GetGlobalPos()
 	vector.StrokeRect(screen,
 		float32(gx), float32(gy),

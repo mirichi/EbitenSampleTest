@@ -5,8 +5,8 @@ import "MyProject/ui/input"
 // MouseInteractionはマウスやタッチ操作（クリック、ドラッグ、プレス）を処理する機能を提供します。
 // コントロールに埋め込んで使用します。
 type MouseInteraction struct {
-	Widget Control
-	touch  input.Touch
+	Control Control
+	touch   input.Touch
 
 	OnPress      func()
 	OnHover      func()
@@ -15,7 +15,6 @@ type MouseInteraction struct {
 	OnDragStart  func(x, y int)
 	OnDrag       func(x, y int)
 	OnDragEnd    func()
-	OnPressing   func() // 押されている間毎フレーム呼ばれる
 	OnRelease    func()
 	OnRepeat     func() // オートリピート（押しっぱなしで連続実行）
 
@@ -31,7 +30,7 @@ func NewMouseInteraction(c Control) *MouseInteraction {
 }
 
 func (m *MouseInteraction) InitMouseInteraction(c Control) {
-	m.Widget = c
+	m.Control = c
 	m.RepeatDelay = 30
 	m.RepeatInterval = 5
 
@@ -46,7 +45,7 @@ func (m *MouseInteraction) InitMouseInteraction(c Control) {
 // クリック開始、ドラッグ開始、ホバー状態の判定を行います。
 func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 	if m.touch == nil && t != nil {
-		cb := m.Widget.GetControlBase()
+		cb := m.Control.GetControlBase()
 		gx, gy := cb.GetGlobalPos()
 		x, y := t.Pos()
 		// 座標判定
@@ -98,10 +97,6 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 		} else { // 継続して押されている
 			m.pressDuration++
 
-			if m.OnPressing != nil {
-				m.OnPressing()
-			}
-
 			if m.OnRepeat != nil {
 				if m.pressDuration == 1 {
 					m.OnRepeat()
@@ -119,7 +114,7 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 				m.OnDrag(x, y)
 			} else {
 				// クリック動作：範囲外に出たらキャンセルする
-				cb := m.Widget.GetControlBase()
+				cb := m.Control.GetControlBase()
 				gx, gy := cb.GetGlobalPos()
 				// 範囲外に移動した判定
 				if x < gx || gx+cb.Width <= x || y < gy || gy+cb.Height <= y {
@@ -129,7 +124,7 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 		}
 	}
 
-	cb := m.Widget.GetControlBase()
+	cb := m.Control.GetControlBase()
 	gx, gy := cb.GetGlobalPos()
 	x, y := input.GetMouseTouch().Pos()
 	// 座標判定

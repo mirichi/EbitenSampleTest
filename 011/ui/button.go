@@ -41,8 +41,4 @@ func (b *Button) InitButton(x, y, w, h int, text string, size int) {
 	b.OnHover = func() {
 		b.BackColor = b.HoverColor
 	}
-
-	b.OnPressing = func() {
-		b.BackColor = b.PressColor
-	}
 }

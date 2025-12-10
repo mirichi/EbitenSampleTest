@@ -6,8 +6,8 @@ import (
 
 // ImageDrawableはImageを描画する機能
 type ImageDrawable struct {
-	Widget Control
-	Image  *ebiten.Image
+	Control Control
+	Image   *ebiten.Image
 }
 
 func NewImageDrawable(c Control, image *ebiten.Image) *ImageDrawable {
@@ -17,7 +17,7 @@ func NewImageDrawable(c Control, image *ebiten.Image) *ImageDrawable {
 }
 
 func (d *ImageDrawable) InitImageDrawable(c Control, image *ebiten.Image) {
-	d.Widget = c
+	d.Control = c
 	d.Image = image
 
 	// コントロールのDraw時に呼ばれる関数を登録する
@@ -26,7 +26,7 @@ func (d *ImageDrawable) InitImageDrawable(c Control, image *ebiten.Image) {
 
 // コントロールのDraw時に呼ばれるDrawFunction
 func (d *ImageDrawable) drawFunction(screen *ebiten.Image) {
-	cb := d.Widget.GetControlBase()
+	cb := d.Control.GetControlBase()
 	op := &ebiten.DrawImageOptions{}
 	gx, gy := cb.GetGlobalPos()
 	op.GeoM.Translate(float64(gx), float64(gy))

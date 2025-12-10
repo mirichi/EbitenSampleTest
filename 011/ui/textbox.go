@@ -9,7 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
-// TextBoxは文字入力と描画をするWidget
+// TextBoxは文字入力と描画をするControl
 type TextBox struct {
 	InteractiveControl
 	parts.TextInputable

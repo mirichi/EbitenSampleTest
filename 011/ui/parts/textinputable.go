@@ -15,7 +15,7 @@ import (
 // TextInputableはテキスト入力機能を提供する構造体です。
 // テキストボックスなどのコントロールに埋め込んで使用します。
 type TextInputable struct {
-	Widget    Control          // 親コントロール
+	Control   Control          // 親コントロール
 	Field     *textinput.Field // Ebitengineのテキスト入力フィールド
 	Counter   *int             // カーソル点滅用カウンタ
 	isFocused func() bool      // フォーカス状態判定関数
@@ -36,7 +36,7 @@ func NewTextInputable(c Control, field *textinput.Field, counter *int, fontSize 
 }
 
 func (u *TextInputable) InitTextInputable(c Control, field *textinput.Field, counter *int, fontSize int, alignX TextAlign, color, cursorColor color.Color, isFocused func() bool) {
-	u.Widget = c
+	u.Control = c
 	u.Field = field
 	u.Counter = counter
 	u.isFocused = isFocused
@@ -61,7 +61,7 @@ func (u *TextInputable) updateFunction() {
 			*u.Counter++
 		}
 
-		cb := u.Widget.GetControlBase()
+		cb := u.Control.GetControlBase()
 		gx, gy := cb.GetGlobalPos()
 		x, y := gx, gy
 
@@ -200,7 +200,7 @@ func (d *TextInputable) drawFunction(screen *ebiten.Image) {
 	mw, _ := text.Measure(txt, f, 0)
 
 	// 描画座標算出
-	cb := d.Widget.GetControlBase()
+	cb := d.Control.GetControlBase()
 	gx, gy := cb.GetGlobalPos()
 	x, y := float64(gx), float64(gy)
 
@@ -282,7 +282,7 @@ func (u *TextInputable) getIndexFromPos(x, y int) int {
 
 	// 描画座標算出
 	// 描画座標算出
-	cb := u.Widget.GetControlBase()
+	cb := u.Control.GetControlBase()
 	gx, _ := cb.GetGlobalPos()
 	baseX := float64(gx)
 

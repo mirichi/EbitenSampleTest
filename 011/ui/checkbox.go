@@ -8,7 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
-// Checkboxはチェック状態を持つWidget
+// Checkboxはチェック状態を持つControl
 type Checkbox struct {
 	InteractiveControl
 	parts.TextDrawable

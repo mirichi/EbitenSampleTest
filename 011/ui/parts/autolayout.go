@@ -10,7 +10,7 @@ func DefaultLayout(g *Grouping) {
 			// AutoResizableがあった場合
 			if cb.AutoResizable {
 				// Groupingコントロールのサイズに合わせたサイズに更新する
-				pcb := g.Widget.GetControlBase()
+				pcb := g.Control.GetControlBase()
 				cb.Width = pcb.Width
 				cb.Height = pcb.Height
 			}
@@ -26,7 +26,7 @@ func DefaultLayout(g *Grouping) {
 // AutoLayoutVでは親コントロールのサイズに合わせて、子コントロールを等間隔に垂直配置する
 // リサイズ時に呼び出されることを想定する
 func AutoLayoutV(gr *Grouping) {
-	con := gr.Widget.GetControlBase()
+	con := gr.Control.GetControlBase()
 
 	// 範囲取得。この中にコントロールを配置する
 	maxWidth := con.Width
@@ -62,7 +62,7 @@ func AutoLayoutV(gr *Grouping) {
 
 // オートレイアウト処理(水平方向)
 func AutoLayoutFitH(gr *Grouping) {
-	con := gr.Widget.GetControlBase()
+	con := gr.Control.GetControlBase()
 
 	// コントロールの数
 	count := 0
@@ -108,7 +108,7 @@ func AutoLayoutFitH(gr *Grouping) {
 
 // オートレイアウト処理(垂直方向)
 func AutoLayoutFitV(gr *Grouping) {
-	con := gr.Widget.GetControlBase()
+	con := gr.Control.GetControlBase()
 
 	// コントロールの数
 	count := 0

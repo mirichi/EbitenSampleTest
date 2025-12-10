@@ -14,7 +14,7 @@ type Layouter interface {
 // Groupingは子コントロールを管理する機能を提供します。
 // 子コントロールの追加、入力イベントの伝播、更新、描画を統括します。
 type Grouping struct {
-	Widget       Control
+	Control      Control
 	Children     []Control
 	OrderChange  bool
 	AutoLayout   func(g *Grouping)
@@ -29,7 +29,7 @@ func NewGrouping(c Control) *Grouping {
 }
 
 func (g *Grouping) InitGrouping(c Control) {
-	g.Widget = c
+	g.Control = c
 	g.AutoLayout = DefaultLayout
 	g.ClippingFlag = true
 
@@ -45,14 +45,14 @@ func (g *Grouping) InitGrouping(c Control) {
 
 // 子コントロールを登録する
 func (g *Grouping) AddChild(c Control) {
-	c.GetControlBase().Parent = g.Widget
+	c.GetControlBase().Parent = g.Control
 	g.Children = append(g.Children, c)
 }
 
 // コントロールのHandleInput時に呼ばれるHandleInputFunction
 func (c *Grouping) handleInputFunction(t input.Touch) bool {
 	handle := false
-	cb := c.Widget.GetControlBase()
+	cb := c.Control.GetControlBase()
 	gx, gy := cb.GetGlobalPos()
 	if t != nil {
 		x, y := t.Pos()
@@ -92,7 +92,7 @@ func (c *Grouping) updateFunction() {
 
 // コントロールのDraw時に呼ばれるDrawFunction
 func (c *Grouping) drawFunction(screen *ebiten.Image) {
-	cb := c.Widget.GetControlBase()
+	cb := c.Control.GetControlBase()
 	ox, oy := cb.GetGlobalPos()
 	if c.ClippingFlag {
 		// クリッピング用SubImage。SubImageのSubImageは元の画像に対しての座標になるので入れ子構造でも大丈夫

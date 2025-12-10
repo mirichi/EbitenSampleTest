@@ -5,7 +5,7 @@ import (
 	"image/color"
 )
 
-// TitleBarはウィンドウのタイトルバーを表すWidget
+// TitleBarはウィンドウのタイトルバーを表すControl
 // マウスドラッグによるウィンドウの移動機能を提供する
 type TitleBar struct {
 	InteractiveControl
@@ -44,8 +44,8 @@ func (t *TitleBar) InitTitleBar(x, y, w, h int, text string) {
 	}
 }
 
-// ClientAreaはウィンドウのクライアント領域を表すWidget
-// ウィンドウ内に配置される他のWidgetを保持する
+// ClientAreaはウィンドウのクライアント領域を表すControl
+// ウィンドウ内に配置される他のControlを保持する
 type ClientArea struct {
 	InteractiveControl
 	parts.Grouping
@@ -83,7 +83,7 @@ func (c *ClientArea) InitClientArea(x, y, w, h int) {
 	}
 }
 
-// Windowはタイトルバーとクライアント領域を持つ複合Widget
+// Windowはタイトルバーとクライアント領域を持つ複合Control
 // これ自体はコンテナとしての役割を持ち、具体的な機能はTitleBarとClientAreaに実装する
 type Window struct {
 	parts.ControlBase

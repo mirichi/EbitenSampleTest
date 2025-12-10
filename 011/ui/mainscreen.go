@@ -58,8 +58,8 @@ func (ms *MainScreen) HandleInput(t input.Touch) bool {
 		r = ms.GroupingControl.HandleInput(t)
 	}
 
-	if !parts.FlameFocus && t != nil && t.IsJustPressed() && parts.FocusedWidget != nil {
-		parts.FocusedWidget.Blur()
+	if !parts.FlameFocus && t != nil && t.IsJustPressed() && parts.FocusedControl != nil {
+		parts.FocusedControl.Blur()
 	}
 
 	return r

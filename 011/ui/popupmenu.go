@@ -113,11 +113,6 @@ func newPopupMenuItem(menu *PopupMenu, index int, text string, width, height int
 		item.IsHovering = true
 	}
 
-	// 押している
-	item.OnPressing = func() {
-		item.IsHovering = true
-	}
-
 	// クリック
 	item.OnRelease = func() {
 		if menu.OnSelect != nil {

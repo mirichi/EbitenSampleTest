@@ -122,7 +122,7 @@ func (s *ScrollSliderV) Layout() {
 	}
 }
 
-// ScrollBarVは縦方向にスクロールするための複合Widget
+// ScrollBarVは縦方向にスクロールするための複合Control
 type ScrollBarV struct {
 	GroupingControl
 
@@ -280,7 +280,7 @@ func (s *ScrollSliderH) Layout() {
 	}
 }
 
-// ScrollBarHは横方向にスクロールするための複合Widget
+// ScrollBarHは横方向にスクロールするための複合Control
 type ScrollBarH struct {
 	GroupingControl
 

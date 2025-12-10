@@ -10,10 +10,10 @@ const (
 	resizeMargin = 7
 )
 
-// Resizableはマウスドラッグによるウィジェットのサイズ変更機能を提供する
-// ウィジェットの端をドラッグすることでリサイズが可能になる
+// ResizableはマウスドラッグによるControlのサイズ変更機能を提供する
+// Controlの端をドラッグすることでサイズ変更が可能になる
 type Resizable struct {
-	Widget   Control
+	Control  Control
 	touch    input.Touch
 	mode     int    // 12346789でサイズ変更中を表す
 	OnResize func() // リサイズ時に呼ぶ関数
@@ -31,15 +31,15 @@ func NewResizable(c Control) *Resizable {
 }
 
 func (r *Resizable) InitResizable(c Control) {
-	r.Widget = c
+	r.Control = c
 
-	// ウィジェットのHandleInput時に呼ばれる関数を登録する
+	// ControlのHandleInput時に呼ばれる関数を登録する
 	c.GetControlBase().AddHandleInputFunction(r.handleInputFunction)
 }
 
 // 8方向のリサイズ判定
 func (r *Resizable) judgeResize(mx, my int) int {
-	c := r.Widget.GetControlBase()
+	c := r.Control.GetControlBase()
 	gx, gy := c.GetGlobalPos()
 	x := gx
 	y := gy
@@ -96,7 +96,7 @@ func (r *Resizable) updateCursor(m int) {
 	}
 }
 
-// ウィジェットのHandleInput時に呼ばれるHandleInputFunction
+// ControlのHandleInput時に呼ばれるHandleInputFunction
 func (r *Resizable) handleInputFunction(t input.Touch) bool {
 	if r.touch == nil && t != nil {
 		if t.IsJustPressed() { // 今回押された
@@ -106,7 +106,7 @@ func (r *Resizable) handleInputFunction(t input.Touch) bool {
 				r.touch = t
 				// ドラッグ開始時の状態を保存
 				r.startMX, r.startMY = mx, my
-				c := r.Widget.GetControlBase()
+				c := r.Control.GetControlBase()
 				r.startX, r.startY = c.X, c.Y
 				r.startW, r.startH = c.Width, c.Height
 				return true
@@ -134,7 +134,7 @@ func (r *Resizable) handleInputFunction(t input.Touch) bool {
 			mx, my := r.touch.Pos()
 			dx := mx - r.startMX
 			dy := my - r.startMY
-			c := r.Widget.GetControlBase()
+			c := r.Control.GetControlBase()
 
 			// 計算用の一時変数
 			newX, newY := r.startX, r.startY

@@ -117,17 +117,12 @@ func (s *ScrollSliderV) Layout() {
 		return
 	}
 
-	s.knob.Height = int(float64(s.Height) * float64(*s.ViewRange) / float64(*s.AllRange))
-	s.knob.Y = int(float64(s.Value) * float64(s.Height-s.knob.Height) / float64(*s.AllRange-*s.ViewRange))
+	// まず Value をクランプ
+	s.Value = clampValue(s.Value, *s.AllRange, *s.ViewRange)
 
-	if s.knob.Y < 0 {
-		s.knob.Y = 0
-		s.Value = 0
-	}
-	if s.knob.Y > s.Height-s.knob.Height {
-		s.knob.Y = s.Height - s.knob.Height
-		s.Value = float64(*s.AllRange - *s.ViewRange)
-	}
+	// 次にツマミサイズと位置を計算
+	s.knob.Height = int(float64(s.Height) * float64(*s.ViewRange) / float64(*s.AllRange))
+	s.knob.Y = calculateKnobPos(s.Value, s.Height, s.knob.Height, *s.ViewRange, *s.AllRange)
 }
 
 // ScrollBarVは縦方向にスクロールするための複合Control
@@ -263,17 +258,12 @@ func (s *ScrollSliderH) Layout() {
 		return
 	}
 
-	s.knob.Width = int(float64(s.Width) * float64(*s.ViewRange) / float64(*s.AllRange))
-	s.knob.X = int(float64(s.Value) * float64(s.Width-s.knob.Width) / float64(*s.AllRange-*s.ViewRange))
+	// まず Value をクランプ
+	s.Value = clampValue(s.Value, *s.AllRange, *s.ViewRange)
 
-	if s.knob.X < 0 {
-		s.knob.X = 0
-		s.Value = 0
-	}
-	if s.knob.X > s.Width-s.knob.Width {
-		s.knob.X = s.Width - s.knob.Width
-		s.Value = float64(*s.AllRange - *s.ViewRange)
-	}
+	// 次にツマミサイズと位置を計算
+	s.knob.Width = int(float64(s.Width) * float64(*s.ViewRange) / float64(*s.AllRange))
+	s.knob.X = calculateKnobPos(s.Value, s.Width, s.knob.Width, *s.ViewRange, *s.AllRange)
 }
 
 // ScrollBarHは横方向にスクロールするための複合Control

@@ -2,7 +2,6 @@ package ui
 
 import (
 	"MyProject/ui/parts"
-	"image/color"
 )
 
 // Buttonはクリック可能なボタン
@@ -10,10 +9,6 @@ type Button struct {
 	InteractiveControl // マウス処理と描画機能を持つ基本セット
 	parts.TextDrawable // テキスト描画機能
 	parts.Focusable    // フォーカス制御機能
-
-	NormalColor color.Color
-	HoverColor  color.Color
-	PressColor  color.Color
 }
 
 // Button生成
@@ -24,25 +19,24 @@ func NewButton(x, y, w, h int, text string, size int) *Button {
 }
 
 func (b *Button) InitButton(x, y, w, h int, text string, size int) {
+	theme := parts.CurrentTheme
+
 	b.InitInteractiveControl(x, y, w, h)
-	b.InitTextDrawable(b, text, size, parts.AlignCenter, parts.AlignCenter, 0, 0, color.White, true)
+	b.InitTextDrawable(b, text, size, parts.AlignCenter, parts.AlignCenter, 0, 0, theme.Text, true)
 	b.InitFocusable(b)
 
 	b.OnPress = func() {
 		b.Focus()
 	}
 
-	b.NormalColor = color.RGBA{0x60, 0x60, 0x60, 0xff}
-	b.HoverColor = color.RGBA{0x80, 0x80, 0x80, 0xff}
-	b.PressColor = color.RGBA{0x40, 0x40, 0x40, 0xff}
-
 	b.OnAfterUpdate = func() {
+		theme := parts.CurrentTheme
 		if b.IsHovering {
-			b.BackColor = b.HoverColor
+			b.BackColor = theme.ButtonHover
 		} else if b.IsPressed {
-			b.BackColor = b.PressColor
+			b.BackColor = theme.ButtonPress
 		} else {
-			b.BackColor = b.NormalColor
+			b.BackColor = theme.ButtonNormal
 		}
 	}
 }

@@ -2,7 +2,6 @@ package ui
 
 import (
 	"MyProject/ui/parts"
-	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -14,13 +13,10 @@ type PopupMenu struct {
 	parts.Drawable
 	parts.Grouping
 
-	Items       []string
-	OnSelect    func(index int)
-	OnClose     func()
-	ItemHeight  int
-	backColor   color.Color
-	hoverColor  color.Color
-	borderColor color.Color
+	Items      []string
+	OnSelect   func(index int)
+	OnClose    func()
+	ItemHeight int
 }
 
 // PopupMenu生成
@@ -33,9 +29,6 @@ func NewPopupMenu(x, y int, items []string) *PopupMenu {
 func (pm *PopupMenu) InitPopupMenu(x, y int, items []string) {
 	pm.Items = items
 	pm.ItemHeight = 24
-	pm.backColor = color.RGBA{0x40, 0x40, 0x40, 0xff}
-	pm.hoverColor = color.RGBA{0x60, 0x80, 0xc0, 0xff}
-	pm.borderColor = color.RGBA{0x80, 0x80, 0x80, 0xff}
 
 	// サイズ計算（幅は固定、高さは項目数に応じて）
 	width := 150
@@ -48,11 +41,12 @@ func (pm *PopupMenu) InitPopupMenu(x, y int, items []string) {
 
 	// 背景描画
 	pm.OnDraw = func(screen *ebiten.Image) {
+		theme := parts.CurrentTheme
 		gx, gy := pm.GetGlobalPos()
 		// 背景
-		vector.FillRect(screen, float32(gx), float32(gy), float32(pm.Width), float32(pm.Height), pm.backColor, false)
+		vector.FillRect(screen, float32(gx), float32(gy), float32(pm.Width), float32(pm.Height), theme.PopupBackground, false)
 		// 枠線
-		vector.StrokeRect(screen, float32(gx), float32(gy), float32(pm.Width), float32(pm.Height), 1, pm.borderColor, false)
+		vector.StrokeRect(screen, float32(gx), float32(gy), float32(pm.Width), float32(pm.Height), 1, theme.FocusBorder, false)
 	}
 
 	// メニュー項目を生成
@@ -80,18 +74,19 @@ type popupMenuItem struct {
 }
 
 func newPopupMenuItem(menu *PopupMenu, index int, text string, width, height int) *popupMenuItem {
+	theme := parts.CurrentTheme
 	item := &popupMenuItem{}
 	item.menu = menu
 	item.index = index
 
 	item.InitInteractiveControl(0, 0, width, height)
-	item.InitTextDrawable(item, text, 14, parts.AlignLeft, parts.AlignCenter, 8, 0, color.White, true)
+	item.InitTextDrawable(item, text, 14, parts.AlignLeft, parts.AlignCenter, 8, 0, theme.Text, true)
 
 	// 描画
 	item.OnDraw = func(screen *ebiten.Image) {
 		gx, gy := item.GetGlobalPos()
 		if item.IsOver {
-			vector.FillRect(screen, float32(gx), float32(gy), float32(item.Width), float32(item.Height), menu.hoverColor, false)
+			vector.FillRect(screen, float32(gx), float32(gy), float32(item.Width), float32(item.Height), theme.PopupHover, false)
 		}
 	}
 

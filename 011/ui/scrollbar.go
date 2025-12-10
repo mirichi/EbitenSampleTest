@@ -2,7 +2,6 @@ package ui
 
 import (
 	"MyProject/ui/parts"
-	"image/color"
 )
 
 // 値をクランプする
@@ -39,8 +38,10 @@ func NewScrollButton(x, y, w, h int, text string, size int) *ScrollButton {
 }
 
 func (b *ScrollButton) InitScrollButton(x, y, w, h int, text string, size int) {
+	theme := parts.CurrentTheme
 	b.InitInteractiveControl(x, y, w, h)
-	b.InitTextDrawable(b, text, size, parts.AlignCenter, parts.AlignCenter, 0, 0, color.White, true)
+	b.InitTextDrawable(b, text, size, parts.AlignCenter, parts.AlignCenter, 0, 0, theme.Text, true)
+	b.BackColor = theme.ScrollKnob
 }
 
 // ScrollSliderVはスクロールバー用のスライド範囲
@@ -62,14 +63,16 @@ func NewSliderV(x, y, w, h int) *ScrollSliderV {
 }
 
 func (s *ScrollSliderV) InitSliderV(x, y, w, h int) {
+	theme := parts.CurrentTheme
 	s.InitInteractiveControl(x, y, w, h)
 	s.InitGrouping(s)
 
-	s.BackColor = color.RGBA{0x20, 0x20, 0x20, 0xff}
+	s.BackColor = theme.ScrollBackground
 	s.ClippingFlag = false
 	s.AutoResizable = true
 
 	s.knob.InitInteractiveControl(x, y, w, 60)
+	s.knob.BackColor = theme.ScrollKnob
 	s.AddChild(&s.knob)
 
 	dragOffsetY := 0
@@ -203,14 +206,16 @@ func NewSliderH(x, y, w, h int) *ScrollSliderH {
 }
 
 func (s *ScrollSliderH) InitSliderH(x, y, w, h int) {
+	theme := parts.CurrentTheme
 	s.InitInteractiveControl(x, y, w, h)
 	s.InitGrouping(s)
 
-	s.BackColor = color.RGBA{0x20, 0x20, 0x20, 0xff}
+	s.BackColor = theme.ScrollBackground
 	s.ClippingFlag = false
 	s.AutoResizable = true
 
 	s.knob.InitInteractiveControl(x, 0, 60, h)
+	s.knob.BackColor = theme.ScrollKnob
 	s.AddChild(&s.knob)
 
 	var dragOffsetX int

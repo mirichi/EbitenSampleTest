@@ -15,6 +15,8 @@ type MainScreen struct {
 	GroupingControl
 	parts.Updatable
 	parts.Drawable
+
+	PopupManager *PopupManager
 }
 
 // MainScreen生成
@@ -26,16 +28,20 @@ func NewMainScreen() *MainScreen {
 	ms.ClippingFlag = false
 	ms.OrderChange = true
 
-	PopupContainer = NewPopupContainer()
+	ms.PopupManager = NewPopupManager()
+	// 後方互換性のためグローバル変数を同期
+	if c, ok := ms.PopupManager.Container().(*popupContainer); ok {
+		PopupContainer = c
+	}
 
 	ms.OnUpdate = func() {
-		PopupContainer.Update()
+		ms.PopupManager.Update()
 		ms.Layout()
 		parts.FinalizeCursor()
 	}
 
 	ms.OnDraw = func(screen *ebiten.Image) {
-		PopupContainer.Draw(screen)
+		ms.PopupManager.Container().Draw(screen)
 	}
 
 	return ms
@@ -54,7 +60,7 @@ func (ms *MainScreen) HandleInput(t input.Touch) bool {
 
 	parts.FlameFocus = false
 
-	r := PopupContainer.HandleInput(t)
+	r := ms.PopupManager.HandleInput(t)
 	if !r {
 		r = ms.GroupingControl.HandleInput(t)
 	}

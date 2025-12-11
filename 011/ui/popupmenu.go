@@ -84,7 +84,12 @@ func (pm *PopupMenu) InitPopupMenu(x, y int, items []MenuItem) {
 
 // Close はメニューを閉じる
 func (pm *PopupMenu) Close() {
-	PopupContainer.Close()
+	if pm.OnClose != nil {
+		pm.OnClose()
+	} else if PopupContainer != nil {
+		// 後方互換性のため、OnCloseが設定されていない場合はグローバルなコンテナを使用
+		PopupContainer.Close()
+	}
 }
 
 // --- PopupMenuSeparator ---

@@ -79,15 +79,17 @@ func createWindow(x, y, w, h int, str string) *ui.Window {
 
 	b := ui.NewButton(0, 0, 200, 50, "Popup", 30)
 	b.OnClick = func() {
-		items := []ui.MenuItem{
-			{Text: "あ", Action: func() { fmt.Println("あ") }},
-			{Text: "い", Action: func() { fmt.Println("い") }},
-			{IsSeparator: true},
-			{Text: "う", Action: func() { fmt.Println("う") }},
-			{Text: "え（無効）", Disabled: true},
-			{Text: "お", Action: func() { fmt.Println("お") }},
-		}
-		ui.PopupContainer.AddChild(ui.NewPopupMenu(100, 100, items))
+		// New MenuBuilder usage
+		menu := ui.NewMenuBuilder(100, 100).
+			AddItem("あ", func() { fmt.Println("あ") }).
+			AddItem("い", func() { fmt.Println("い") }).
+			AddSeparator().
+			AddItem("う", func() { fmt.Println("う") }).
+			AddDisabledItem("え（無効）").
+			AddItem("お", func() { fmt.Println("お") }).
+			Build()
+
+		mainscreen.PopupManager.ShowMenu(menu)
 	}
 	window.AddChild(b)
 

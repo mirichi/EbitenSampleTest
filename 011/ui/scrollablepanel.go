@@ -91,14 +91,13 @@ func (sp *ScrollablePanel) OnLayoutFunction() {
 	// 横スクロールバーの表示制御
 	oldH := sp.ScrollbarH.Visible
 	if *sp.ScrollbarH.slider.ViewRange >= *sp.ScrollbarH.slider.AllRange {
-		sp.ScrollbarH.Visible = false
 		sp.bottomGroup.Visible = false
 	} else {
-		sp.ScrollbarH.Visible = true
 		sp.bottomGroup.Visible = true
 	}
 
-	// レイアウトの更新
+	// レイアウト実行中に表示制御が変わったら再レイアウト
+	// 再帰呼び出しにならないように気を付ける
 	if oldV != sp.ScrollbarV.Visible || oldH != sp.ScrollbarH.Visible {
 		sp.Layout()
 	}

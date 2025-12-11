@@ -29,6 +29,7 @@ func (b *Button) InitButton(x, y, w, h int, text string, size int) {
 		b.Focus()
 	}
 
+	// Updateの最後で色を決定する
 	b.OnAfterUpdate = func() {
 		theme := parts.CurrentTheme
 		if b.IsHovering {

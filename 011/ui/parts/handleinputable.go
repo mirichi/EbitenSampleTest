@@ -2,7 +2,7 @@ package parts
 
 import "MyProject/ui/input"
 
-// HandleInputableは独自の入力ロジックを持つ機能
+// HandleInputableは独自の入力ロジックを追加したいときに使う
 type HandleInputable struct {
 	Control       Control
 	OnHandleInput func(t input.Touch) bool

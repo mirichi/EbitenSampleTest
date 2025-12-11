@@ -13,7 +13,6 @@ type Layouter interface {
 
 // Groupingは子コントロールを管理する機能
 // 子コントロールの追加、入力イベントの伝播、更新、描画を統括する
-
 type Grouping struct {
 	Control      Control
 	Children     []Control
@@ -55,6 +54,7 @@ func (g *Grouping) RemoveChild(c Control) {
 	for i, child := range g.Children {
 		if child == c {
 			g.Children = append(g.Children[:i], g.Children[i+1:]...)
+			c.GetControlBase().Parent = nil
 			break
 		}
 	}

@@ -4,6 +4,7 @@ import (
 	"MyProject/ui/parts"
 )
 
+// BlankControlは位置とサイズだけを持つ空のコントロール
 type BlankControl struct {
 	parts.ControlBase
 }

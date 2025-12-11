@@ -61,7 +61,7 @@ func main() {
 	ms := ui.NewMainScreen()
 	ms.AddChild(win)
 
-	ms.Layout()
+	// ms.Layout()
 
 	// ColorPanelの選択色でCanvasの色を変更する
 	cp.OnSelect = func(c color.Color) {

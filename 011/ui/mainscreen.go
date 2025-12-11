@@ -30,6 +30,7 @@ func NewMainScreen() *MainScreen {
 
 	ms.OnUpdate = func() {
 		PopupContainer.Update()
+		ms.Layout()
 		parts.FinalizeCursor()
 	}
 

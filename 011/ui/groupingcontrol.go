@@ -2,6 +2,7 @@ package ui
 
 import "MyProject/ui/parts"
 
+// GroupingControlは複合コントロールの親になるコントロール
 type GroupingControl struct {
 	parts.ControlBase
 	parts.Grouping

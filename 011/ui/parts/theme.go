@@ -75,7 +75,7 @@ func DefaultTheme() *Theme {
 	}
 }
 
-// LightTheme はライトテーマを返す
+// LightTheme はライトテーマを返す(AIが作ったので実用的じゃないっぽい)
 func LightTheme() *Theme {
 	return &Theme{
 		// テキスト

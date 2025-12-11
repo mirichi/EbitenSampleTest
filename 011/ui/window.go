@@ -106,10 +106,6 @@ func NewWindow(x, y, w, h int, text string) *Window {
 	win.Grouping.AddChild(&win.TitleBar)
 	win.Grouping.AddChild(&win.ClientArea)
 
-	win.OnResize = func() {
-		win.Layout()
-	}
-
 	return win
 }
 

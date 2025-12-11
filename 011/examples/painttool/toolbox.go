@@ -2,7 +2,6 @@ package main
 
 import (
 	"MyProject/ui"
-	"MyProject/ui/parts"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -32,8 +31,7 @@ func (b *ToolButton) drawToolButton(screen *ebiten.Image) {
 
 // ToolBoxはツール選択ボックス
 type ToolBox struct {
-	parts.ControlBase
-	parts.Grouping
+	ui.GroupingControl
 
 	marker   ui.Label
 	buttons  [8]ToolButton
@@ -43,8 +41,7 @@ type ToolBox struct {
 // ToolBox生成
 func NewToolBox(x, y, w, h int) *ToolBox {
 	tb := &ToolBox{}
-	tb.InitControlBase(tb, x, y, w, h)
-	tb.InitGrouping(tb)
+	tb.InitGroupingControl(x, y, w, h)
 	// ToolMarker初期化
 	tb.marker.InitLabel(0, 2*32+8, 16, 16, "▶", 16)
 	tb.AddChild(&tb.marker)

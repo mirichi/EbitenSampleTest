@@ -61,8 +61,6 @@ func main() {
 	ms := ui.NewMainScreen()
 	ms.AddChild(win)
 
-	// ms.Layout()
-
 	// ColorPanelの選択色でCanvasの色を変更する
 	cp.OnSelect = func(c color.Color) {
 		canvas.Color = c
@@ -73,9 +71,12 @@ func main() {
 		canvas.LineWidth = s
 	}
 
-	canvas.OnRightClick = func() {
-		ui.PopupContainer.AddChild(ui.NewPopupMenu(0, 0, []string{"Clear"}))
-		canvas.Image.Fill(color.Black)
+	canvas.OnRightRelease = func() {
+		items := []ui.MenuItem{
+			{Text: "Clear", Action: func() { canvas.Image.Fill(color.Black) }},
+		}
+		x, y := input.GetPointer().Pos()
+		ui.PopupContainer.AddChild(ui.NewPopupMenu(x, y, items))
 	}
 
 	game := &Game{

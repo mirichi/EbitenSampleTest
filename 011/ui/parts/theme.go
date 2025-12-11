@@ -5,7 +5,8 @@ import "image/color"
 // Theme はアプリケーション全体の色テーマを定義する
 type Theme struct {
 	// テキスト
-	Text color.Color
+	Text         color.Color
+	DisabledText color.Color
 
 	// ボタン
 	ButtonNormal color.Color
@@ -43,7 +44,8 @@ var CurrentTheme = DefaultTheme()
 func DefaultTheme() *Theme {
 	return &Theme{
 		// テキスト
-		Text: color.White,
+		Text:         color.White,
+		DisabledText: color.RGBA{0x80, 0x80, 0x80, 0xff},
 
 		// ボタン
 		ButtonNormal: color.RGBA{0x60, 0x60, 0x60, 0xff},
@@ -79,7 +81,8 @@ func DefaultTheme() *Theme {
 func LightTheme() *Theme {
 	return &Theme{
 		// テキスト
-		Text: color.Black,
+		Text:         color.Black,
+		DisabledText: color.RGBA{0xA0, 0xA0, 0xA0, 0xff},
 
 		// ボタン
 		ButtonNormal: color.RGBA{0xE0, 0xE0, 0xE0, 0xff},

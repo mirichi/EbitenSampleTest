@@ -8,14 +8,15 @@ type MouseInteraction struct {
 	Control Control
 	touch   input.Touch
 
-	OnPress      func()
-	OnClick      func()
-	OnRightClick func() // 右クリック
-	OnDragStart  func(x, y int)
-	OnDrag       func(x, y int)
-	OnDragEnd    func()
-	OnRelease    func()
-	OnRepeat     func() // オートリピート（押しっぱなしで連続実行）
+	OnPress        func()
+	OnClick        func()
+	OnRightPress   func()
+	OnRightRelease func()
+	OnDragStart    func(x, y int)
+	OnDrag         func(x, y int)
+	OnDragEnd      func()
+	OnRelease      func()
+	OnRepeat       func() // オートリピート（押しっぱなしで連続実行）
 
 	RepeatDelay    int // リピート開始までの待機フレーム数
 	RepeatInterval int // リピート間隔のフレーム数
@@ -45,6 +46,12 @@ func (m *MouseInteraction) InitMouseInteraction(c Control) {
 // handleInputFunctionは入力イベントを処理する
 // クリック開始、ドラッグ開始、ホバー状態の判定を行う
 func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
+	if !m.Control.GetControlBase().Visible {
+		m.touch = nil
+		return false
+	}
+
+	handle := false
 	cb := m.Control.GetControlBase()
 	gx, gy := cb.GetGlobalPos()
 
@@ -84,11 +91,9 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 
 			m.IsMouseOver = true
 
-			return true
+			handle = true
 		}
-	}
-
-	if m.touch != nil {
+	} else if m.touch != nil {
 		x, y := m.touch.Pos()
 
 		if m.touch.IsJustReleased() { // 今回離された
@@ -142,14 +147,21 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 	// 座標判定
 	if gx <= x && x < gx+cb.Width && gy <= y && y < gy+cb.Height {
 		// 右クリック検出
-		if input.IsRightJustReleased() {
-			if m.OnRightClick != nil {
-				m.OnRightClick()
+		if input.IsRightJustPressed() {
+			if m.OnRightPress != nil {
+				m.OnRightPress()
 			}
+			handle = true
+		}
+		if input.IsRightJustReleased() {
+			if m.OnRightRelease != nil {
+				m.OnRightRelease()
+			}
+			handle = true
 		}
 	}
 
-	return false
+	return handle
 }
 
 // 現在のマウス/タッチ位置を取得する

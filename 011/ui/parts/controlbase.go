@@ -62,12 +62,14 @@ func (cb *ControlBase) HandleInput(t input.Touch) bool {
 		cb.OnBeforeHandleInput()
 	}
 
-	if cb.Visible {
-		for i := len(cb.handleInputFunctions) - 1; i >= 0; i-- {
-			if cb.handleInputFunctions[i](t) {
-				t = nil
-				handle = true
-			}
+	if !cb.Visible {
+		t = nil
+	}
+
+	for i := len(cb.handleInputFunctions) - 1; i >= 0; i-- {
+		if cb.handleInputFunctions[i](t) {
+			t = nil
+			handle = true
 		}
 	}
 

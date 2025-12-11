@@ -79,13 +79,20 @@ func createWindow(x, y, w, h int, str string) *ui.Window {
 
 	b := ui.NewButton(0, 0, 200, 50, "Popup", 30)
 	b.OnClick = func() {
-		ui.PopupContainer.AddChild(ui.NewPopupMenu(100, 100, []string{"あ", "い", "う", "え", "お"}))
+		items := []ui.MenuItem{
+			{Text: "あ", Action: func() { fmt.Println("あ") }},
+			{Text: "い", Action: func() { fmt.Println("い") }},
+			{IsSeparator: true},
+			{Text: "う", Action: func() { fmt.Println("う") }},
+			{Text: "え（無効）", Disabled: true},
+			{Text: "お", Action: func() { fmt.Println("お") }},
+		}
+		ui.PopupContainer.AddChild(ui.NewPopupMenu(100, 100, items))
 	}
 	window.AddChild(b)
 
 	// ClientAreaのAutoLayoutを設定してオートレイアウト実行
 	window.ClientArea.AutoLayout = parts.AutoLayoutV
-	// window.Layout()
 
 	return window
 }

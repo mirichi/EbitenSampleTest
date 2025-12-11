@@ -1,67 +1,71 @@
 package ui
 
 import (
-	"MyProject/ui/input"
 	"MyProject/ui/parts"
+	"runtime"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
-// PopupManager はポップアップウィンドウの管理を行う
-// 将来的にはMainScreenやWindowごとにインスタンスを持つことを想定
 type PopupManager struct {
-	container *popupContainer
+	parts.ControlBase
+	parts.MouseInteraction
+	parts.Grouping
 }
 
-// NewPopupManager は新しいPopupManagerを作成する
 func NewPopupManager() *PopupManager {
-	return &PopupManager{
-		// 既存のPopupContainerの仕組みを利用するが、
-		// 将来的にはここをローカルなコンテナ生成に置き換える
-		container: NewPopupContainer(),
+	p := &PopupManager{}
+	p.InitPopupManager()
+	return p
+}
+
+func (p *PopupManager) InitPopupManager() {
+	p.InitControlBase(p, 0, 0, 0, 0)
+	p.InitMouseInteraction(p)
+	p.InitGrouping(p)
+	p.ClippingFlag = false
+	p.Visible = false
+
+	p.OnBeforeHandleInput = func() {
+		if runtime.GOOS == "js" {
+			p.Width = 640
+			p.Height = 480
+		} else {
+			p.Width, p.Height = ebiten.WindowSize()
+		}
+	}
+
+	p.OnPress = func() {
+		p.Close()
+	}
+
+	p.OnRightPress = func() {
+		p.Close()
 	}
 }
 
-// Update は管理下のポップアップの状態を更新する
-func (pm *PopupManager) Update() {
-	if pm.container != nil {
-		pm.container.Update()
-	}
+func (p *PopupManager) Close() {
+	p.Children = []parts.Control{}
+	p.Visible = false
 }
 
-// HandleInput は入力イベントを処理する
-func (pm *PopupManager) HandleInput(t input.Touch) bool {
-	if pm.container != nil {
-		return pm.container.HandleInput(t)
-	}
-	return false
+// AddChildは子を追加し、Visibleをtrueにする
+func (p *PopupManager) AddChild(c parts.Control) {
+	p.Grouping.AddChild(c)
+	p.Visible = true
 }
 
 // ShowMenu は指定されたメニューを表示する
-func (pm *PopupManager) ShowMenu(menu *PopupMenu) {
-	if pm.container == nil {
-		return
-	}
+func (p *PopupManager) ShowMenu(menu *PopupMenu) {
 	// 既存のメニューを閉じる（単純化のため現在は1つのみ表示）
-	pm.CloseAll()
+	p.Close()
 
 	// コンテナに追加
-	pm.container.AddChild(menu)
+	p.AddChild(menu)
 
 	// Menu自身にもManagerへの参照を持たせると閉じる処理などがスムーズになるが
 	// 現状はCallbackで対応
 	menu.OnClose = func() {
-		pm.CloseAll()
+		p.Close()
 	}
-}
-
-// CloseAll は全てのポップアップを閉じる
-func (pm *PopupManager) CloseAll() {
-	if pm.container != nil {
-		pm.container.Close()
-	}
-}
-
-// Container は描画対象となるContainerを返す
-// MainScreenなどはこれをAddChildして描画ツリーに組み込む
-func (pm *PopupManager) Container() parts.Control {
-	return pm.container
 }

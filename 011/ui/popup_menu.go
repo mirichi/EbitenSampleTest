@@ -86,9 +86,6 @@ func (pm *PopupMenu) InitPopupMenu(x, y int, items []MenuItem) {
 func (pm *PopupMenu) Close() {
 	if pm.OnClose != nil {
 		pm.OnClose()
-	} else if PopupContainer != nil {
-		// 後方互換性のため、OnCloseが設定されていない場合はグローバルなコンテナを使用
-		PopupContainer.Close()
 	}
 }
 

@@ -29,10 +29,6 @@ func NewMainScreen() *MainScreen {
 	ms.OrderChange = true
 
 	ms.PopupManager = NewPopupManager()
-	// 後方互換性のためグローバル変数を同期
-	if c, ok := ms.PopupManager.Container().(*popupContainer); ok {
-		PopupContainer = c
-	}
 
 	ms.OnUpdate = func() {
 		ms.PopupManager.Update()
@@ -41,7 +37,7 @@ func NewMainScreen() *MainScreen {
 	}
 
 	ms.OnDraw = func(screen *ebiten.Image) {
-		ms.PopupManager.Container().Draw(screen)
+		ms.PopupManager.Draw(screen)
 	}
 
 	return ms

@@ -24,6 +24,10 @@ type ControlBase struct {
 	Width, Height        int
 	Visible              bool
 	AutoResizable        bool
+	FlexGrow             float64
+	FlexShrink           float64
+	FlexBasisWidth       int
+	FlexBasisHeight      int
 	handleInputFunctions []func(t input.Touch) bool
 	updateFunctions      []func()
 	drawFunctions        []func(screen *ebiten.Image)
@@ -47,6 +51,10 @@ func (cb *ControlBase) InitControlBase(c Control, x, y, w, h int) {
 	cb.Height = h
 	cb.Visible = true
 	cb.AutoResizable = false
+	cb.FlexGrow = 0
+	cb.FlexShrink = 0
+	cb.FlexBasisWidth = w
+	cb.FlexBasisHeight = h
 }
 
 // AddHandleInputFunctionは、HandleInputメソッド呼び出し時に実行される関数を登録する

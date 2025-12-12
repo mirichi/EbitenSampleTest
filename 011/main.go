@@ -93,7 +93,8 @@ func createWindow(x, y, w, h int, str string) *ui.Window {
 	window.AddChild(b)
 
 	// ClientAreaのAutoLayoutを設定してオートレイアウト実行
-	window.ClientArea.AutoLayout = parts.AutoLayoutV
+	// window.ClientArea.AutoLayout = parts.AutoLayoutV
+	window.ClientArea.AutoLayout = parts.FlexLayoutV(parts.FlexSpaceAround, parts.FlexCenter, 0)
 
 	return window
 }

@@ -134,7 +134,7 @@ func AutoLayoutFitV(gr *Grouping) {
 		arc.GetControlBase().Height = con.Height - total
 	}
 
-	// コントロールサイズをもとに左詰めで位置を設定
+	// コントロールサイズをもとに上詰めで位置を設定
 	y := 0
 	for _, c := range gr.Children {
 		ccon := c.GetControlBase()

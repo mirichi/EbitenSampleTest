@@ -94,7 +94,9 @@ func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 
 			// CrossAxis位置の決定
 			switch crossAlign {
-			case FlexStart, FlexStretch:
+			case FlexStart:
+				cb.Y = 0
+			case FlexStretch:
 				cb.Y = 0
 				cb.Height = con.Height
 			case FlexCenter:
@@ -193,7 +195,9 @@ func FlexLayoutV(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 
 			// CrossAxis位置の決定
 			switch crossAlign {
-			case FlexStart, FlexStretch:
+			case FlexStart:
+				cb.X = 0
+			case FlexStretch:
 				cb.X = 0
 				cb.Width = con.Width
 			case FlexCenter:

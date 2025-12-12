@@ -41,6 +41,14 @@ func (b *MenuBuilder) AddSeparator() *MenuBuilder {
 	return b
 }
 
+func (b *MenuBuilder) AddSubMemu(text string, m *PopupMenu) *MenuBuilder {
+	b.items = append(b.items, MenuItem{
+		Text:    text,
+		SubMenu: m,
+	})
+	return b
+}
+
 // Build はPopupMenuを生成する
 func (b *MenuBuilder) Build() *PopupMenu {
 	return NewPopupMenu(b.x, b.y, b.items)

@@ -10,7 +10,7 @@ type ColorPanel struct {
 	ui.GroupingControl
 
 	marker   ui.Label
-	buttons  [8]ui.InteractiveControl
+	Buttons  [8]ui.InteractiveControl
 	OnSelect func(color.Color)
 }
 
@@ -27,10 +27,10 @@ func NewColorPanel(x, y, w, h int) *ColorPanel {
 		color.RGBA{0x00, 0xff, 0x00, 0xff}, color.RGBA{0x00, 0xff, 0xff, 0xff}, color.RGBA{0x00, 0x00, 0xff, 0xff},
 		color.RGBA{0xff, 0x00, 0xff, 0xff}, color.RGBA{0xff, 0xff, 0xff, 0xff}}
 	for i, c := range cols {
-		cp.buttons[i].InitInteractiveControl(0, i*32, 32, 32)
-		cp.AddChild(&cp.buttons[i])
-		cp.buttons[i].BackColor = c
-		cp.buttons[i].OnPress = func() {
+		cp.Buttons[i].InitInteractiveControl(0, i*32, 32, 32)
+		cp.AddChild(&cp.Buttons[i])
+		cp.Buttons[i].BackColor = c
+		cp.Buttons[i].OnPress = func() {
 			cp.marker.Y = i*32 + 8
 			cp.marker.TextColor = c
 			if cp.OnSelect != nil {

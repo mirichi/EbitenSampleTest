@@ -91,6 +91,22 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 
 			m.IsMouseOver = true
 
+			x, y := input.GetMouseTouch().Pos()
+			// 座標判定
+			if gx <= x && x < gx+cb.Width && gy <= y && y < gy+cb.Height {
+				// 右クリック検出
+				if input.IsRightJustPressed() {
+					if m.OnRightPress != nil {
+						m.OnRightPress()
+					}
+				}
+				if input.IsRightJustReleased() {
+					if m.OnRightRelease != nil {
+						m.OnRightRelease()
+					}
+				}
+			}
+
 			handle = true
 		}
 	} else if m.touch != nil {
@@ -140,24 +156,6 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 			}
 
 			m.IsDragging = true
-		}
-	}
-
-	x, y := input.GetMouseTouch().Pos()
-	// 座標判定
-	if gx <= x && x < gx+cb.Width && gy <= y && y < gy+cb.Height {
-		// 右クリック検出
-		if input.IsRightJustPressed() {
-			if m.OnRightPress != nil {
-				m.OnRightPress()
-			}
-			handle = true
-		}
-		if input.IsRightJustReleased() {
-			if m.OnRightRelease != nil {
-				m.OnRightRelease()
-			}
-			handle = true
 		}
 	}
 

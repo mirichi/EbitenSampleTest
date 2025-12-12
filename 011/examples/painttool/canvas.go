@@ -56,3 +56,7 @@ func NewCanvas(x, y, w, h int) *Canvas {
 
 	return c
 }
+
+func (c *Canvas) Clear() {
+	c.Image.Fill(color.Black)
+}

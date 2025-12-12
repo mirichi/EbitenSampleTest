@@ -76,6 +76,10 @@ func (c *Grouping) handleInputFunction(t input.Touch) bool {
 		}
 	}
 
+	if !cb.Visible {
+		t = nil
+	}
+
 	for i := len(c.Children) - 1; i >= 0; i-- {
 		if c.Children[i].HandleInput(t) {
 			// 順序変更は押された時のみ行う（ホバーで手前に来ないように）

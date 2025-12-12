@@ -72,11 +72,18 @@ func main() {
 	}
 
 	canvas.OnRightRelease = func() {
-		items := []ui.MenuItem{
-			{Text: "Clear", Action: func() { canvas.Image.Fill(color.Black) }},
-		}
 		x, y := input.GetPointer().Pos()
-		ui.PopupContainer.AddChild(ui.NewPopupMenu(x, y, items))
+		submenu := ui.NewMenuBuilder(x, y).
+			AddItem("Red", func() { cp.Buttons[1].OnPress() }).
+			AddItem("Green", func() { cp.Buttons[3].OnPress() }).
+			AddItem("Blue", func() { cp.Buttons[5].OnPress() }).
+			Build()
+		menu := ui.NewMenuBuilder(x, y).
+			AddItem("Clear", func() { canvas.Clear() }).
+			AddSeparator().
+			AddSubMemu("Color", submenu).
+			Build()
+		ms.PopupManager.ShowMenu(menu)
 	}
 
 	game := &Game{

@@ -36,36 +36,32 @@ func (p *PopupManager) InitPopupManager() {
 	}
 
 	p.OnPress = func() {
-		p.Close()
+		p.Visible = false
 	}
 
 	p.OnRightPress = func() {
-		p.Close()
+		p.Visible = false
 	}
-}
-
-func (p *PopupManager) Close() {
-	p.Children = []parts.Control{}
-	p.Visible = false
-}
-
-// AddChildは子を追加し、Visibleをtrueにする
-func (p *PopupManager) AddChild(c parts.Control) {
-	p.Grouping.AddChild(c)
-	p.Visible = true
 }
 
 // ShowMenu は指定されたメニューを表示する
 func (p *PopupManager) ShowMenu(menu *PopupMenu) {
 	// 既存のメニューを閉じる（単純化のため現在は1つのみ表示）
-	p.Close()
+	p.Children = []parts.Control{}
 
 	// コンテナに追加
 	p.AddChild(menu)
+	p.Visible = true
 
-	// Menu自身にもManagerへの参照を持たせると閉じる処理などがスムーズになるが
-	// 現状はCallbackで対応
 	menu.OnClose = func() {
-		p.Close()
+		p.Visible = false
+	}
+
+	// サブメニュー表示のコールバック
+	menu.OnShowSubMenu = func(submenu *PopupMenu) {
+		// サブメニューの位置を親項目の右側に配置
+		p.AddChild(submenu)
+		submenu.OnClose = menu.OnClose
+		submenu.OnShowSubMenu = menu.OnShowSubMenu // 再帰的に設定
 	}
 }

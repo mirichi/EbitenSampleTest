@@ -13,6 +13,7 @@ type MenuItem struct {
 	Action      func() // 選択時に実行される関数
 	Disabled    bool   // trueなら選択不可・グレー表示
 	IsSeparator bool   // trueなら区切り線として描画
+	SubMenu     *PopupMenu
 }
 
 // PopupMenuはドロップダウンやコンテキストメニューに使用するポップアップメニュー
@@ -23,6 +24,7 @@ type PopupMenu struct {
 
 	Items           []MenuItem
 	OnClose         func()
+	OnShowSubMenu   func(submenu *PopupMenu) // サブメニュー表示用コールバック
 	ItemHeight      int
 	SeparatorHeight int
 	Margin          int
@@ -89,6 +91,12 @@ func (pm *PopupMenu) Close() {
 	}
 }
 
+func (pm *PopupMenu) ShowSubMenu(subMenu *PopupMenu) {
+	if pm.OnShowSubMenu != nil {
+		pm.OnShowSubMenu(subMenu)
+	}
+}
+
 // --- PopupMenuSeparator ---
 
 // popupMenuSeparatorはセパレータ
@@ -121,6 +129,7 @@ type popupMenuItem struct {
 	index    int
 	action   func()
 	disabled bool
+	submenu  *PopupMenu
 }
 
 func newPopupMenuItem(menu *PopupMenu, index int, menuItem MenuItem, width, height int) *popupMenuItem {
@@ -130,6 +139,7 @@ func newPopupMenuItem(menu *PopupMenu, index int, menuItem MenuItem, width, heig
 	item.index = index
 	item.action = menuItem.Action
 	item.disabled = menuItem.Disabled
+	item.submenu = menuItem.SubMenu
 
 	item.InitInteractiveControl(0, 0, width, height)
 
@@ -155,8 +165,14 @@ func newPopupMenuItem(menu *PopupMenu, index int, menuItem MenuItem, width, heig
 		}
 		if item.action != nil {
 			item.action()
+			item.menu.Close()
 		}
-		menu.Close()
+		if item.submenu != nil {
+			gx, gy := item.GetGlobalPos()
+			item.submenu.X = gx + item.Width
+			item.submenu.Y = gy
+			item.menu.ShowSubMenu(item.submenu)
+		}
 	}
 
 	return item

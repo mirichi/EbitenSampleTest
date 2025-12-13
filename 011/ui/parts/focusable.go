@@ -4,7 +4,6 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 type Focusable struct {
@@ -72,10 +71,11 @@ func (f *Focusable) drawFocusBorder(screen *ebiten.Image) {
 		return
 	}
 
-	cb := f.Control.GetControlBase()
-	gx, gy := cb.GetGlobalPos()
-	vector.StrokeRect(screen,
-		float32(gx), float32(gy),
-		float32(cb.Width), float32(cb.Height),
-		f.FocusBorderWidth, f.FocusBorderColor, false)
+	// キーボードを操作したときだけフォーカス枠を描画したいが今のところはコメントアウト
+	// cb := f.Control.GetControlBase()
+	// gx, gy := cb.GetGlobalPos()
+	// vector.StrokeRect(screen,
+	// 	float32(gx), float32(gy),
+	// 	float32(cb.Width), float32(cb.Height),
+	// 	f.FocusBorderWidth, f.FocusBorderColor, false)
 }

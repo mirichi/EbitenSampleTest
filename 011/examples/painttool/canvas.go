@@ -30,7 +30,7 @@ func NewCanvas(x, y, w, h int) *Canvas {
 	c.Color = color.White
 	c.LineWidth = 6
 
-	c.Image.Fill(color.Black)
+	c.Clear()
 
 	c.OnDragStart = func(x, y int) {
 		// キャンバス内の相対座標に変換

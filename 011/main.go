@@ -77,21 +77,6 @@ func createWindow(x, y, w, h int, str string) *ui.Window {
 	textbox := ui.NewTextBox(50, 300, 200, 30, "日本語入力", 20)
 	window.AddChild(textbox)
 
-	b := ui.NewButton(0, 0, 200, 50, "Popup", 30)
-	b.OnClick = func() {
-		menu := ui.NewMenuBuilder(100, 100).
-			AddItem("あ", func() { fmt.Println("あ") }).
-			AddItem("い", func() { fmt.Println("い") }).
-			AddSeparator().
-			AddItem("う", func() { fmt.Println("う") }).
-			AddDisabledItem("え（無効）").
-			AddItem("お", func() { fmt.Println("お") }).
-			Build()
-
-		mainscreen.PopupManager.ShowMenu(menu)
-	}
-	window.AddChild(b)
-
 	// ClientAreaのAutoLayoutを設定してオートレイアウト実行
 	// window.ClientArea.AutoLayout = parts.AutoLayoutV
 	window.ClientArea.AutoLayout = parts.FlexLayoutV(parts.FlexSpaceAround, parts.FlexCenter, 0)

@@ -34,7 +34,7 @@ type ToolBox struct {
 	ui.GroupingControl
 
 	marker   ui.Label
-	buttons  [8]ToolButton
+	Buttons  [8]ToolButton
 	OnSelect func(int)
 }
 
@@ -47,12 +47,12 @@ func NewToolBox(x, y, w, h int) *ToolBox {
 	tb.AddChild(&tb.marker)
 
 	// ToolButton初期化
-	for i := range tb.buttons {
-		tb.buttons[i].InitToolButton(18, i*32, 32, 32, i*2+2)
-		tb.AddChild(&tb.buttons[i])
+	for i := range tb.Buttons {
+		tb.Buttons[i].InitToolButton(18, i*32, 32, 32, i*2+2)
+		tb.AddChild(&tb.Buttons[i])
 
 		// ボタンクリック時の処理
-		tb.buttons[i].OnPress = func() {
+		tb.Buttons[i].OnPress = func() {
 			tb.marker.Y = i*32 + 8
 
 			if tb.OnSelect != nil {

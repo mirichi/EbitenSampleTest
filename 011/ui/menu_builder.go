@@ -2,22 +2,19 @@ package ui
 
 // MenuBuilder はPopupMenuを構築するためのビルダー
 type MenuBuilder struct {
-	x, y  int
-	items []MenuItem
+	items []*MenuItem
 }
 
 // NewMenuBuilder は新しいMenuBuilderを作成する
-func NewMenuBuilder(x, y int) *MenuBuilder {
+func NewMenuBuilder() *MenuBuilder {
 	return &MenuBuilder{
-		x:     x,
-		y:     y,
-		items: make([]MenuItem, 0),
+		items: make([]*MenuItem, 0),
 	}
 }
 
 // AddItem はアクション付きの項目を追加する
 func (b *MenuBuilder) AddItem(text string, action func()) *MenuBuilder {
-	b.items = append(b.items, MenuItem{
+	b.items = append(b.items, &MenuItem{
 		Text:   text,
 		Action: action,
 	})
@@ -26,7 +23,7 @@ func (b *MenuBuilder) AddItem(text string, action func()) *MenuBuilder {
 
 // AddDisabledItem は無効化された項目を追加する
 func (b *MenuBuilder) AddDisabledItem(text string) *MenuBuilder {
-	b.items = append(b.items, MenuItem{
+	b.items = append(b.items, &MenuItem{
 		Text:     text,
 		Disabled: true,
 	})
@@ -35,14 +32,14 @@ func (b *MenuBuilder) AddDisabledItem(text string) *MenuBuilder {
 
 // AddSeparator はセパレータを追加する
 func (b *MenuBuilder) AddSeparator() *MenuBuilder {
-	b.items = append(b.items, MenuItem{
+	b.items = append(b.items, &MenuItem{
 		IsSeparator: true,
 	})
 	return b
 }
 
-func (b *MenuBuilder) AddSubMemu(text string, m *PopupMenu) *MenuBuilder {
-	b.items = append(b.items, MenuItem{
+func (b *MenuBuilder) AddSubMemu(text string, m []*MenuItem) *MenuBuilder {
+	b.items = append(b.items, &MenuItem{
 		Text:    text,
 		SubMenu: m,
 	})
@@ -50,6 +47,6 @@ func (b *MenuBuilder) AddSubMemu(text string, m *PopupMenu) *MenuBuilder {
 }
 
 // Build はPopupMenuを生成する
-func (b *MenuBuilder) Build() *PopupMenu {
-	return NewPopupMenu(b.x, b.y, b.items)
+func (b *MenuBuilder) Build() []*MenuItem {
+	return b.items
 }

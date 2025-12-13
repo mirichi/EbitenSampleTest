@@ -81,6 +81,11 @@ func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 			currentMainPos = tgap / 2
 		}
 
+		if tgap < 0 {
+			tgap = 0
+			currentMainPos = 0
+		}
+
 		// 水平方向の位置計算
 		for _, c := range visibleChildren {
 			cb := c.GetControlBase()
@@ -180,6 +185,11 @@ func FlexLayoutV(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 		case FlexSpaceAround:
 			tgap = totalSpace / len(visibleChildren)
 			currentMainPos = tgap / 2
+		}
+
+		if tgap < 0 {
+			tgap = 0
+			currentMainPos = totalSpace / 2
 		}
 
 		// 垂直方向の位置計算

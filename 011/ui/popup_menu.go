@@ -13,7 +13,7 @@ type MenuItem struct {
 	Action      func() // 選択時に実行される関数
 	Disabled    bool   // trueなら選択不可・グレー表示
 	IsSeparator bool   // trueなら区切り線として描画
-	SubMenu     *PopupMenu
+	SubMenu     []*MenuItem
 }
 
 // PopupMenuはドロップダウンやコンテキストメニューに使用するポップアップメニュー
@@ -22,22 +22,22 @@ type PopupMenu struct {
 	parts.Drawable
 	parts.Grouping
 
-	Items           []MenuItem
-	OnClose         func()
-	OnShowSubMenu   func(submenu *PopupMenu) // サブメニュー表示用コールバック
+	Items           []*MenuItem
+	OnCloseAll      func()
 	ItemHeight      int
 	SeparatorHeight int
 	Margin          int
+	SubMenu         *PopupMenu
 }
 
 // PopupMenu生成
-func NewPopupMenu(x, y int, items []MenuItem) *PopupMenu {
+func NewPopupMenu(x, y int, items []*MenuItem) *PopupMenu {
 	pm := &PopupMenu{}
 	pm.InitPopupMenu(x, y, items)
 	return pm
 }
 
-func (pm *PopupMenu) InitPopupMenu(x, y int, items []MenuItem) {
+func (pm *PopupMenu) InitPopupMenu(x, y int, items []*MenuItem) {
 	pm.Items = items
 	pm.ItemHeight = 24
 	pm.SeparatorHeight = 9
@@ -69,14 +69,14 @@ func (pm *PopupMenu) InitPopupMenu(x, y int, items []MenuItem) {
 
 	// メニュー項目を生成
 	currentY := pm.Margin
-	for i, menuItem := range items {
+	for _, menuItem := range items {
 		if menuItem.IsSeparator {
 			sep := newPopupMenuSeparator(width-pm.Margin*2, pm.SeparatorHeight)
 			sep.Y = currentY
 			pm.AddChild(sep)
 			currentY += pm.SeparatorHeight
 		} else {
-			item := newPopupMenuItem(pm, i, menuItem, width-pm.Margin*2, pm.ItemHeight)
+			item := newPopupMenuItem(pm, menuItem, width-pm.Margin*2, pm.ItemHeight)
 			item.Y = currentY
 			pm.AddChild(item)
 			currentY += pm.ItemHeight
@@ -84,20 +84,29 @@ func (pm *PopupMenu) InitPopupMenu(x, y int, items []MenuItem) {
 	}
 }
 
-// Close はメニューを閉じる
-func (pm *PopupMenu) Close() {
-	if pm.OnClose != nil {
-		pm.OnClose()
+// CloseSubMenuはサブメニューを閉じる
+func (pm *PopupMenu) CloseSubMenu() {
+	if pm.SubMenu != nil {
+		pm.RemoveChild(pm.SubMenu)
+		pm.SubMenu = nil
 	}
 }
 
-func (pm *PopupMenu) ShowSubMenu(subMenu *PopupMenu) {
-	if pm.OnShowSubMenu != nil {
-		pm.OnShowSubMenu(subMenu)
+// CloseAll はメニューをすべて閉じる
+func (pm *PopupMenu) CloseAll() {
+	if pm.OnCloseAll != nil {
+		pm.OnCloseAll()
 	}
 }
 
-// --- PopupMenuSeparator ---
+// ShowSubMenuはサブメニューを表示する
+func (pm *PopupMenu) ShowSubMenu(x, y int, submenu []*MenuItem) {
+	pm.CloseSubMenu()
+	subMenu := NewPopupMenu(x, y, submenu)
+	subMenu.OnCloseAll = pm.OnCloseAll
+	pm.AddChild(subMenu)
+	pm.SubMenu = subMenu
+}
 
 // popupMenuSeparatorはセパレータ
 type popupMenuSeparator struct {
@@ -118,28 +127,20 @@ func newPopupMenuSeparator(width, height int) *popupMenuSeparator {
 	return sep
 }
 
-// --- PopupMenuItem ---
-
 // popupMenuItemはPopupMenuの各項目
 type popupMenuItem struct {
 	InteractiveControl
 	parts.TextDrawable
 
 	menu     *PopupMenu
-	index    int
-	action   func()
-	disabled bool
-	submenu  *PopupMenu
+	menuItem *MenuItem
 }
 
-func newPopupMenuItem(menu *PopupMenu, index int, menuItem MenuItem, width, height int) *popupMenuItem {
+func newPopupMenuItem(menu *PopupMenu, menuItem *MenuItem, width, height int) *popupMenuItem {
 	theme := parts.CurrentTheme
 	item := &popupMenuItem{}
 	item.menu = menu
-	item.index = index
-	item.action = menuItem.Action
-	item.disabled = menuItem.Disabled
-	item.submenu = menuItem.SubMenu
+	item.menuItem = menuItem
 
 	item.InitInteractiveControl(0, 0, width, height)
 
@@ -152,26 +153,34 @@ func newPopupMenuItem(menu *PopupMenu, index int, menuItem MenuItem, width, heig
 
 	// 描画
 	item.OnDraw = func(screen *ebiten.Image) {
-		gx, gy := item.GetGlobalPos()
-		if item.IsMouseOver && !item.disabled {
+		// 選択色
+		if item.IsMouseOver && !item.menuItem.Disabled {
+			gx, gy := item.GetGlobalPos()
 			vector.FillRect(screen, float32(gx+menu.Margin), float32(gy), float32(item.Width), float32(item.Height), theme.PopupHover, false)
 		}
 	}
 
 	// クリック
 	item.OnRelease = func() {
-		if item.disabled {
+		if item.menuItem.Disabled {
 			return
 		}
-		if item.action != nil {
-			item.action()
-			item.menu.Close()
+		if item.menuItem.Action != nil {
+			item.menuItem.Action()
+			item.menu.CloseAll()
 		}
-		if item.submenu != nil {
-			gx, gy := item.GetGlobalPos()
-			item.submenu.X = gx + item.Width
-			item.submenu.Y = gy
-			item.menu.ShowSubMenu(item.submenu)
+		// if item.menuItem.SubMenu != nil {
+		// 	item.menu.ShowSubMenu(item.X+item.Width, item.Y, item.menuItem.SubMenu)
+		// }
+	}
+
+	item.OnAfterUpdate = func() {
+		if item.IsMouseOver {
+			if item.menuItem.SubMenu == nil {
+				item.menu.CloseSubMenu()
+			} else {
+				item.menu.ShowSubMenu(item.X+item.Width, item.Y, item.menuItem.SubMenu)
+			}
 		}
 	}
 

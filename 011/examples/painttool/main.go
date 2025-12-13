@@ -71,19 +71,39 @@ func main() {
 		canvas.LineWidth = s
 	}
 
-	canvas.OnRightRelease = func() {
-		x, y := input.GetPointer().Pos()
-		submenu := ui.NewMenuBuilder(x, y).
+	// 右クリックメニュー
+	menu := ui.NewMenuBuilder().
+		AddItem("Clear", func() { canvas.Clear() }).
+		AddSeparator().
+		AddSubMemu("Color", ui.NewMenuBuilder().
 			AddItem("Red", func() { cp.Buttons[1].OnPress() }).
 			AddItem("Green", func() { cp.Buttons[3].OnPress() }).
 			AddItem("Blue", func() { cp.Buttons[5].OnPress() }).
-			Build()
-		menu := ui.NewMenuBuilder(x, y).
-			AddItem("Clear", func() { canvas.Clear() }).
-			AddSeparator().
-			AddSubMemu("Color", submenu).
-			Build()
-		ms.PopupManager.ShowMenu(menu)
+			Build()).
+		AddSubMemu("Size", ui.NewMenuBuilder().
+			AddItem("2", func() { tp.Buttons[0].OnPress() }).
+			AddItem("6", func() { tp.Buttons[2].OnPress() }).
+			AddItem("10", func() { tp.Buttons[4].OnPress() }).
+			Build()).
+		Build()
+
+	// menu := []*ui.MenuItem{
+	// 	{Text: "Clear", Action: func() { canvas.Clear() }},
+	// 	{Text: "Color", SubMenu: []*ui.MenuItem{
+	// 		{Text: "Red", Action: func() { cp.Buttons[1].OnPress() }},
+	// 		{Text: "Green", Action: func() { cp.Buttons[3].OnPress() }},
+	// 		{Text: "Blue", Action: func() { cp.Buttons[5].OnPress() }},
+	// 	}},
+	// 	{Text: "Size", SubMenu: []*ui.MenuItem{
+	// 		{Text: "2", Action: func() { tp.Buttons[0].OnPress() }},
+	// 		{Text: "6", Action: func() { tp.Buttons[2].OnPress() }},
+	// 		{Text: "10", Action: func() { tp.Buttons[4].OnPress() }},
+	// 	}},
+	// }
+
+	canvas.OnRightRelease = func() {
+		x, y := input.GetPointer().Pos()
+		ms.PopupManager.ShowMenu(x, y, menu)
 	}
 
 	game := &Game{

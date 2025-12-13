@@ -45,23 +45,23 @@ func (p *PopupManager) InitPopupManager() {
 }
 
 // ShowMenu は指定されたメニューを表示する
-func (p *PopupManager) ShowMenu(menu *PopupMenu) {
+func (p *PopupManager) ShowMenu(x, y int, menu []*MenuItem) {
 	// 既存のメニューを閉じる（単純化のため現在は1つのみ表示）
 	p.Children = []parts.Control{}
 
+	popupMenu := NewPopupMenu(x, y, menu)
+
 	// コンテナに追加
-	p.AddChild(menu)
+	p.AddChild(popupMenu)
 	p.Visible = true
 
-	menu.OnClose = func() {
+	popupMenu.OnCloseAll = func() {
 		p.Visible = false
-	}
 
-	// サブメニュー表示のコールバック
-	menu.OnShowSubMenu = func(submenu *PopupMenu) {
-		// サブメニューの位置を親項目の右側に配置
-		p.AddChild(submenu)
-		submenu.OnClose = menu.OnClose
-		submenu.OnShowSubMenu = menu.OnShowSubMenu // 再帰的に設定
+		// ループ中に消すとバグるのでUpdate後に1回だけ実行するようにして消す
+		p.OnAfterUpdate = func() {
+			p.Children = []parts.Control{}
+			p.OnAfterUpdate = nil
+		}
 	}
 }

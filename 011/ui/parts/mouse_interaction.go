@@ -2,7 +2,7 @@ package parts
 
 import "MyProject/ui/input"
 
-// MouseInteractionはマウスやタッチ操作（クリック、ドラッグ、プレス）を処理する機能
+// MouseInteractionはマウスやタッチ操作（クリック、ドラッグ、ホバーなど）を処理する機能
 // コントロールに埋め込むことで使用する
 type MouseInteraction struct {
 	Control Control
@@ -10,6 +10,8 @@ type MouseInteraction struct {
 
 	OnPress        func()
 	OnClick        func()
+	OnHoverStart   func()
+	OnHoverEnd     func()
 	OnRightPress   func()
 	OnRightRelease func()
 	OnDragStart    func(x, y int)
@@ -26,6 +28,8 @@ type MouseInteraction struct {
 	IsDragging  bool // ドラッグ中の状態
 	IsHovering  bool // カーソルが上に乗っている状態(押されていない)
 	IsMouseOver bool // カーソルが上に乗っている状態(押されていても)
+
+	wasHovering bool // 前フレームのホバー状態
 }
 
 func NewMouseInteraction(c Control) *MouseInteraction {
@@ -48,6 +52,17 @@ func (m *MouseInteraction) InitMouseInteraction(c Control) {
 func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 	if !m.Control.GetControlBase().Visible {
 		m.touch = nil
+		m.IsHovering = false
+		m.IsMouseOver = false
+		m.IsPressed = false
+		m.IsDragging = false
+
+		if m.wasHovering {
+			if m.OnHoverEnd != nil {
+				m.OnHoverEnd()
+			}
+			m.wasHovering = false
+		}
 		return false
 	}
 
@@ -158,6 +173,18 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 			m.IsDragging = true
 		}
 	}
+
+	// ホバー状態の変化を検知
+	if !m.wasHovering && m.IsHovering {
+		if m.OnHoverStart != nil {
+			m.OnHoverStart()
+		}
+	} else if m.wasHovering && !m.IsHovering {
+		if m.OnHoverEnd != nil {
+			m.OnHoverEnd()
+		}
+	}
+	m.wasHovering = m.IsHovering
 
 	return handle
 }

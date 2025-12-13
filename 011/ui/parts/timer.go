@@ -1,7 +1,7 @@
 package parts
 
 // Timerは指定時間経過後に処理を実行するパーツ
-// 画面には表示されないが、Controlとしてツリーに追加することでUpdateが呼ばれて時間が進む
+// 画面には表示されないが、partsとして追加することでUpdateが呼ばれて時間が進む
 type Timer struct {
 	Control Control
 

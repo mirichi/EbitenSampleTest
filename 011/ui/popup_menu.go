@@ -132,6 +132,7 @@ type popupMenuItem struct {
 	InteractiveControl
 	parts.TextDrawable
 
+	Timer    parts.Timer
 	menu     *PopupMenu
 	menuItem *MenuItem
 }
@@ -150,6 +151,7 @@ func newPopupMenuItem(menu *PopupMenu, menuItem *MenuItem, width, height int) *p
 		textColor = theme.DisabledText
 	}
 	item.InitTextDrawable(item, menuItem.Text, 14, parts.AlignLeft, parts.AlignCenter, 8, 0, textColor, true)
+	item.Timer.InitTimer(item, 30, false)
 
 	// 描画
 	item.OnDraw = func(screen *ebiten.Image) {
@@ -169,19 +171,24 @@ func newPopupMenuItem(menu *PopupMenu, menuItem *MenuItem, width, height int) *p
 			item.menuItem.Action()
 			item.menu.CloseAll()
 		}
-		// if item.menuItem.SubMenu != nil {
-		// 	item.menu.ShowSubMenu(item.X+item.Width, item.Y, item.menuItem.SubMenu)
-		// }
+		if item.menuItem.SubMenu != nil {
+			item.menu.ShowSubMenu(item.X+item.Width, item.Y, item.menuItem.SubMenu)
+			item.Timer.Stop()
+		}
 	}
 
-	item.OnAfterUpdate = func() {
-		if item.IsMouseOver {
-			if item.menuItem.SubMenu == nil {
-				// item.menu.CloseSubMenu()
-			} else {
-				item.menu.ShowSubMenu(item.X+item.Width, item.Y, item.menuItem.SubMenu)
-			}
+	item.OnHoverStart = func() {
+		if item.menuItem.SubMenu != nil {
+			item.Timer.Start()
 		}
+	}
+
+	item.OnHoverEnd = func() {
+		item.Timer.Stop()
+	}
+
+	item.Timer.OnTimeout = func() {
+		item.menu.ShowSubMenu(item.X+item.Width, item.Y, item.menuItem.SubMenu)
 	}
 
 	return item

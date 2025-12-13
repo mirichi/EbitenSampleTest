@@ -22,12 +22,14 @@ type PopupMenu struct {
 	parts.Drawable
 	parts.Grouping
 
-	Items           []*MenuItem
-	OnCloseAll      func()
-	ItemHeight      int
-	SeparatorHeight int
-	Margin          int
-	SubMenu         *PopupMenu
+	Items               []*MenuItem
+	OnCloseAll          func()
+	ItemHeight          int
+	SeparatorHeight     int
+	Margin              int
+	SubMenu             *PopupMenu
+	ActiveSubMenuOrigin *MenuItem
+	HoveredItem         *MenuItem
 }
 
 // PopupMenu生成
@@ -89,6 +91,7 @@ func (pm *PopupMenu) CloseSubMenu() {
 	if pm.SubMenu != nil {
 		pm.RemoveChild(pm.SubMenu)
 		pm.SubMenu = nil
+		pm.ActiveSubMenuOrigin = nil
 	}
 }
 
@@ -100,12 +103,13 @@ func (pm *PopupMenu) CloseAll() {
 }
 
 // ShowSubMenuはサブメニューを表示する
-func (pm *PopupMenu) ShowSubMenu(x, y int, submenu []*MenuItem) {
+func (pm *PopupMenu) ShowSubMenu(x, y int, origin *MenuItem, submenu []*MenuItem) {
 	pm.CloseSubMenu()
 	subMenu := NewPopupMenu(x, y, submenu)
 	subMenu.OnCloseAll = pm.OnCloseAll
 	pm.AddChild(subMenu)
 	pm.SubMenu = subMenu
+	pm.ActiveSubMenuOrigin = origin
 }
 
 // popupMenuSeparatorはセパレータ
@@ -159,8 +163,13 @@ func newPopupMenuItem(menu *PopupMenu, menuItem *MenuItem, width, height int) *p
 
 	// 描画
 	item.OnDraw = func(screen *ebiten.Image) {
-		// 選択色
-		if item.IsMouseOver && !item.menuItem.Disabled {
+		// 選択色 (マウスオーバー または サブメニュー展開中の親項目)
+		// 他の項目にマウスが乗っている場合は、親項目のハイライトを消す
+		isHovered := item.IsMouseOver && !item.menuItem.Disabled
+		isOrigin := item.menu.ActiveSubMenuOrigin == item.menuItem
+		shouldHighlight := isHovered || (isOrigin && item.menu.HoveredItem == nil)
+
+		if shouldHighlight {
 			gx, gy := item.GetGlobalPos()
 			vector.FillRect(screen, float32(gx+menu.Margin), float32(gy), float32(item.Width), float32(item.Height), theme.PopupHover, false)
 		}
@@ -175,27 +184,47 @@ func newPopupMenuItem(menu *PopupMenu, menuItem *MenuItem, width, height int) *p
 			item.menuItem.Action()
 			item.menu.CloseAll()
 		}
-		if item.menuItem.SubMenu != nil {
-			item.menu.ShowSubMenu(item.X+item.Width, item.Y, item.menuItem.SubMenu)
-			item.Timer.Stop()
+		if item.menuItem.SubMenu != nil && item.menu.ActiveSubMenuOrigin != item.menuItem {
+			item.menu.ShowSubMenu(item.X+item.Width, item.Y, item.menuItem, item.menuItem.SubMenu)
 		}
 	}
 
-	// サブメニューありの項目にマウスを乗せたらタイマー開始
-	item.OnHoverStart = func() {
-		if item.menuItem.SubMenu != nil {
-			item.Timer.Start()
+	item.OnPress = func() {
+		if item.menu.ActiveSubMenuOrigin != item.menuItem {
+			item.menu.CloseSubMenu()
+			if item.menuItem.SubMenu != nil {
+				item.menu.ShowSubMenu(item.X+item.Width, item.Y, item.menuItem, item.menuItem.SubMenu)
+			}
 		}
 	}
 
-	// ホバー終了でタイマー停止
-	item.OnHoverEnd = func() {
+	// マウスオーバーでタイマー開始（サブメニュー表示 or 他のサブメニューを閉じる用）
+	item.OnMouseOverStart = func() {
+		item.menu.HoveredItem = item.menuItem
+		item.Timer.Start()
+	}
+
+	// マウスオーバー終了でタイマー停止
+	item.OnMouseOverEnd = func() {
+		if item.menu.HoveredItem == item.menuItem {
+			item.menu.HoveredItem = nil
+		}
 		item.Timer.Stop()
 	}
 
-	// タイマー開始後30フレームでサブメニュー表示
+	// タイマータイムアウト時の処理
 	item.Timer.OnTimeout = func() {
-		item.menu.ShowSubMenu(item.X+item.Width, item.Y, item.menuItem.SubMenu)
+		if item.menuItem.SubMenu != nil {
+			// サブメニューがある場合、それを開く（まだ開いていなければ）
+			if item.menu.ActiveSubMenuOrigin != item.menuItem {
+				item.menu.ShowSubMenu(item.X+item.Width, item.Y, item.menuItem, item.menuItem.SubMenu)
+			}
+		} else {
+			// サブメニューがない場合、既に開いているサブメニューがあれば閉じる
+			if item.menu.ActiveSubMenuOrigin != nil {
+				item.menu.CloseSubMenu()
+			}
+		}
 	}
 
 	return item

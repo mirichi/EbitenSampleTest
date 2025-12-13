@@ -8,17 +8,19 @@ type MouseInteraction struct {
 	Control Control
 	touch   input.Touch
 
-	OnPress        func()
-	OnClick        func()
-	OnHoverStart   func()
-	OnHoverEnd     func()
-	OnRightPress   func()
-	OnRightRelease func()
-	OnDragStart    func(x, y int)
-	OnDrag         func(x, y int)
-	OnDragEnd      func()
-	OnRelease      func()
-	OnRepeat       func() // オートリピート（押しっぱなしで連続実行）
+	OnPress          func()
+	OnClick          func()
+	OnHoverStart     func()
+	OnHoverEnd       func()
+	OnMouseOverStart func()
+	OnMouseOverEnd   func()
+	OnRightPress     func()
+	OnRightRelease   func()
+	OnDragStart      func(x, y int)
+	OnDrag           func(x, y int)
+	OnDragEnd        func()
+	OnRelease        func()
+	OnRepeat         func() // オートリピート（押しっぱなしで連続実行）
 
 	RepeatDelay    int // リピート開始までの待機フレーム数
 	RepeatInterval int // リピート間隔のフレーム数
@@ -29,7 +31,8 @@ type MouseInteraction struct {
 	IsHovering  bool // カーソルが上に乗っている状態(押されていない)
 	IsMouseOver bool // カーソルが上に乗っている状態(押されていても)
 
-	wasHovering bool // 前フレームのホバー状態
+	wasHovering  bool // 前フレームのホバー状態
+	wasMouseOver bool // 前フレームのマウスオーバー状態
 }
 
 func NewMouseInteraction(c Control) *MouseInteraction {
@@ -62,6 +65,12 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 				m.OnHoverEnd()
 			}
 			m.wasHovering = false
+		}
+		if m.wasMouseOver {
+			if m.OnMouseOverEnd != nil {
+				m.OnMouseOverEnd()
+			}
+			m.wasMouseOver = false
 		}
 		return false
 	}
@@ -131,15 +140,15 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 			m.touch = nil
 			m.pressDuration = 0
 
-			if m.OnRelease != nil {
-				m.OnRelease()
-			}
-
 			if m.OnDragEnd != nil {
 				m.OnDragEnd()
 			}
 
 			if gx <= x && x < gx+cb.Width && gy <= y && y < gy+cb.Height {
+				if m.OnRelease != nil {
+					m.OnRelease()
+				}
+
 				if m.OnClick != nil {
 					m.OnClick()
 				}
@@ -185,6 +194,18 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 		}
 	}
 	m.wasHovering = m.IsHovering
+
+	// マウスオーバー状態の変化を検知
+	if !m.wasMouseOver && m.IsMouseOver {
+		if m.OnMouseOverStart != nil {
+			m.OnMouseOverStart()
+		}
+	} else if m.wasMouseOver && !m.IsMouseOver {
+		if m.OnMouseOverEnd != nil {
+			m.OnMouseOverEnd()
+		}
+	}
+	m.wasMouseOver = m.IsMouseOver
 
 	return handle
 }

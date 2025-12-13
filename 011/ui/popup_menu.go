@@ -132,9 +132,10 @@ type popupMenuItem struct {
 	InteractiveControl
 	parts.TextDrawable
 
-	Timer    parts.Timer
-	menu     *PopupMenu
-	menuItem *MenuItem
+	Timer         parts.Timer
+	menu          *PopupMenu
+	menuItem      *MenuItem
+	submenuMarker parts.TextDrawable
 }
 
 func newPopupMenuItem(menu *PopupMenu, menuItem *MenuItem, width, height int) *popupMenuItem {
@@ -152,6 +153,9 @@ func newPopupMenuItem(menu *PopupMenu, menuItem *MenuItem, width, height int) *p
 	}
 	item.InitTextDrawable(item, menuItem.Text, 14, parts.AlignLeft, parts.AlignCenter, 8, 0, textColor, true)
 	item.Timer.InitTimer(item, 30, false)
+	if menuItem.SubMenu != nil {
+		item.submenuMarker.InitTextDrawable(item, ">", 14, parts.AlignRight, parts.AlignCenter, 0, 0, textColor, true)
+	}
 
 	// 描画
 	item.OnDraw = func(screen *ebiten.Image) {
@@ -177,16 +181,19 @@ func newPopupMenuItem(menu *PopupMenu, menuItem *MenuItem, width, height int) *p
 		}
 	}
 
+	// サブメニューありの項目にマウスを乗せたらタイマー開始
 	item.OnHoverStart = func() {
 		if item.menuItem.SubMenu != nil {
 			item.Timer.Start()
 		}
 	}
 
+	// ホバー終了でタイマー停止
 	item.OnHoverEnd = func() {
 		item.Timer.Stop()
 	}
 
+	// タイマー開始後30フレームでサブメニュー表示
 	item.Timer.OnTimeout = func() {
 		item.menu.ShowSubMenu(item.X+item.Width, item.Y, item.menuItem.SubMenu)
 	}

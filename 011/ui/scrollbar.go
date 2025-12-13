@@ -28,8 +28,8 @@ func calculateKnobPos(value float64, sliderSize, knobSize, viewRange, allRange i
 	return 0
 }
 
-// ScrollSliderVはスクロールバー用のスライド範囲
-type ScrollSliderV struct {
+// ScrollBarVはスクロールバー用のスライド範囲
+type ScrollBarV struct {
 	InteractiveControl
 	parts.Grouping
 
@@ -39,21 +39,20 @@ type ScrollSliderV struct {
 	OnSlide             func()
 }
 
-// ScrollSliderV生成
-func NewSliderV(x, y, w, h int) *ScrollSliderV {
-	s := &ScrollSliderV{}
-	s.InitSliderV(x, y, w, h)
+// ScrollBarV生成
+func NewScrollBarV(x, y, w, h int) *ScrollBarV {
+	s := &ScrollBarV{}
+	s.InitScrollBarV(x, y, w, h)
 	return s
 }
 
-func (s *ScrollSliderV) InitSliderV(x, y, w, h int) {
+func (s *ScrollBarV) InitScrollBarV(x, y, w, h int) {
 	theme := parts.CurrentTheme
 	s.InitInteractiveControl(x, y, w, h)
 	s.InitGrouping(s)
 
 	s.BackColor = color.Transparent // トラックは透明に
 	s.ClippingFlag = false
-	s.AutoResizable = true
 
 	s.knob.InitInteractiveControl(x, y, w, 60)
 	s.knob.BackColor = color.Transparent // ノブ自体のControl背景は透明にし、カスタム描画する
@@ -118,7 +117,7 @@ func (s *ScrollSliderV) InitSliderV(x, y, w, h int) {
 }
 
 // 指定した量だけスクロールする
-func (s *ScrollSliderV) Move(delta float64) {
+func (s *ScrollBarV) Move(delta float64) {
 	s.Value = clampValue(s.Value+delta, *s.AllRange, *s.ViewRange)
 	s.knob.Y = calculateKnobPos(s.Value, s.Height, s.knob.Height, *s.ViewRange, *s.AllRange)
 
@@ -128,7 +127,7 @@ func (s *ScrollSliderV) Move(delta float64) {
 }
 
 // ScrollSliderVの範囲設定
-func (s *ScrollSliderV) Layout() {
+func (s *ScrollBarV) Layout() {
 	if *s.ViewRange >= *s.AllRange {
 		s.knob.Height = s.Height
 		s.knob.Y = 0
@@ -147,52 +146,20 @@ func (s *ScrollSliderV) Layout() {
 	s.knob.Y = calculateKnobPos(s.Value, s.Height, s.knob.Height, *s.ViewRange, *s.AllRange)
 }
 
-// ScrollBarVは縦方向にスクロールするための複合Control
-type ScrollBarV struct {
-	GroupingControl
-
-	slider ScrollSliderV
-
-	OnSlide func()
-}
-
-// ScrollBarV生成
-func NewScrollBarV(x, y, w, h int) *ScrollBarV {
-	s := &ScrollBarV{}
-	s.InitScrollBarV(x, y, w, h)
-	return s
-}
-
-func (s *ScrollBarV) InitScrollBarV(x, y, w, h int) {
-	s.InitGroupingControl(x, y, w, h)
-	s.ClippingFlag = false
-	s.AutoLayout = parts.AutoLayoutFitV
-
-	s.slider.InitSliderV(0, 0, w, h)
-
-	s.AddChild(&s.slider)
-
-	s.slider.OnSlide = func() {
-		if s.OnSlide != nil {
-			s.OnSlide()
-		}
-	}
-}
-
 func (s *ScrollBarV) SetViewRange(viewrange *int) {
-	s.slider.ViewRange = viewrange
+	s.ViewRange = viewrange
 }
 
 func (s *ScrollBarV) SetMaxRange(allrange *int) {
-	s.slider.AllRange = allrange
+	s.AllRange = allrange
 }
 
 func (s *ScrollBarV) GetValue() float64 {
-	return s.slider.Value
+	return s.Value
 }
 
-// ScrollSliderHは横方向のスクロールバー用のスライド範囲
-type ScrollSliderH struct {
+// ScrollBarHは横方向のスクロールバー用のスライド範囲
+type ScrollBarH struct {
 	InteractiveControl
 	parts.Grouping
 
@@ -202,21 +169,20 @@ type ScrollSliderH struct {
 	OnSlide             func()
 }
 
-// ScrollSliderH生成
-func NewSliderH(x, y, w, h int) *ScrollSliderH {
-	s := &ScrollSliderH{}
-	s.InitSliderH(x, y, w, h)
+// ScrollBarH生成
+func NewScrollBarH(x, y, w, h int) *ScrollBarH {
+	s := &ScrollBarH{}
+	s.InitScrollBarH(x, y, w, h)
 	return s
 }
 
-func (s *ScrollSliderH) InitSliderH(x, y, w, h int) {
+func (s *ScrollBarH) InitScrollBarH(x, y, w, h int) {
 	theme := parts.CurrentTheme
 	s.InitInteractiveControl(x, y, w, h)
 	s.InitGrouping(s)
 
 	s.BackColor = color.Transparent
 	s.ClippingFlag = false
-	s.AutoResizable = true
 
 	s.knob.InitInteractiveControl(x, 0, 60, h)
 	s.knob.BackColor = color.Transparent
@@ -279,7 +245,7 @@ func (s *ScrollSliderH) InitSliderH(x, y, w, h int) {
 }
 
 // 指定した量だけスクロールする
-func (s *ScrollSliderH) Move(delta float64) {
+func (s *ScrollBarH) Move(delta float64) {
 	s.Value = clampValue(s.Value+delta, *s.AllRange, *s.ViewRange)
 	s.knob.X = calculateKnobPos(s.Value, s.Width, s.knob.Width, *s.ViewRange, *s.AllRange)
 
@@ -289,7 +255,7 @@ func (s *ScrollSliderH) Move(delta float64) {
 }
 
 // ScrollSliderHの範囲設定
-func (s *ScrollSliderH) Layout() {
+func (s *ScrollBarH) Layout() {
 	if *s.ViewRange >= *s.AllRange {
 		s.knob.Width = s.Width
 		s.knob.X = 0
@@ -308,46 +274,14 @@ func (s *ScrollSliderH) Layout() {
 	s.knob.X = calculateKnobPos(s.Value, s.Width, s.knob.Width, *s.ViewRange, *s.AllRange)
 }
 
-// ScrollBarHは横方向にスクロールするための複合Control
-type ScrollBarH struct {
-	GroupingControl
-
-	slider ScrollSliderH
-
-	OnSlide func()
-}
-
-// ScrollBarH生成
-func NewScrollBarH(x, y, w, h int) *ScrollBarH {
-	s := &ScrollBarH{}
-	s.InitScrollBarH(x, y, w, h)
-	return s
-}
-
-func (s *ScrollBarH) InitScrollBarH(x, y, w, h int) {
-	s.InitGroupingControl(x, y, w, h)
-	s.ClippingFlag = false
-	s.AutoLayout = parts.AutoLayoutFitH
-
-	s.slider.InitSliderH(0, 0, w, h)
-
-	s.AddChild(&s.slider)
-
-	s.slider.OnSlide = func() {
-		if s.OnSlide != nil {
-			s.OnSlide()
-		}
-	}
-}
-
 func (s *ScrollBarH) SetViewRange(viewrange *int) {
-	s.slider.ViewRange = viewrange
+	s.ViewRange = viewrange
 }
 
 func (s *ScrollBarH) SetMaxRange(allrange *int) {
-	s.slider.AllRange = allrange
+	s.AllRange = allrange
 }
 
 func (s *ScrollBarH) GetValue() float64 {
-	return s.slider.Value
+	return s.Value
 }

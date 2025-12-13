@@ -53,8 +53,8 @@ func (sp *ScrollablePanel) InitScrollablePanel(x, y, w, h, sbw int) {
 	sp.bottomGroup.ClippingFlag = false
 
 	sp.ScrollbarH.InitScrollBarH(0, 0, 0, sbw)
-	sp.bottomGroup.AddChild(&sp.ScrollbarH)
 	sp.ScrollbarH.AutoResizable = true
+	sp.bottomGroup.AddChild(&sp.ScrollbarH)
 	sp.corner.InitBlankControl(0, 0, sbw, sbw) // コーナーの空白
 	sp.bottomGroup.AddChild(&sp.corner)
 
@@ -80,7 +80,7 @@ func (sp *ScrollablePanel) AddChild(c parts.Control) {
 func (sp *ScrollablePanel) OnLayoutFunction() {
 	// 縦スクロールバーの表示制御
 	oldV := sp.ScrollbarV.Visible
-	if *sp.ScrollbarV.slider.ViewRange >= *sp.ScrollbarV.slider.AllRange {
+	if *sp.ScrollbarV.ViewRange >= *sp.ScrollbarV.AllRange {
 		sp.ScrollbarV.Visible = false
 		sp.corner.Visible = false
 	} else {
@@ -90,7 +90,7 @@ func (sp *ScrollablePanel) OnLayoutFunction() {
 
 	// 横スクロールバーの表示制御
 	oldH := sp.ScrollbarH.Visible
-	if *sp.ScrollbarH.slider.ViewRange >= *sp.ScrollbarH.slider.AllRange {
+	if *sp.ScrollbarH.ViewRange >= *sp.ScrollbarH.AllRange {
 		sp.bottomGroup.Visible = false
 	} else {
 		sp.bottomGroup.Visible = true

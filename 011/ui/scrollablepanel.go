@@ -60,15 +60,14 @@ func (sp *ScrollablePanel) InitScrollablePanel(x, y, w, h, sbw int) {
 
 	// スクロールバーのスライド時の動作
 	sp.ScrollbarV.OnSlide = func() {
-		sp.Panel.X, sp.Panel.Y = -int(sp.ScrollbarH.GetValue()), -int(sp.ScrollbarV.GetValue())
+		sp.Panel.X, sp.Panel.Y = -int(sp.ScrollbarH.Value), -int(sp.ScrollbarV.Value)
 	}
 	sp.ScrollbarH.OnSlide = func() {
-		sp.Panel.X, sp.Panel.Y = -int(sp.ScrollbarH.GetValue()), -int(sp.ScrollbarV.GetValue())
+		sp.Panel.X, sp.Panel.Y = -int(sp.ScrollbarH.Value), -int(sp.ScrollbarV.Value)
 	}
 	sp.OnLayout = sp.OnLayoutFunction
 
-	sp.ScrollbarH.SetViewRange(&sp.Area.Width)
-	sp.ScrollbarV.SetViewRange(&sp.Area.Height)
+	sp.SetViewRange(&sp.Area.Width, &sp.Area.Height)
 }
 
 // ScrollablePanelに対してのAddChildはPanelに委譲する
@@ -102,10 +101,15 @@ func (sp *ScrollablePanel) OnLayoutFunction() {
 		sp.Layout()
 	}
 
-	sp.Panel.X, sp.Panel.Y = -int(sp.ScrollbarH.GetValue()), -int(sp.ScrollbarV.GetValue())
+	sp.Panel.X, sp.Panel.Y = -int(sp.ScrollbarH.Value), -int(sp.ScrollbarV.Value)
 }
 
 func (sp *ScrollablePanel) SetMaxRange(allrangeH, allrangeV *int) {
 	sp.ScrollbarH.SetMaxRange(allrangeH)
 	sp.ScrollbarV.SetMaxRange(allrangeV)
+}
+
+func (sp *ScrollablePanel) SetViewRange(viewrangeH, viewrangeV *int) {
+	sp.ScrollbarH.SetViewRange(viewrangeH)
+	sp.ScrollbarV.SetViewRange(viewrangeV)
 }

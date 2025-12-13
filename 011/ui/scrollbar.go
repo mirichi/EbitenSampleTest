@@ -76,8 +76,8 @@ func (s *ScrollBarV) InitScrollBarV(x, y, w, h int) {
 
 		// 色決定
 		knobColor := theme.ScrollKnob
-		if k.IsMouseOver || k.IsPressed {
-			knobColor = theme.PopupHover // ホバー時は少し明るく（既存テーマ流用）
+		if k.IsHovering || k.IsDragging {
+			knobColor = theme.ButtonHover // ホバー時は少し明るく（既存テーマ流用）
 		}
 
 		// カプセル描画 (上下半円 + 中央矩形)
@@ -154,10 +154,6 @@ func (s *ScrollBarV) SetMaxRange(allrange *int) {
 	s.AllRange = allrange
 }
 
-func (s *ScrollBarV) GetValue() float64 {
-	return s.Value
-}
-
 // ScrollBarHは横方向のスクロールバー用のスライド範囲
 type ScrollBarH struct {
 	InteractiveControl
@@ -205,12 +201,11 @@ func (s *ScrollBarH) InitScrollBarH(x, y, w, h int) {
 		h := float32(height)
 
 		knobColor := theme.ScrollKnob
-		if k.IsMouseOver || k.IsPressed {
-			knobColor = theme.PopupHover
+		if k.IsHovering || k.IsDragging {
+			knobColor = theme.ButtonHover
 		}
 
 		r := h / 2
-
 		vector.FillCircle(screen, x+r, y+r, r, knobColor, true)
 		vector.FillCircle(screen, x+w-r, y+r, r, knobColor, true)
 		vector.FillRect(screen, x+r, y, w-r*2, h, knobColor, true)
@@ -280,8 +275,4 @@ func (s *ScrollBarH) SetViewRange(viewrange *int) {
 
 func (s *ScrollBarH) SetMaxRange(allrange *int) {
 	s.AllRange = allrange
-}
-
-func (s *ScrollBarH) GetValue() float64 {
-	return s.Value
 }

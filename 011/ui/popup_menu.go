@@ -177,7 +177,7 @@ func newPopupMenuItem(menu *PopupMenu, menuItem *MenuItem, width, height int) *p
 	item.OnAfterUpdate = func() {
 		if item.IsMouseOver {
 			if item.menuItem.SubMenu == nil {
-				item.menu.CloseSubMenu()
+				// item.menu.CloseSubMenu()
 			} else {
 				item.menu.ShowSubMenu(item.X+item.Width, item.Y, item.menuItem.SubMenu)
 			}

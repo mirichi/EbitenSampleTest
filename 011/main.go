@@ -63,7 +63,7 @@ func createWindow(x, y, w, h int, str string) *ui.Window {
 	window.AddChild(button2)
 
 	// Checkbox生成、Windowに登録
-	checkbox := ui.NewCheckbox(50, 250, 30, 30, "CheckBox", 20, false)
+	checkbox := ui.NewCheckbox(50, 250, 30, "OFF", 20, false)
 	checkbox.OnCheckChanged = func(c bool) {
 		if c {
 			checkbox.Text = "ON"

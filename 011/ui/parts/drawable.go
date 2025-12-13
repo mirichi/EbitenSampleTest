@@ -5,6 +5,7 @@ import (
 )
 
 // Drawableは何かしらを描画する機能
+// 任意のタイミングで呼ばれるOnDrawを定義できる
 type Drawable struct {
 	Control Control
 	OnDraw  func(screen *ebiten.Image)

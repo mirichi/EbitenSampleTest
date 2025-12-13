@@ -1,6 +1,7 @@
 package parts
 
 // Updatableは独自の更新ロジックを追加したいときに使う
+// 任意のタイミングで呼ばれるOnUpdateを定義できる
 type Updatable struct {
 	Control  Control
 	OnUpdate func()

@@ -22,8 +22,8 @@ type Theme struct {
 	TextBoxBorder     color.Color
 
 	// チェックボックス
-	CheckBoxBackground color.Color
-	CheckMark          color.Color
+	CheckOffColor color.Color
+	CheckOnColor  color.Color
 
 	// スクロールバー
 	ScrollBackground color.Color
@@ -61,8 +61,8 @@ func DefaultTheme() *Theme {
 		TextBoxBorder:     color.RGBA{0x80, 0x80, 0x80, 0xff},
 
 		// チェックボックス
-		CheckBoxBackground: color.RGBA{0x40, 0x40, 0x40, 0xff},
-		CheckMark:          color.White,
+		CheckOffColor: color.RGBA{0x60, 0x60, 0x60, 0xff},
+		CheckOnColor:  color.RGBA{0x34, 0xC7, 0x59, 0xff},
 
 		// スクロールバー
 		ScrollBackground: color.RGBA{0x20, 0x20, 0x20, 0xff},
@@ -98,8 +98,8 @@ func LightTheme() *Theme {
 		TextBoxBorder:     color.RGBA{0x80, 0x80, 0x80, 0xff},
 
 		// チェックボックス
-		CheckBoxBackground: color.RGBA{0xE0, 0xE0, 0xE0, 0xff},
-		CheckMark:          color.Black,
+		CheckOffColor: color.RGBA{0xE0, 0xE0, 0xE0, 0xff},
+		CheckOnColor:  color.Black,
 
 		// スクロールバー
 		ScrollBackground: color.RGBA{0xE0, 0xE0, 0xE0, 0xff},

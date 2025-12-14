@@ -38,7 +38,7 @@ func (b *MenuBuilder) AddSeparator() *MenuBuilder {
 	return b
 }
 
-func (b *MenuBuilder) AddSubMemu(text string, m []*MenuItem) *MenuBuilder {
+func (b *MenuBuilder) AddSubMenu(text string, m []*MenuItem) *MenuBuilder {
 	b.items = append(b.items, &MenuItem{
 		Text:    text,
 		SubMenu: m,

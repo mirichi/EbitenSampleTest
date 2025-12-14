@@ -75,12 +75,12 @@ func main() {
 	menu := ui.NewMenuBuilder().
 		AddItem("Clear", func() { canvas.Clear() }).
 		AddSeparator().
-		AddSubMemu("Color", ui.NewMenuBuilder().
+		AddSubMenu("Color", ui.NewMenuBuilder().
 			AddItem("Red", func() { cp.Buttons[1].OnPress() }).
 			AddItem("Green", func() { cp.Buttons[3].OnPress() }).
 			AddItem("Blue", func() { cp.Buttons[5].OnPress() }).
 			Build()).
-		AddSubMemu("Size", ui.NewMenuBuilder().
+		AddSubMenu("Size", ui.NewMenuBuilder().
 			AddItem("2", func() { tp.Buttons[0].OnPress() }).
 			AddItem("6", func() { tp.Buttons[2].OnPress() }).
 			AddItem("10", func() { tp.Buttons[4].OnPress() }).

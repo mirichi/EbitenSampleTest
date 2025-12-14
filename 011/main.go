@@ -91,6 +91,14 @@ func main() {
 	mainscreen.AddChild(createWindow(200, 100, 300, 300, "TestWindow1"))
 	mainscreen.AddChild(createWindow(400, 300, 300, 300, "TestWindow2"))
 
+	label := ui.NewLabel(50, 50, 200, 50, "Label", 30)
+	mainscreen.AddChild(label)
+
+	labelclicker := parts.NewMouseInteraction(label)
+	labelclicker.OnClick = func() {
+		label.Text = "Clicked"
+	}
+
 	ebiten.SetWindowSize(640, 480)
 	if err := ebiten.RunGame(&Game{}); err != nil {
 		panic(err)

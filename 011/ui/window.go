@@ -94,8 +94,8 @@ type Window struct {
 func NewWindow(x, y, w, h int, text string) *Window {
 	win := &Window{}
 	win.InitControlBase(win, x, y, w, h)
-	win.InitGrouping(win)
 	win.InitResizable(win)
+	win.InitGrouping(win)
 	win.AutoLayout = parts.AutoLayoutFitV
 
 	// TitleBarとClientArea生成

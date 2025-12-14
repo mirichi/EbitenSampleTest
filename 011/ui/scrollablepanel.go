@@ -60,10 +60,10 @@ func (sp *ScrollablePanel) InitScrollablePanel(x, y, w, h, sbw int) {
 
 	// スクロールバーのスライド時の動作
 	sp.ScrollbarV.OnSlide = func() {
-		sp.Panel.X, sp.Panel.Y = -int(sp.ScrollbarH.Value), -int(sp.ScrollbarV.Value)
+		sp.Panel.X, sp.Panel.Y = -int(sp.ScrollbarH.GetValue()), -int(sp.ScrollbarV.GetValue())
 	}
 	sp.ScrollbarH.OnSlide = func() {
-		sp.Panel.X, sp.Panel.Y = -int(sp.ScrollbarH.Value), -int(sp.ScrollbarV.Value)
+		sp.Panel.X, sp.Panel.Y = -int(sp.ScrollbarH.GetValue()), -int(sp.ScrollbarV.GetValue())
 	}
 	sp.OnLayout = sp.OnLayoutFunction
 
@@ -79,7 +79,7 @@ func (sp *ScrollablePanel) AddChild(c parts.Control) {
 func (sp *ScrollablePanel) OnLayoutFunction() {
 	// 縦スクロールバーの表示制御
 	oldV := sp.ScrollbarV.Visible
-	if *sp.ScrollbarV.ViewRange >= *sp.ScrollbarV.AllRange {
+	if *sp.ScrollbarV.slider.ViewRange >= *sp.ScrollbarV.slider.AllRange {
 		sp.ScrollbarV.Visible = false
 		sp.corner.Visible = false
 	} else {
@@ -89,7 +89,7 @@ func (sp *ScrollablePanel) OnLayoutFunction() {
 
 	// 横スクロールバーの表示制御
 	oldH := sp.ScrollbarH.Visible
-	if *sp.ScrollbarH.ViewRange >= *sp.ScrollbarH.AllRange {
+	if *sp.ScrollbarH.Slider.ViewRange >= *sp.ScrollbarH.Slider.AllRange {
 		sp.bottomGroup.Visible = false
 	} else {
 		sp.bottomGroup.Visible = true
@@ -101,7 +101,7 @@ func (sp *ScrollablePanel) OnLayoutFunction() {
 		sp.Layout()
 	}
 
-	sp.Panel.X, sp.Panel.Y = -int(sp.ScrollbarH.Value), -int(sp.ScrollbarV.Value)
+	sp.Panel.X, sp.Panel.Y = -int(sp.ScrollbarH.GetValue()), -int(sp.ScrollbarV.GetValue())
 }
 
 func (sp *ScrollablePanel) SetMaxRange(allrangeH, allrangeV *int) {

@@ -167,7 +167,16 @@ func newPopupMenuItem(menu *PopupMenu, menuItem *MenuItem, width, height int) *p
 		// 他の項目にマウスが乗っている場合は、親項目のハイライトを消す
 		isHovered := item.IsMouseOver && !item.menuItem.Disabled
 		isOrigin := item.menu.ActiveSubMenuOrigin == item.menuItem
-		shouldHighlight := isHovered || (isOrigin && item.menu.HoveredItem == nil)
+
+		// 親メニューの領域内にマウスがあるかどうかを判定
+		mx, my := ebiten.CursorPosition()
+		gx, gy := item.menu.GetGlobalPos()
+		inMenu := mx >= gx && mx < gx+item.menu.Width && my >= gy && my < gy+item.menu.Height
+
+		// ハイライト条件:
+		// 1. この項目にホバーしている
+		// 2. この項目がサブメニューの発生元であり、かつマウスが親メニューの領域外にある（サブメニュー操作中など）
+		shouldHighlight := isHovered || (isOrigin && !inMenu)
 
 		if shouldHighlight {
 			gx, gy := item.GetGlobalPos()

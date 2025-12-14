@@ -45,7 +45,7 @@ func main() {
 	win.AddChild(cp)
 
 	// スクロール可能なパネル生成
-	sp := ui.NewScrollablePanel(0, 0, 0, 0, 20)
+	sp := ui.NewScrollablePanel(0, 0, 0, 0, 15)
 	sp.AutoResizable = true
 	win.AddChild(sp)
 

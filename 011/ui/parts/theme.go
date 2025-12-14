@@ -28,6 +28,7 @@ type Theme struct {
 	// スクロールバー
 	ScrollBackground color.Color
 	ScrollKnob       color.Color
+	ScrollKnobHover  color.Color
 
 	// ポップアップ
 	PopupBackground color.Color
@@ -66,7 +67,8 @@ func DefaultTheme() *Theme {
 
 		// スクロールバー
 		ScrollBackground: color.RGBA{0x20, 0x20, 0x20, 0xff},
-		ScrollKnob:       color.RGBA{0x60, 0x60, 0x60, 0xff},
+		ScrollKnob:       color.RGBA{0x80, 0x80, 0x80, 0xff},
+		ScrollKnobHover:  color.RGBA{0xA0, 0xA0, 0xA0, 0xff},
 
 		// ポップアップ
 		PopupBackground: color.RGBA{0x40, 0x40, 0x40, 0xff},
@@ -74,42 +76,5 @@ func DefaultTheme() *Theme {
 
 		// フォーカス
 		FocusBorder: color.RGBA{0xD0, 0xD0, 0xD0, 0xff},
-	}
-}
-
-// LightTheme はライトテーマを返す(AIが作ったので実用的じゃないっぽい)
-func LightTheme() *Theme {
-	return &Theme{
-		// テキスト
-		Text:         color.Black,
-		DisabledText: color.RGBA{0xA0, 0xA0, 0xA0, 0xff},
-
-		// ボタン
-		ButtonNormal: color.RGBA{0xE0, 0xE0, 0xE0, 0xff},
-		ButtonHover:  color.RGBA{0xC8, 0xC8, 0xC8, 0xff},
-		ButtonPress:  color.RGBA{0xB0, 0xB0, 0xB0, 0xff},
-
-		// ウィンドウ
-		TitleBar:   color.RGBA{0x00, 0x80, 0x00, 0xff},
-		ClientArea: color.RGBA{0xF0, 0xF0, 0xF0, 0xff},
-
-		// 入力コントロール
-		TextBoxBackground: color.White,
-		TextBoxBorder:     color.RGBA{0x80, 0x80, 0x80, 0xff},
-
-		// チェックボックス
-		CheckOffColor: color.RGBA{0xE0, 0xE0, 0xE0, 0xff},
-		CheckOnColor:  color.Black,
-
-		// スクロールバー
-		ScrollBackground: color.RGBA{0xE0, 0xE0, 0xE0, 0xff},
-		ScrollKnob:       color.RGBA{0xA0, 0xA0, 0xA0, 0xff},
-
-		// ポップアップ
-		PopupBackground: color.RGBA{0xF0, 0xF0, 0xF0, 0xff},
-		PopupHover:      color.RGBA{0xC0, 0xC0, 0xE0, 0xff},
-
-		// フォーカス
-		FocusBorder: color.RGBA{0x40, 0x40, 0x40, 0xff},
 	}
 }

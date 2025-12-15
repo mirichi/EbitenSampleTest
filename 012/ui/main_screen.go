@@ -13,7 +13,6 @@ import (
 // MainScreenのHandleInput/Update/Drawを呼び出すだけでUI全体の更新と描画が行われる
 type MainScreen struct {
 	GroupingControl
-	parts.Updatable
 	parts.Drawable
 
 	PopupManager *PopupManager
@@ -22,7 +21,6 @@ type MainScreen struct {
 // MainScreen生成
 func NewMainScreen() *MainScreen {
 	ms := &MainScreen{}
-	ms.InitUpdatable(ms)
 	ms.InitGroupingControl(0, 0, 0, 0)
 	ms.InitDrawable(ms)
 	ms.ClippingFlag = false
@@ -30,9 +28,10 @@ func NewMainScreen() *MainScreen {
 
 	ms.PopupManager = NewPopupManager()
 
-	ms.OnUpdate = func() {
+	ms.OnBeforeUpdate = func() {
 		ms.PopupManager.Update()
 		ms.Layout()
+		ms.PopupManager.Layout()
 		parts.FinalizeCursor()
 	}
 

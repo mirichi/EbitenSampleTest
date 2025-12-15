@@ -10,7 +10,7 @@ type Timer struct {
 	Repeat   bool // 繰り返し実行するか
 	Running  bool // タイマーが動作中か
 
-	OnTimeout func() // タイムアウト時に呼ばれる関数
+	OnTimer func() // タイムアウト時に呼ばれる関数
 }
 
 // Timer生成
@@ -36,8 +36,8 @@ func (t *Timer) updateTimer() {
 
 	t.Current++
 	if t.Current >= t.Interval {
-		if t.OnTimeout != nil {
-			t.OnTimeout()
+		if t.OnTimer != nil {
+			t.OnTimer()
 		}
 
 		if t.Repeat {
@@ -58,9 +58,15 @@ func (t *Timer) Start() {
 // Stop はタイマーを停止する
 func (t *Timer) Stop() {
 	t.Running = false
+	t.Current = 0
 }
 
 // Resume はタイマーを再開する
 func (t *Timer) Resume() {
 	t.Running = true
+}
+
+// Suspendはタイマーを中断する
+func (t *Timer) Suspend() {
+	t.Running = false
 }

@@ -68,5 +68,5 @@ func (tb *TextBox) drawTextBox(screen *ebiten.Image) {
 	vector.FillRect(screen, x, y, w, h, color.RGBA{0x60, 0x60, 0x60, 0xff}, false)
 
 	// 枠線（フォーカス枠はFocusableが描画）
-	vector.StrokeRect(screen, x, y, w, h, 2, color.RGBA{0x80, 0x80, 0x80, 0xff}, false)
+	vector.StrokeRect(screen, x, y, w-1, h-1, 2, color.RGBA{0x80, 0x80, 0x80, 0xff}, false)
 }

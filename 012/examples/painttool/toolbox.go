@@ -25,7 +25,7 @@ func (b *ToolButton) InitToolButton(x, y, w, h, size int) {
 // drawToolButtonはボタンの描画処理を行う
 func (b *ToolButton) drawToolButton(screen *ebiten.Image) {
 	gx, gy := b.GetGlobalPos()
-	vector.StrokeRect(screen, float32(gx), float32(gy), float32(b.Width), float32(b.Height), 2, color.RGBA{0xff, 0xff, 0xff, 0xff}, false)
+	vector.StrokeRect(screen, float32(gx), float32(gy), float32(b.Width-1), float32(b.Height-1), 2, color.RGBA{0xff, 0xff, 0xff, 0xff}, false)
 	vector.FillCircle(screen, float32(gx+b.Width/2), float32(gy+b.Height/2), float32(b.Size/2), color.RGBA{0xff, 0xff, 0xff, 0xff}, true)
 }
 

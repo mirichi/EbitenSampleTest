@@ -76,6 +76,6 @@ func (f *Focusable) drawFocusBorder(screen *ebiten.Image) {
 	// gx, gy := cb.GetGlobalPos()
 	// vector.StrokeRect(screen,
 	// 	float32(gx), float32(gy),
-	// 	float32(cb.Width), float32(cb.Height),
+	// 	float32(cb.Width-1), float32(cb.Height-1),
 	// 	f.FocusBorderWidth, f.FocusBorderColor, false)
 }

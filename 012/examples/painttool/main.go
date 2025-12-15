@@ -38,7 +38,7 @@ func main() {
 
 	// ウィンドウ生成
 	win := ui.NewWindow(50, 20, 580, 350, "Paint Tool")
-	win.ClientArea.AutoLayout = parts.AutoLayoutFitH
+	win.ClientArea.AutoLayout = parts.AutoLayoutFitH(0)
 
 	// ColorPanel生成
 	cp := NewColorPanel(0, 0, 50, 256)

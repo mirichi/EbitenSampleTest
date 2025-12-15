@@ -96,7 +96,7 @@ func NewWindow(x, y, w, h int, text string) *Window {
 	win.InitControlBase(win, x, y, w, h)
 	win.InitResizable(win)
 	win.InitGrouping(win)
-	win.AutoLayout = parts.AutoLayoutFitV
+	win.AutoLayout = parts.AutoLayoutFitV(0)
 
 	// TitleBarとClientArea生成
 	win.TitleBar.InitTitleBar(0, 0, w, 30, text)

@@ -193,7 +193,7 @@ func (s *ScrollBarV) InitScrollBarV(x, y, w, h int) {
 	s.InitDrawable(s)
 	s.InitGrouping(s)
 	s.ClippingFlag = false
-	s.AutoLayout = parts.AutoLayoutFitV
+	s.AutoLayout = parts.AutoLayoutFitV(0)
 
 	s.buttonUp.InitScrollButton(0, 0, w, w, "▲", w/2)
 	s.slider.InitSliderV(x, w, w, h)
@@ -389,7 +389,7 @@ func (s *ScrollBarH) InitScrollBarH(x, y, w, h int) {
 	s.InitDrawable(s)
 	s.InitGrouping(s)
 	s.ClippingFlag = false
-	s.AutoLayout = parts.AutoLayoutFitH
+	s.AutoLayout = parts.AutoLayoutFitH(0)
 
 	s.buttonLeft.InitScrollButton(0, 0, h, h, "◀", h/2)
 	s.Slider.InitSliderH(h, 0, w, h)

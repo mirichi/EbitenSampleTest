@@ -60,7 +60,6 @@ func (pm *PopupMenu) InitPopupMenu(x, y int, items []*MenuItem) {
 	pm.InitControlBase(pm, x, y, width, height)
 	pm.InitDrawable(pm)
 	pm.InitGrouping(pm)
-	pm.ClippingFlag = false
 	// pm.AutoLayout = parts.AutoLayoutFitV(pm.Margin)
 	pm.Timer.InitTimer(pm, 30, false)
 

@@ -34,23 +34,21 @@ func (sp *ScrollablePanel) InitScrollablePanel(x, y, w, h, sbw int) {
 	sp.Grouping.AddChild(&sp.topGroup)
 	sp.topGroup.AutoResizable = true
 	sp.topGroup.AutoLayout = parts.AutoLayoutFitH(0)
-	sp.topGroup.ClippingFlag = false
 
 	sp.Area.InitGroupingControl(0, 0, 0, 0)
 	sp.topGroup.AddChild(&sp.Area)
 	sp.Area.AutoResizable = true
 	sp.ScrollbarV.InitScrollBarV(0, 0, sbw, 0)
 	sp.topGroup.AddChild(&sp.ScrollbarV)
+	sp.Area.ClippingFlag = true
 
 	sp.Panel.InitGroupingControl(0, 0, 0, 0)
 	sp.Area.AddChild(&sp.Panel)
-	sp.Panel.ClippingFlag = false
 
 	// 下部（横スクロールバー＋コーナー）
 	sp.bottomGroup.InitGroupingControl(0, 0, w, sbw)
 	sp.Grouping.AddChild(&sp.bottomGroup)
 	sp.bottomGroup.AutoLayout = parts.AutoLayoutFitH(0)
-	sp.bottomGroup.ClippingFlag = false
 
 	sp.ScrollbarH.InitScrollBarH(0, 0, 0, sbw)
 	sp.ScrollbarH.AutoResizable = true

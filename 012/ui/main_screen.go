@@ -23,7 +23,6 @@ func NewMainScreen() *MainScreen {
 	ms := &MainScreen{}
 	ms.InitGroupingControl(0, 0, 0, 0)
 	ms.InitDrawable(ms)
-	ms.ClippingFlag = false
 	ms.OrderChange = true
 
 	ms.PopupManager = NewPopupManager()

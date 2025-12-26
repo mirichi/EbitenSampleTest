@@ -74,7 +74,6 @@ func (s *ScrollSliderV) InitSliderV(x, y, w, h int) {
 	s.InitMouseInteraction(s)
 	s.InitGrouping(s)
 
-	s.ClippingFlag = false
 	s.AutoResizable = true
 
 	s.knob.InitInteractiveControl(x, y, w, 60)
@@ -192,7 +191,6 @@ func (s *ScrollBarV) InitScrollBarV(x, y, w, h int) {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitDrawable(s)
 	s.InitGrouping(s)
-	s.ClippingFlag = false
 	s.AutoLayout = parts.AutoLayoutFitV(0)
 
 	s.buttonUp.InitScrollButton(0, 0, w, w, "▲", w/2)
@@ -273,7 +271,6 @@ func (s *ScrollSliderH) InitSliderH(x, y, w, h int) {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitMouseInteraction(s)
 	s.InitGrouping(s)
-	s.ClippingFlag = false
 	s.AutoResizable = true
 
 	s.knob.InitInteractiveControl(x, 0, 60, h)
@@ -388,7 +385,6 @@ func (s *ScrollBarH) InitScrollBarH(x, y, w, h int) {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitDrawable(s)
 	s.InitGrouping(s)
-	s.ClippingFlag = false
 	s.AutoLayout = parts.AutoLayoutFitH(0)
 
 	s.buttonLeft.InitScrollButton(0, 0, h, h, "◀", h/2)

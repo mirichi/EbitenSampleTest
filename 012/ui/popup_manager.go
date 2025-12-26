@@ -23,7 +23,6 @@ func (p *PopupManager) InitPopupManager() {
 	p.InitControlBase(p, 0, 0, 0, 0)
 	p.InitMouseInteraction(p)
 	p.InitGrouping(p)
-	p.ClippingFlag = false
 	p.Visible = false
 
 	p.OnBeforeHandleInput = func() {

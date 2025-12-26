@@ -31,7 +31,6 @@ func NewGrouping(c Control) *Grouping {
 func (g *Grouping) InitGrouping(c Control) {
 	g.Control = c
 	g.AutoLayout = DefaultLayout
-	g.ClippingFlag = true
 
 	// コントロールのHandleInput時に呼ばれる関数を登録する
 	c.GetControlBase().AddHandleInputFunction(g.handleInputFunction)

@@ -1,6 +1,6 @@
 package parts
 
-import "MyProject/ui/input"
+import "MyProject/input"
 
 // HandleInputableは独自の入力ロジックを追加したいときに使う
 // 任意のタイミングで呼ばれるOnHandleInputを定義できる

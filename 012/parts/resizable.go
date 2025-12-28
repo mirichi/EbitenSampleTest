@@ -1,7 +1,7 @@
 package parts
 
 import (
-	"MyProject/ui/input"
+	"MyProject/input"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )

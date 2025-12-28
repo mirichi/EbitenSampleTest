@@ -1,6 +1,6 @@
 package parts
 
-import "MyProject/ui/input"
+import "MyProject/input"
 
 // MouseInteractionはマウスやタッチ操作（クリック、ドラッグ、ホバーなど）を処理する機能
 // コントロールに埋め込むことで使用する

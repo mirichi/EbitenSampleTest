@@ -6,9 +6,9 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
+	"MyProject/input"
 	"MyProject/parts"
 	"MyProject/ui"
-	"MyProject/ui/input"
 )
 
 type Game struct {

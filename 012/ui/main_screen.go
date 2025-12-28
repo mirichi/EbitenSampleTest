@@ -1,8 +1,8 @@
 package ui
 
 import (
+	"MyProject/input"
 	"MyProject/parts"
-	"MyProject/ui/input"
 	"runtime"
 
 	"github.com/hajimehoshi/ebiten/v2"

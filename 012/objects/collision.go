@@ -16,26 +16,43 @@ import (
 // 衝突判定範囲のインターフェース
 type CollisionTester interface {
 	Test(c CollisionTester) bool
+	CollisionShape() CollisionTester // 実体の衝突判定オブジェクトを返す
 }
 
 // 凸型多角形
-type PolygonCollision struct {
+type PolygonCollider struct {
 	Sprite   *Sprite
 	Vertices []Vector2 // 右周りの頂点集合
 }
 
-func NewPolygonCollision(sprite *Sprite, vertices []Vector2) *PolygonCollision {
-	return &PolygonCollision{Sprite: sprite, Vertices: vertices}
+// NewPolygonCollider は新しい凸型多角形の衝突判定を作成する
+// vertices: Spriteの画像左上を(0,0)としたローカル座標系で指定してください
+func NewPolygonCollider(sprite *Sprite, vertices []Vector2) *PolygonCollider {
+	return &PolygonCollider{Sprite: sprite, Vertices: vertices}
 }
 
-func (p *PolygonCollision) Test(o CollisionTester) bool {
+// NewRectCollider はSpriteの画像サイズに合わせて四角形の衝突判定を作成します
+func NewRectCollider(sprite *Sprite) *PolygonCollider {
+	bounds := sprite.Image.Bounds()
+	w, h := float64(bounds.Dx()), float64(bounds.Dy())
+	vertices := []Vector2{
+		{0, 0},
+		{w, 0},
+		{w, h},
+		{0, h},
+	}
+	return NewPolygonCollider(sprite, vertices)
+}
+
+func (p *PolygonCollider) Test(o CollisionTester) bool {
+	o = o.CollisionShape() // 実体を取り出す
 	result := false
 	switch v := o.(type) {
-	case *PolygonCollision:
+	case *PolygonCollider:
 		result = TestPolygonPolygon(v, p)
-	case *CircleCollision:
+	case *CircleCollider:
 		result = TestCirclePolygon(v, p)
-	case *CompositeCollision:
+	case *CompositeCollider:
 		result = TestPolygonComposit(p, v)
 	default:
 		result = false
@@ -44,25 +61,32 @@ func (p *PolygonCollision) Test(o CollisionTester) bool {
 	return result
 }
 
+func (p *PolygonCollider) CollisionShape() CollisionTester {
+	return p
+}
+
 // 円
-type CircleCollision struct {
+type CircleCollider struct {
 	Sprite *Sprite
 	Center Vector2
 	Radius float64 // 半径
 }
 
-func NewCircleCollision(sprite *Sprite, pos Vector2, radius float64) *CircleCollision {
-	return &CircleCollision{Sprite: sprite, Center: pos, Radius: radius}
+// NewCircleCollider は新しい円の衝突判定を作成する
+// pos: Spriteの画像左上を(0,0)としたローカル座標系で指定してください
+func NewCircleCollider(sprite *Sprite, pos Vector2, radius float64) *CircleCollider {
+	return &CircleCollider{Sprite: sprite, Center: pos, Radius: radius}
 }
 
-func (c *CircleCollision) Test(o CollisionTester) bool {
+func (c *CircleCollider) Test(o CollisionTester) bool {
+	o = o.CollisionShape() // 実体を取り出す
 	result := false
 	switch v := o.(type) {
-	case *PolygonCollision:
+	case *PolygonCollider:
 		result = TestCirclePolygon(c, v)
-	case *CircleCollision:
+	case *CircleCollider:
 		result = TestCircleCircle(c, v)
-	case *CompositeCollision:
+	case *CompositeCollider:
 		result = TestCircleComposit(c, v)
 	default:
 		result = false
@@ -71,30 +95,39 @@ func (c *CircleCollision) Test(o CollisionTester) bool {
 	return result
 }
 
+func (c *CircleCollider) CollisionShape() CollisionTester {
+	return c
+}
+
 // 複合形状
-type CompositeCollision struct {
+type CompositeCollider struct {
 	Collisions []CollisionTester
 	Operator   CompositeOperator // 0:or、1:and
 }
 
-func NewCompositeCollision(collisions []CollisionTester, operator CompositeOperator) *CompositeCollision {
-	return &CompositeCollision{Collisions: collisions, Operator: operator}
+func NewCompositeCollider(collisions []CollisionTester, operator CompositeOperator) *CompositeCollider {
+	return &CompositeCollider{Collisions: collisions, Operator: operator}
 }
 
-func (c *CompositeCollision) Test(o CollisionTester) bool {
+func (c *CompositeCollider) Test(o CollisionTester) bool {
+	o = o.CollisionShape() // 実体を取り出す
 	result := false
 	switch v := o.(type) {
-	case *PolygonCollision:
+	case *PolygonCollider:
 		result = TestPolygonComposit(v, c)
-	case *CircleCollision:
+	case *CircleCollider:
 		result = TestCircleComposit(v, c)
-	case *CompositeCollision:
+	case *CompositeCollider:
 		result = TestCompositComposit(v, c)
 	default:
 		result = false
 	}
 
 	return result
+}
+
+func (c *CompositeCollider) CollisionShape() CollisionTester {
+	return c
 }
 
 // 複合形状のAnd/Or条件
@@ -106,23 +139,27 @@ const (
 )
 
 // 点と円の判定
-func TestPointCircle(pos Vector2, c1 *CircleCollision) bool {
-	cpos := c1.Center.Sub(c1.Sprite.GetOrigin()).Rotate(c1.Sprite.Angle).Add(c1.Sprite.GetOrigin()).Add(c1.Sprite.GetCollisionPos()).Sub(c1.Sprite.GetOffset())
+func TestPointCircle(pos Vector2, c1 *CircleCollider) bool {
+	// グローバル行列を使用して円の中心座標を変換
+	matrix := c1.Sprite.GetGlobalMatrix()
+	gx, gy := matrix.Apply(c1.Center.X, c1.Center.Y)
+
+	cpos := Vector2{X: gx, Y: gy}
 	return pos.DistanceSquaredTo(cpos) < c1.Radius*c1.Radius
 }
 
 // 点と凸型多角形の判定
-func TestPointPolygon(pos Vector2, p1 *PolygonCollision) bool {
-	// 外積を計算して境界内に点があるかを判定する
+func TestPointPolygon(pos Vector2, p1 *PolygonCollider) bool {
+	// グローバル行列を取得
+	matrix := p1.Sprite.GetGlobalMatrix()
+
 	r := make([]Vector2, 0, len(p1.Vertices)+1)
 	for _, p := range p1.Vertices {
-		// 各頂点から回転原点を引いてから回転、回転原点とベース座標を足すことでグローバル座標を算出する
-		v := p.Sub(p1.Sprite.GetOrigin()).Rotate(p1.Sprite.Angle).Add(p1.Sprite.GetOrigin()).Add(p1.Sprite.GetCollisionPos()).Sub(p1.Sprite.GetOffset())
-		r = append(r, v)
+		gx, gy := matrix.Apply(p.X, p.Y)
+		r = append(r, Vector2{X: gx, Y: gy})
 	}
 
 	// 1個目の頂点をスライスに追加する
-	// これでr[n+1]-r[n]がエッジのベクトルになる
 	r = append(r, r[0])
 
 	// エッジのベクトルと、r[n]からx,yまでのベクトルの外積を取って、点がエッジのどちら側にあるかを調べる
@@ -145,21 +182,30 @@ func TestPointPolygon(pos Vector2, p1 *PolygonCollision) bool {
 }
 
 // 円同士の判定
-func TestCircleCircle(c1 *CircleCollision, c2 *CircleCollision) bool {
-	cpos1 := c1.Center.Sub(c1.Sprite.GetOrigin()).Rotate(c1.Sprite.Angle).Add(c1.Sprite.GetOrigin()).Add(c1.Sprite.GetCollisionPos()).Sub(c1.Sprite.GetOffset())
-	cpos2 := c2.Center.Sub(c2.Sprite.GetOrigin()).Rotate(c2.Sprite.Angle).Add(c2.Sprite.GetOrigin()).Add(c2.Sprite.GetCollisionPos()).Sub(c2.Sprite.GetOffset())
+func TestCircleCircle(c1 *CircleCollider, c2 *CircleCollider) bool {
+	m1 := c1.Sprite.GetGlobalMatrix()
+	gx1, gy1 := m1.Apply(c1.Center.X, c1.Center.Y)
+	cpos1 := Vector2{X: gx1, Y: gy1}
+
+	m2 := c2.Sprite.GetGlobalMatrix()
+	gx2, gy2 := m2.Apply(c2.Center.X, c2.Center.Y)
+	cpos2 := Vector2{X: gx2, Y: gy2}
+
 	return cpos1.DistanceSquaredTo(cpos2) < (c1.Radius+c2.Radius)*(c1.Radius+c2.Radius)
 }
 
 // 円と凸型多角形の判定
-func TestCirclePolygon(c1 *CircleCollision, p1 *PolygonCollision) bool {
-	cpos := c1.Center.Sub(c1.Sprite.GetOrigin()).Rotate(c1.Sprite.Angle).Add(c1.Sprite.GetOrigin()).Add(c1.Sprite.GetCollisionPos()).Sub(c1.Sprite.GetOffset())
+func TestCirclePolygon(c1 *CircleCollider, p1 *PolygonCollider) bool {
+	m1 := c1.Sprite.GetGlobalMatrix()
+	gx1, gy1 := m1.Apply(c1.Center.X, c1.Center.Y)
+	cpos := Vector2{X: gx1, Y: gy1}
+
+	m2 := p1.Sprite.GetGlobalMatrix()
 
 	r := make([]Vector2, 0, len(p1.Vertices)+1)
 	for _, v := range p1.Vertices {
-		// 各頂点から回転原点を引いてから回転、回転原点とベース座標を足すことでグローバル座標を算出する
-		v := v.Sub(p1.Sprite.GetOrigin()).Rotate(p1.Sprite.Angle).Add(p1.Sprite.GetOrigin()).Add(p1.Sprite.GetCollisionPos()).Sub(p1.Sprite.GetOffset())
-		r = append(r, v)
+		gx, gy := m2.Apply(v.X, v.Y)
+		r = append(r, Vector2{X: gx, Y: gy})
 	}
 
 	// 1個目の頂点をスライスに追加する
@@ -224,27 +270,25 @@ func TestCirclePolygon(c1 *CircleCollision, p1 *PolygonCollision) bool {
 }
 
 // 凸型多角形同士の判定(SAT)
-func TestPolygonPolygon(c1 *PolygonCollision, c2 *PolygonCollision) bool {
+func TestPolygonPolygon(c1 *PolygonCollider, c2 *PolygonCollider) bool {
+	m1 := c1.Sprite.GetGlobalMatrix()
 	r1 := make([]Vector2, 0, len(c1.Vertices)+1)
 	for _, p := range c1.Vertices {
-		// 各頂点から回転原点を引いてから回転、回転原点とベース座標を足すことでグローバル座標を算出する
-		v := p.Sub(c1.Sprite.GetOrigin()).Rotate(c1.Sprite.Angle).Add(c1.Sprite.GetOrigin()).Add(c1.Sprite.GetCollisionPos()).Sub(c1.Sprite.GetOffset())
-		r1 = append(r1, v)
+		gx, gy := m1.Apply(p.X, p.Y)
+		r1 = append(r1, Vector2{X: gx, Y: gy})
 	}
 
 	// 1個目の頂点をスライスに追加する
-	// これでr1[n+1]-r1[n]がエッジのベクトルになる
 	r1 = append(r1, r1[0])
 
+	m2 := c2.Sprite.GetGlobalMatrix()
 	r2 := make([]Vector2, 0, len(c2.Vertices)+1)
 	for _, p := range c2.Vertices {
-		// 各頂点から回転原点を引いてから回転、回転原点とベース座標を足すことでグローバル座標を算出する
-		v := p.Sub(c2.Sprite.GetOrigin()).Rotate(c2.Sprite.Angle).Add(c2.Sprite.GetOrigin()).Add(c2.Sprite.GetCollisionPos()).Sub(c2.Sprite.GetOffset())
-		r2 = append(r2, v)
+		gx, gy := m2.Apply(p.X, p.Y)
+		r2 = append(r2, Vector2{X: gx, Y: gy})
 	}
 
 	// 1個目の頂点をスライスに追加する
-	// これでr2[n+1]-r2[n]がエッジのベクトルになる
 	r2 = append(r2, r2[0])
 
 	// 軸ベクトルを算出
@@ -290,13 +334,13 @@ func TestPolygonPolygon(c1 *PolygonCollision, c2 *PolygonCollision) bool {
 }
 
 // 点と複合形状の判定
-func TestPointComposit(pos Vector2, co *CompositeCollision) bool {
+func TestPointComposit(pos Vector2, co *CompositeCollider) bool {
 	result := false
 	for _, d := range co.Collisions {
 		switch v := d.(type) {
-		case *PolygonCollision:
+		case *PolygonCollider:
 			result = TestPointPolygon(pos, v)
-		case *CircleCollision:
+		case *CircleCollider:
 			result = TestPointCircle(pos, v)
 		default:
 			result = false
@@ -314,7 +358,7 @@ func TestPointComposit(pos Vector2, co *CompositeCollision) bool {
 }
 
 // 円と複合形状の判定
-func TestCircleComposit(c *CircleCollision, co *CompositeCollision) bool {
+func TestCircleComposit(c *CircleCollider, co *CompositeCollider) bool {
 	result := false
 	for _, d := range co.Collisions {
 		result = c.Test(d)
@@ -330,7 +374,7 @@ func TestCircleComposit(c *CircleCollision, co *CompositeCollision) bool {
 	return result
 }
 
-func TestPolygonComposit(p *PolygonCollision, co *CompositeCollision) bool {
+func TestPolygonComposit(p *PolygonCollider, co *CompositeCollider) bool {
 	result := false
 	for _, d := range co.Collisions {
 		result = p.Test(d)
@@ -346,7 +390,7 @@ func TestPolygonComposit(p *PolygonCollision, co *CompositeCollision) bool {
 	return result
 }
 
-func TestCompositComposit(c1 *CompositeCollision, c2 *CompositeCollision) bool {
+func TestCompositComposit(c1 *CompositeCollider, c2 *CompositeCollider) bool {
 	result := false
 	for _, d1 := range c1.Collisions {
 		for _, d2 := range c2.Collisions {

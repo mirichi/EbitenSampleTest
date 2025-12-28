@@ -12,7 +12,7 @@ func newTestSprite(x, y float64) *Sprite {
 
 func TestPointCircleLogic(t *testing.T) {
 	s := newTestSprite(100, 100)
-	c := NewCircleCollision(s, Vector2{0, 0}, 10) // Radius 10, Center relative to sprite is (0,0)
+	c := NewCircleCollider(s, Vector2{0, 0}, 10) // Radius 10, Center relative to sprite is (0,0)
 
 	tests := []struct {
 		name string
@@ -38,11 +38,11 @@ func TestCircleCircleLogic(t *testing.T) {
 	s1 := newTestSprite(100, 100)
 	// Circle center at (0,0) relative to sprite origin (which is 0,0 default)
 	// So global center is (100,100)
-	c1 := NewCircleCollision(s1, Vector2{0, 0}, 10)
+	c1 := NewCircleCollider(s1, Vector2{0, 0}, 10)
 
 	// Sprite at (115,100)
 	s2 := newTestSprite(115, 100)
-	c2 := NewCircleCollision(s2, Vector2{0, 0}, 10)
+	c2 := NewCircleCollider(s2, Vector2{0, 0}, 10)
 
 	// 100->115 dist is 15. Rad sum is 20. Collide.
 	if !TestCircleCircle(c1, c2) {
@@ -66,10 +66,10 @@ func TestPolygonPolygonLogic_Rotate(t *testing.T) {
 	}
 
 	s1 := newTestSprite(100, 100)
-	p1 := NewPolygonCollision(s1, vertices)
+	p1 := NewPolygonCollider(s1, vertices)
 
 	s2 := newTestSprite(125, 100) // Gap is 5 (110 vs 115) if aligned
-	p2 := NewPolygonCollision(s2, vertices)
+	p2 := NewPolygonCollider(s2, vertices)
 
 	// 100+10=110 (right edge of s1)
 	// 125-10=115 (left edge of s2)
@@ -102,11 +102,11 @@ func TestCirclePolygonLogic(t *testing.T) {
 		{-10, -10}, {10, -10}, {10, 10}, {-10, 10},
 	}
 	sPoly := newTestSprite(100, 100)
-	p := NewPolygonCollision(sPoly, vertices)
+	p := NewPolygonCollider(sPoly, vertices)
 
 	// Circle radius 5
 	sCircle := newTestSprite(116, 100)
-	c := NewCircleCollision(sCircle, Vector2{0, 0}, 5)
+	c := NewCircleCollider(sCircle, Vector2{0, 0}, 5)
 
 	// Poly Edge X=110. Circle X=116, R=5 -> Left=111.
 	// Gap 1. No collision.

@@ -19,6 +19,9 @@ type Sprite struct {
 	OffsetX float64
 	OffsetY float64
 
+	ScaleX float64
+	ScaleY float64
+
 	Image *ebiten.Image
 }
 
@@ -32,13 +35,43 @@ func NewSprite(x, y float64, img *ebiten.Image) *Sprite {
 // InitSprite はSpriteを初期化する
 func (s *Sprite) InitSprite(x, y float64, img *ebiten.Image) {
 	// EntityBaseを初期化
-	// 第一引数は自分自身(Entity)を渡す
-	s.EntityBase.InitEntityBase(s, x, y)
+	s.InitEntityBase(s, x, y)
 
 	s.Image = img
+	s.ScaleX = 1
+	s.ScaleY = 1
 
 	// 描画関数をメインのDrawフェーズに登録
 	s.AddDrawFunction(s.draw)
+}
+
+// GlobalMatrixer is defined in container.go, but we can rely on interface matching or duplicate locally if needed.
+// To avoid strict dependency on container.go (though they are in same package), we just define it locally or use it if exported.
+// Note: In Go, they are in the same package 'objects', so 'GlobalMatrixer' is visible if it was exported.
+// But I didn't export it in Container (I named it 'GlobalMatrixer' with uppercase G). good.
+
+func (s *Sprite) GetGlobalMatrix() ebiten.GeoM {
+	m := ebiten.GeoM{}
+
+	// Local Transform: Translate(-Origin) -> Scale -> Rotate -> Translate(Origin) -> Translate(X, Y)
+	m.Translate(-s.OriginX, -s.OriginY)
+	m.Scale(s.ScaleX, s.ScaleY)
+	m.Rotate(s.Angle)
+	m.Translate(s.OriginX, s.OriginY)
+	m.Translate(-s.OffsetX, -s.OffsetY)
+	m.Translate(s.X, s.Y)
+
+	// Parent Transform
+	if p := s.EntityBase.Parent; p != nil {
+		if gm, ok := p.(GlobalMatrixer); ok {
+			pm := gm.GetGlobalMatrix()
+			m.Concat(pm)
+		} else {
+			px, py := p.GetGlobalPos()
+			m.Translate(px, py)
+		}
+	}
+	return m
 }
 
 // 登録用の描画関数
@@ -49,17 +82,18 @@ func (s *Sprite) draw(screen *ebiten.Image) {
 
 	op := &ebiten.DrawImageOptions{}
 
-	// 親の座標変更も反映された絶対座標を取得
-	gx, gy := s.GetGlobalPos()
+	// get Global Matrix
+	m := s.GetGlobalMatrix()
 
-	// 座標を設定
-	op.GeoM.Translate(-s.OriginX, -s.OriginY)
-	op.GeoM.Rotate(s.Angle)
-	op.GeoM.Translate(s.OriginX, s.OriginY)
-	op.GeoM.Translate(gx, gy)
-	op.GeoM.Translate(-s.OffsetX, -s.OffsetY)
+	op.GeoM = m
 
 	screen.DrawImage(s.Image, op)
+}
+
+// GetGlobalPos override
+func (s *Sprite) GetGlobalPos() (float64, float64) {
+	m := s.GetGlobalMatrix()
+	return m.Apply(0, 0)
 }
 
 // GetCollisionPos は衝突判定用のグローバル座標を返す

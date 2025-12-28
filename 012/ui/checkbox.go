@@ -22,14 +22,14 @@ type Checkbox struct {
 }
 
 // Checkbox生成
-func NewCheckbox(x, y, h int, text string, size int, initialChecked bool) *Checkbox {
+func NewCheckbox(x, y, h float64, text string, size float64, initialChecked bool) *Checkbox {
 	c := &Checkbox{}
 	c.InitCheckbox(x, y, h, text, size, initialChecked)
 	return c
 }
 
-func (c *Checkbox) InitCheckbox(x, y, h int, text string, size int, initialChecked bool) {
-	w := int(float64(h) * 1.8)
+func (c *Checkbox) InitCheckbox(x, y, h float64, text string, size float64, initialChecked bool) {
+	w := float64(int(float64(h) * 1.8))
 	c.InitInteractiveControl(x, y, w, h)
 	c.InitTextDrawable(c, text, size, parts.AlignLeft, parts.AlignCenter, w+5, 0, color.White, true)
 	c.InitFocusable(c)

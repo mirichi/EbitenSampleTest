@@ -18,14 +18,14 @@ type InteractiveControl struct {
 }
 
 // InteractiveControl生成
-func NewInteractiveControl(x, y, w, h int) *InteractiveControl {
+func NewInteractiveControl(x, y, w, h float64) *InteractiveControl {
 	b := &InteractiveControl{}
 	b.InitInteractiveControl(x, y, w, h)
 	return b
 }
 
 // InteractiveControl初期化
-func (b *InteractiveControl) InitInteractiveControl(x, y, w, h int) {
+func (b *InteractiveControl) InitInteractiveControl(x, y, w, h float64) {
 	b.InitControlBase(b, x, y, w, h)
 	b.InitMouseInteraction(b)
 	b.InitDrawable(b)

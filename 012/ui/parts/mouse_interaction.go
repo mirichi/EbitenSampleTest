@@ -16,8 +16,8 @@ type MouseInteraction struct {
 	OnMouseOverEnd   func()
 	OnRightPress     func()
 	OnRightRelease   func()
-	OnDragStart      func(x, y int)
-	OnDrag           func(x, y int)
+	OnDragStart      func(x, y float64)
+	OnDrag           func(x, y float64)
 	OnDragEnd        func()
 	OnRelease        func()
 	OnRepeat         func() // オートリピート（押しっぱなしで連続実行）
@@ -211,7 +211,7 @@ func (m *MouseInteraction) handleInputFunction(t input.Touch) bool {
 }
 
 // 現在のマウス/タッチ位置を取得する
-func (m *MouseInteraction) GetPosition() (int, int, bool) {
+func (m *MouseInteraction) GetPosition() (float64, float64, bool) {
 	if m.touch != nil {
 		x, y := m.touch.Pos()
 		return x, y, true

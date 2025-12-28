@@ -20,13 +20,13 @@ type TextBox struct {
 }
 
 // TextBox生成
-func NewTextBox(x, y, w, h int, text string, fontSize int) *TextBox {
+func NewTextBox(x, y, w, h float64, text string, fontSize float64) *TextBox {
 	tb := &TextBox{}
 	tb.InitTextBox(x, y, w, h, text, fontSize)
 	return tb
 }
 
-func (tb *TextBox) InitTextBox(x, y, w, h int, text string, fontSize int) {
+func (tb *TextBox) InitTextBox(x, y, w, h float64, text string, fontSize float64) {
 	// 初期テキスト
 	tb.field.SetTextAndSelection(text, len(text), len(text))
 
@@ -51,7 +51,7 @@ func (tb *TextBox) InitTextBox(x, y, w, h int, text string, fontSize int) {
 	}
 
 	// ドラッグ中は選択範囲を更新
-	tb.OnDrag = func(x, y int) {
+	tb.OnDrag = func(x, y float64) {
 		tb.TextInputable.UpdateSelection(x, y)
 	}
 

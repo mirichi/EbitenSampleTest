@@ -13,7 +13,7 @@ const (
 )
 
 // FlexLayoutHはFlexBoxの水平方向レイアウトを調整する
-func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Grouping) {
+func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap float64) func(*Grouping) {
 	return func(gr *Grouping) {
 		if _, ok := gr.Entity.(Sizer); !ok {
 			return
@@ -22,7 +22,7 @@ func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 
 		totalGrow := 0.0
 		totalShrink := 0.0
-		totalFlexBasis := 0
+		totalFlexBasis := 0.0
 
 		// 可視の子コントロールを抽出、合計basisとgrow、shrinkを計算
 		var visibleChildren []Control
@@ -43,22 +43,22 @@ func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 		}
 
 		// 合計gap計算
-		totalGap := gap * (len(visibleChildren) - 1)
+		totalGap := gap * float64((len(visibleChildren) - 1))
 
 		// 残りスペース計算。マイナスの時は足りてないことを意味する
 		remainingSpace := width - totalFlexBasis - totalGap
 
 		// サイズ決定
-		currentMainSizeTotal := 0
+		currentMainSizeTotal := 0.0
 		for _, c := range visibleChildren {
 			cb := c.GetControlBase()
 
 			size := cb.FlexBasisWidth
 			if remainingSpace > 0 && totalGrow > 0 {
-				size += int(float64(remainingSpace) * (cb.FlexGrow / totalGrow))
+				size += float64(remainingSpace) * (cb.FlexGrow / totalGrow)
 			}
 			if remainingSpace < 0 && totalShrink > 0 {
-				size += int(float64(remainingSpace) * (cb.FlexShrink / totalShrink))
+				size += float64(remainingSpace) * (cb.FlexShrink / totalShrink)
 			}
 
 			cb.Width = size
@@ -67,7 +67,7 @@ func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 
 		// 位置決定(MainAxis)
 		totalSpace := width - currentMainSizeTotal
-		currentMainPos := 0
+		currentMainPos := 0.0
 		tgap := gap
 
 		// ギャップと開始位置計算
@@ -78,10 +78,10 @@ func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 			currentMainPos = totalSpace - totalGap
 		case FlexSpaceBetween:
 			if len(visibleChildren) > 1 {
-				tgap = totalSpace / (len(visibleChildren) - 1)
+				tgap = totalSpace / float64(len(visibleChildren)-1)
 			}
 		case FlexSpaceAround:
-			tgap = totalSpace / len(visibleChildren)
+			tgap = totalSpace / float64(len(visibleChildren))
 			currentMainPos = tgap / 2
 		}
 
@@ -123,7 +123,7 @@ func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 }
 
 // FlexLayoutVはFlexBoxの垂直方向レイアウトを調整する
-func FlexLayoutV(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Grouping) {
+func FlexLayoutV(mainAlign FlexAlign, crossAlign FlexAlign, gap float64) func(*Grouping) {
 	return func(gr *Grouping) {
 		if _, ok := gr.Entity.(Sizer); !ok {
 			return
@@ -132,7 +132,7 @@ func FlexLayoutV(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 
 		totalGrow := 0.0
 		totalShrink := 0.0
-		totalFlexBasis := 0
+		totalFlexBasis := 0.0
 
 		// 可視の子コントロールを抽出、合計basisとgrow、shrinkを計算
 		var visibleChildren []Control
@@ -153,22 +153,22 @@ func FlexLayoutV(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 		}
 
 		// 合計gap計算
-		totalGap := gap * (len(visibleChildren) - 1)
+		totalGap := gap * float64(len(visibleChildren)-1)
 
 		// 残りスペース計算。マイナスの時は足りてないことを意味する
 		remainingSpace := height - totalFlexBasis - totalGap
 
 		// サイズ決定
-		currentMainSizeTotal := 0
+		currentMainSizeTotal := 0.0
 		for _, c := range visibleChildren {
 			cb := c.GetControlBase()
 
 			size := cb.FlexBasisHeight
 			if remainingSpace > 0 && totalGrow > 0 {
-				size += int(float64(remainingSpace) * (cb.FlexGrow / totalGrow))
+				size += float64(remainingSpace) * (cb.FlexGrow / totalGrow)
 			}
 			if remainingSpace < 0 && totalShrink > 0 {
-				size += int(float64(remainingSpace) * (cb.FlexShrink / totalShrink))
+				size += float64(remainingSpace) * (cb.FlexShrink / totalShrink)
 			}
 
 			cb.Height = size
@@ -177,7 +177,7 @@ func FlexLayoutV(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 
 		// 位置決定(MainAxis)
 		totalSpace := height - currentMainSizeTotal
-		currentMainPos := 0
+		currentMainPos := 0.0
 		tgap := gap
 
 		// ギャップと開始位置計算
@@ -188,10 +188,10 @@ func FlexLayoutV(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 			currentMainPos = totalSpace - totalGap
 		case FlexSpaceBetween:
 			if len(visibleChildren) > 1 {
-				tgap = totalSpace / (len(visibleChildren) - 1)
+				tgap = totalSpace / float64(len(visibleChildren)-1)
 			}
 		case FlexSpaceAround:
-			tgap = totalSpace / len(visibleChildren)
+			tgap = totalSpace / float64(len(visibleChildren))
 			currentMainPos = tgap / 2
 		}
 

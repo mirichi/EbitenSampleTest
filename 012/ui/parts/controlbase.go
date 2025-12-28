@@ -11,7 +11,7 @@ type Control interface {
 	HandleInput(t input.Touch) bool
 	Update()
 	Draw(screen *ebiten.Image)
-	GetGlobalPos() (int, int)
+	GetGlobalPos() (float64, float64)
 	GetControlBase() *ControlBase
 }
 
@@ -22,20 +22,20 @@ type ControlBase struct {
 	EntityBase
 
 	Control         Control
-	Width, Height   int
+	Width, Height   float64
 	FlexGrow        float64
 	FlexShrink      float64
-	FlexBasisWidth  int
-	FlexBasisHeight int
+	FlexBasisWidth  float64
+	FlexBasisHeight float64
 }
 
-func NewControlBase(c Control, x, y, w, h int) *ControlBase {
+func NewControlBase(c Control, x, y, w, h float64) *ControlBase {
 	cb := &ControlBase{}
 	cb.InitControlBase(c, x, y, w, h)
 	return cb
 }
 
-func (cb *ControlBase) InitControlBase(c Control, x, y, w, h int) {
+func (cb *ControlBase) InitControlBase(c Control, x, y, w, h float64) {
 	cb.EntityBase.InitEntityBase(c.(Entity), x, y)
 	cb.Control = c
 	cb.Width = w
@@ -46,7 +46,7 @@ func (cb *ControlBase) InitControlBase(c Control, x, y, w, h int) {
 	cb.FlexBasisHeight = h
 }
 
-func (cb *ControlBase) GetSize() (int, int) {
+func (cb *ControlBase) GetSize() (float64, float64) {
 	return cb.Width, cb.Height
 }
 

@@ -11,14 +11,14 @@ type Entity interface {
 	HandleInput(t input.Touch) bool
 	Update()
 	Draw(screen *ebiten.Image)
-	GetGlobalPos() (int, int)
+	GetGlobalPos() (float64, float64)
 	GetEntityBase() *EntityBase
 }
 
 type EntityBase struct {
 	Entity  Entity
 	Parent  Entity
-	X, Y    int
+	X, Y    float64
 	Visible bool
 
 	// 実行タイミングをbeforeとafterで制御できる
@@ -40,13 +40,13 @@ type EntityBase struct {
 	afterDrawFunctions  []func(screen *ebiten.Image) // 文字など前面の描画
 }
 
-func NewEntityBase(e Entity, x, y int) *EntityBase {
+func NewEntityBase(e Entity, x, y float64) *EntityBase {
 	eb := &EntityBase{}
 	eb.InitEntityBase(e, x, y)
 	return eb
 }
 
-func (eb *EntityBase) InitEntityBase(e Entity, x, y int) {
+func (eb *EntityBase) InitEntityBase(e Entity, x, y float64) {
 	eb.Entity = e
 	eb.X = x
 	eb.Y = y
@@ -149,7 +149,7 @@ func (eb *EntityBase) Draw(screen *ebiten.Image) {
 
 // getGlobalPosは、画面全体（ルートコントロール）からの絶対座標を取得
 // 親コントロールの座標を再帰的に加算して算出する
-func (eb *EntityBase) GetGlobalPos() (int, int) {
+func (eb *EntityBase) GetGlobalPos() (float64, float64) {
 	p := eb.Parent
 	if p == nil {
 		return eb.X, eb.Y

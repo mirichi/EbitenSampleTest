@@ -12,11 +12,11 @@ import (
 type ToolButton struct {
 	ui.InteractiveControl
 
-	Size int
+	Size float64
 }
 
 // ToolButton初期化
-func (b *ToolButton) InitToolButton(x, y, w, h, size int) {
+func (b *ToolButton) InitToolButton(x, y, w, h, size float64) {
 	b.InitInteractiveControl(x, y, w, h)
 	b.OnDraw = b.drawToolButton
 	b.Size = size
@@ -35,11 +35,11 @@ type ToolBox struct {
 
 	marker   ui.Label
 	Buttons  [8]ToolButton
-	OnSelect func(int)
+	OnSelect func(float64)
 }
 
 // ToolBox生成
-func NewToolBox(x, y, w, h int) *ToolBox {
+func NewToolBox(x, y, w, h float64) *ToolBox {
 	tb := &ToolBox{}
 	tb.InitGroupingControl(x, y, w, h)
 	// ToolMarker初期化
@@ -48,15 +48,15 @@ func NewToolBox(x, y, w, h int) *ToolBox {
 
 	// ToolButton初期化
 	for i := range tb.Buttons {
-		tb.Buttons[i].InitToolButton(18, i*32, 32, 32, i*2+2)
+		tb.Buttons[i].InitToolButton(18, float64(i)*32, 32, 32, float64(i)*2+2)
 		tb.AddChild(&tb.Buttons[i])
 
 		// ボタンクリック時の処理
 		tb.Buttons[i].OnPress = func() {
-			tb.marker.Y = i*32 + 8
+			tb.marker.Y = float64(i)*32 + 8
 
 			if tb.OnSelect != nil {
-				tb.OnSelect(i*2 + 2)
+				tb.OnSelect(float64(i)*2 + 2)
 			}
 		}
 	}

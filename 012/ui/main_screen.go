@@ -47,7 +47,8 @@ func (ms *MainScreen) HandleInput(t input.Touch) bool {
 		ms.Width = 640
 		ms.Height = 480
 	} else {
-		ms.Width, ms.Height = ebiten.WindowSize()
+		w, h := ebiten.WindowSize()
+		ms.Width, ms.Height = float64(w), float64(h)
 	}
 
 	parts.FlameFocus = false

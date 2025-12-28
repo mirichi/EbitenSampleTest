@@ -36,22 +36,22 @@ func init() {
 type TextDrawable struct {
 	Control   Control
 	Text      string
-	Size      int
+	Size      float64
 	AlignX    TextAlign
 	AlignY    TextAlign
-	OffsetX   int
-	OffsetY   int
+	OffsetX   float64
+	OffsetY   float64
 	TextColor color.Color
 	Shadow    bool
 }
 
-func NewTextDrawable(c Control, text string, size int, alignX, alignY TextAlign, offsetX, offsetY int, color color.Color, shadow bool) *TextDrawable {
+func NewTextDrawable(c Control, text string, size float64, alignX, alignY TextAlign, offsetX, offsetY float64, color color.Color, shadow bool) *TextDrawable {
 	t := &TextDrawable{}
 	t.InitTextDrawable(c, text, size, alignX, alignY, offsetX, offsetY, color, shadow)
 	return t
 }
 
-func (d *TextDrawable) InitTextDrawable(c Control, text string, size int, alignX, alignY TextAlign, offsetX, offsetY int, color color.Color, shadow bool) {
+func (d *TextDrawable) InitTextDrawable(c Control, text string, size float64, alignX, alignY TextAlign, offsetX, offsetY float64, color color.Color, shadow bool) {
 	d.Control = c
 	d.Text = text
 	d.Size = size
@@ -70,35 +70,34 @@ func (d *TextDrawable) InitTextDrawable(c Control, text string, size int, alignX
 func (d *TextDrawable) drawFunction(screen *ebiten.Image) {
 	f := &text.GoTextFace{
 		Source: MplusFaceSource,
-		Size:   float64(d.Size),
+		Size:   d.Size,
 	}
 	// 描画幅取得
 	mw, _ := text.Measure(d.Text, f, 0)
 
 	// 描画座標算出
 	cb := d.Control.GetControlBase()
-	gx, gy := cb.GetGlobalPos()
-	x, y := float64(gx), float64(gy)
+	x, y := cb.GetGlobalPos()
 
 	// 横方向整列
 	switch d.AlignX {
 	case AlignLeft:
-		x += float64(d.OffsetX)
+		x += d.OffsetX
 	case AlignCenter:
-		x += (float64(cb.Width)-mw)/2 + float64(d.OffsetX)
+		x += (cb.Width-mw)/2 + d.OffsetX
 	case AlignRight:
-		x += (float64(cb.Width+d.OffsetX) - mw)
+		x += (cb.Width + d.OffsetX - mw)
 	}
 
 	// 縦方向整列
 	m := f.Metrics()
 	switch d.AlignY {
 	case AlignUpper:
-		y += float64(d.OffsetY)
+		y += d.OffsetY
 	case AlignCenter:
-		y += (float64(cb.Height-int(m.HAscent)-int(m.HDescent)))/2 + float64(d.OffsetY)
+		y += (cb.Height-m.HAscent-m.HDescent)/2 + d.OffsetY
 	case AlignBottom:
-		y += (float64(cb.Height + d.OffsetY - int(m.HAscent) - int(m.HDescent)))
+		y += (cb.Height + d.OffsetY - m.HAscent - m.HDescent)
 	}
 
 	// 影描画

@@ -15,24 +15,24 @@ type Canvas struct {
 	parts.ImageDrawable
 	parts.MouseInteraction
 
-	lastX     int
-	lastY     int
+	lastX     float64
+	lastY     float64
 	Color     color.Color
-	LineWidth int
+	LineWidth float64
 }
 
 // Canvas生成
-func NewCanvas(x, y, w, h int) *Canvas {
+func NewCanvas(x, y, w, h float64) *Canvas {
 	c := &Canvas{}
 	c.InitControlBase(c, x, y, w, h)
-	c.InitImageDrawable(c, ebiten.NewImage(w, h))
+	c.InitImageDrawable(c, ebiten.NewImage(int(w), int(h)))
 	c.InitMouseInteraction(c)
 	c.Color = color.White
 	c.LineWidth = 6
 
 	c.Clear()
 
-	c.OnDragStart = func(x, y int) {
+	c.OnDragStart = func(x, y float64) {
 		// キャンバス内の相対座標に変換
 		gx, gy := c.GetGlobalPos()
 		lx, ly := x-gx, y-gy
@@ -42,7 +42,7 @@ func NewCanvas(x, y, w, h int) *Canvas {
 		vector.FillCircle(c.Image, float32(lx), float32(ly), float32(c.LineWidth/2), c.Color, true)
 	}
 
-	c.OnDrag = func(x, y int) {
+	c.OnDrag = func(x, y float64) {
 		// キャンバス内の相対座標に変換
 		gx, gy := c.GetGlobalPos()
 		cx, cy := x-gx, y-gy

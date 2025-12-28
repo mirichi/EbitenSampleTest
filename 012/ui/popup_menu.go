@@ -24,9 +24,9 @@ type PopupMenu struct {
 
 	PopupItems      []*popupMenuItem
 	OnCloseAll      func()
-	ItemHeight      int
-	SeparatorHeight int
-	Margin          int
+	ItemHeight      float64
+	SeparatorHeight float64
+	Margin          float64
 	SubMenu         *PopupMenu
 	SubMenuParent   *popupMenuItem
 	IsExpanded      bool
@@ -35,13 +35,13 @@ type PopupMenu struct {
 }
 
 // PopupMenu生成
-func NewPopupMenu(x, y int, items []*MenuItem) *PopupMenu {
+func NewPopupMenu(x, y float64, items []*MenuItem) *PopupMenu {
 	pm := &PopupMenu{}
 	pm.InitPopupMenu(x, y, items)
 	return pm
 }
 
-func (pm *PopupMenu) InitPopupMenu(x, y int, items []*MenuItem) {
+func (pm *PopupMenu) InitPopupMenu(x, y float64, items []*MenuItem) {
 	pm.ItemHeight = 24
 	pm.SeparatorHeight = 9
 	pm.Margin = 2
@@ -196,7 +196,7 @@ func (pm *PopupMenu) CloseAll() {
 }
 
 // ShowSubMenuはサブメニューを表示する
-func (pm *PopupMenu) ShowSubMenu(x, y int, submenu []*MenuItem, item *popupMenuItem) {
+func (pm *PopupMenu) ShowSubMenu(x, y float64, submenu []*MenuItem, item *popupMenuItem) {
 	pm.CloseSubMenu()
 	subMenu := NewPopupMenu(x, y, submenu)
 	subMenu.OnCloseAll = pm.OnCloseAll
@@ -215,7 +215,7 @@ type popupMenuItem struct {
 	Highlight     bool
 }
 
-func newPopupMenuItem(x, y, width, height int, menuItem *MenuItem) *popupMenuItem {
+func newPopupMenuItem(x, y, width, height float64, menuItem *MenuItem) *popupMenuItem {
 	theme := parts.CurrentTheme
 	item := &popupMenuItem{}
 	item.menuItem = menuItem

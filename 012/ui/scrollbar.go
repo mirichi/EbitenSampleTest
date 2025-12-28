@@ -8,11 +8,11 @@ import (
 )
 
 // 値をクランプする
-func clampValue(value float64, allRange, viewRange int) float64 {
+func clampValue(value float64, allRange, viewRange float64) float64 {
 	if value < 0 {
 		return 0
 	}
-	max := float64(allRange - viewRange)
+	max := allRange - viewRange
 	if value > max {
 		return max
 	}
@@ -20,9 +20,9 @@ func clampValue(value float64, allRange, viewRange int) float64 {
 }
 
 // スライダーのツマミ位置を計算
-func calculateKnobPos(value float64, sliderSize, knobSize, viewRange, allRange int) int {
+func calculateKnobPos(value, sliderSize, knobSize, viewRange, allRange float64) float64 {
 	if allRange > viewRange {
-		return int(value * float64(sliderSize-knobSize) / float64(allRange-viewRange))
+		return value * (sliderSize - knobSize) / (allRange - viewRange)
 	}
 	return 0
 }
@@ -34,7 +34,7 @@ type ScrollButton struct {
 	parts.TextDrawable
 }
 
-func (b *ScrollButton) InitScrollButton(x, y, w, h int, text string, size int) {
+func (b *ScrollButton) InitScrollButton(x, y, w, h float64, text string, size float64) {
 	theme := parts.CurrentTheme
 	b.InitControlBase(b, x, y, w, h)
 	b.InitMouseInteraction(b)
@@ -56,19 +56,19 @@ type ScrollSliderV struct {
 	parts.Grouping
 
 	knob                InteractiveControl
-	ViewRange, AllRange *int
+	ViewRange, AllRange *float64
 	Value               float64
 	OnSlide             func()
 }
 
 // ScrollSliderV生成
-func NewSliderV(x, y, w, h int) *ScrollSliderV {
+func NewSliderV(x, y, w, h float64) *ScrollSliderV {
 	s := &ScrollSliderV{}
 	s.InitSliderV(x, y, w, h)
 	return s
 }
 
-func (s *ScrollSliderV) InitSliderV(x, y, w, h int) {
+func (s *ScrollSliderV) InitSliderV(x, y, w, h float64) {
 	theme := parts.CurrentTheme
 	s.InitControlBase(s, x, y, w, h)
 	s.InitMouseInteraction(s)
@@ -84,7 +84,7 @@ func (s *ScrollSliderV) InitSliderV(x, y, w, h int) {
 		gx, gy := k.GetGlobalPos()
 
 		// 左右にパディングを入れる (inset)
-		inset := 3
+		inset := 3.0
 		width := k.Width - inset*2
 		if width < 2 {
 			width = 2
@@ -111,12 +111,12 @@ func (s *ScrollSliderV) InitSliderV(x, y, w, h int) {
 
 	s.AddChild(&s.knob)
 
-	dragOffsetY := 0
-	s.knob.OnDragStart = func(x, y int) {
+	dragOffsetY := 0.0
+	s.knob.OnDragStart = func(x, y float64) {
 		_, gy := s.knob.GetGlobalPos()
 		dragOffsetY = y - gy
 	}
-	s.knob.OnDrag = func(x, y int) {
+	s.knob.OnDrag = func(x, y float64) {
 		_, oy := s.GetGlobalPos()
 		targetY := y - dragOffsetY - oy
 		if s.Height-s.knob.Height > 0 {
@@ -160,7 +160,7 @@ func (s *ScrollSliderV) Layout() {
 	s.Value = clampValue(s.Value, *s.AllRange, *s.ViewRange)
 
 	// 次にツマミサイズと位置を計算
-	s.knob.Height = int(float64(s.Height) * float64(*s.ViewRange) / float64(*s.AllRange))
+	s.knob.Height = (s.Height) * (*s.ViewRange) / (*s.AllRange)
 	if s.knob.Height < s.Width {
 		s.knob.Height = s.Width
 	}
@@ -181,13 +181,13 @@ type ScrollBarV struct {
 }
 
 // ScrollBarV生成
-func NewScrollBarV(x, y, w, h int) *ScrollBarV {
+func NewScrollBarV(x, y, w, h float64) *ScrollBarV {
 	s := &ScrollBarV{}
 	s.InitScrollBarV(x, y, w, h)
 	return s
 }
 
-func (s *ScrollBarV) InitScrollBarV(x, y, w, h int) {
+func (s *ScrollBarV) InitScrollBarV(x, y, w, h float64) {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitDrawable(s)
 	s.InitGrouping(s)
@@ -235,11 +235,11 @@ func (s *ScrollBarV) InitScrollBarV(x, y, w, h int) {
 	}
 }
 
-func (s *ScrollBarV) SetViewRange(viewrange *int) {
+func (s *ScrollBarV) SetViewRange(viewrange *float64) {
 	s.slider.ViewRange = viewrange
 }
 
-func (s *ScrollBarV) SetMaxRange(allrange *int) {
+func (s *ScrollBarV) SetMaxRange(allrange *float64) {
 	s.slider.AllRange = allrange
 }
 
@@ -254,19 +254,19 @@ type ScrollSliderH struct {
 	parts.Grouping
 
 	knob                InteractiveControl
-	ViewRange, AllRange *int
+	ViewRange, AllRange *float64
 	Value               float64
 	OnSlide             func()
 }
 
 // ScrollSliderH生成
-func NewSliderH(x, y, w, h int) *ScrollSliderH {
+func NewSliderH(x, y, w, h float64) *ScrollSliderH {
 	s := &ScrollSliderH{}
 	s.InitSliderH(x, y, w, h)
 	return s
 }
 
-func (s *ScrollSliderH) InitSliderH(x, y, w, h int) {
+func (s *ScrollSliderH) InitSliderH(x, y, w, h float64) {
 	theme := parts.CurrentTheme
 	s.InitControlBase(s, x, y, w, h)
 	s.InitMouseInteraction(s)
@@ -281,7 +281,7 @@ func (s *ScrollSliderH) InitSliderH(x, y, w, h int) {
 		gx, gy := k.GetGlobalPos()
 
 		// 上下にパディング (inset)
-		inset := 3
+		inset := 3.0
 		height := k.Height - inset*2
 		if height < 2 {
 			height = 2
@@ -305,12 +305,12 @@ func (s *ScrollSliderH) InitSliderH(x, y, w, h int) {
 
 	s.AddChild(&s.knob)
 
-	var dragOffsetX int
-	s.knob.OnDragStart = func(x, y int) {
+	var dragOffsetX float64
+	s.knob.OnDragStart = func(x, y float64) {
 		gx, _ := s.knob.GetGlobalPos()
 		dragOffsetX = x - gx
 	}
-	s.knob.OnDrag = func(x, y int) {
+	s.knob.OnDrag = func(x, y float64) {
 		ox, _ := s.GetGlobalPos()
 		targetX := x - dragOffsetX - ox
 		if s.Width-s.knob.Width > 0 {
@@ -354,7 +354,7 @@ func (s *ScrollSliderH) Layout() {
 	s.Value = clampValue(s.Value, *s.AllRange, *s.ViewRange)
 
 	// 次にツマミサイズと位置を計算
-	s.knob.Width = int(float64(s.Width) * float64(*s.ViewRange) / float64(*s.AllRange))
+	s.knob.Width = (s.Width) * (*s.ViewRange) / (*s.AllRange)
 	if s.knob.Width < s.Height {
 		s.knob.Width = s.Height
 	}
@@ -375,13 +375,13 @@ type ScrollBarH struct {
 }
 
 // ScrollBarH生成
-func NewScrollBarH(x, y, w, h int) *ScrollBarH {
+func NewScrollBarH(x, y, w, h float64) *ScrollBarH {
 	s := &ScrollBarH{}
 	s.InitScrollBarH(x, y, w, h)
 	return s
 }
 
-func (s *ScrollBarH) InitScrollBarH(x, y, w, h int) {
+func (s *ScrollBarH) InitScrollBarH(x, y, w, h float64) {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitDrawable(s)
 	s.InitGrouping(s)
@@ -429,11 +429,11 @@ func (s *ScrollBarH) InitScrollBarH(x, y, w, h int) {
 	}
 }
 
-func (s *ScrollBarH) SetViewRange(viewrange *int) {
+func (s *ScrollBarH) SetViewRange(viewrange *float64) {
 	s.Slider.ViewRange = viewrange
 }
 
-func (s *ScrollBarH) SetMaxRange(allrange *int) {
+func (s *ScrollBarH) SetMaxRange(allrange *float64) {
 	s.Slider.AllRange = allrange
 }
 

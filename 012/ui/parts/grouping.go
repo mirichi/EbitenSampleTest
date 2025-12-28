@@ -12,7 +12,7 @@ type Layouter interface {
 }
 
 type Sizer interface {
-	GetSize() (int, int)
+	GetSize() (float64, float64)
 }
 
 // Groupingは子コントロールを管理する機能
@@ -119,7 +119,7 @@ func (c *Grouping) drawFunction(screen *ebiten.Image) {
 		if sizer, ok := c.Entity.(Sizer); ok {
 			w, h := sizer.GetSize()
 			// クリッピング用SubImage。SubImageのSubImageは元の画像に対しての座標になるので入れ子構造でも大丈夫
-			screen = screen.SubImage(image.Rect(ox, oy, ox+w, oy+h)).(*ebiten.Image)
+			screen = screen.SubImage(image.Rect(int(ox), int(oy), int(ox+w), int(oy+h))).(*ebiten.Image)
 		}
 	}
 	for _, ch := range c.Children {

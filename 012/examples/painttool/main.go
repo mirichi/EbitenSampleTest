@@ -67,7 +67,7 @@ func main() {
 	}
 
 	// ToolBoxの選択サイズでCanvasの線幅を変更する
-	tp.OnSelect = func(s int) {
+	tp.OnSelect = func(s float64) {
 		canvas.LineWidth = s
 	}
 

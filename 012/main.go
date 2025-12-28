@@ -49,7 +49,7 @@ func (a *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 // createWindowはテスト用のウィンドウを作成して返す
 // ボタン、チェックボックス、テキストボックスを含む
-func createWindow(x, y, w, h int, str string) *ui.Window {
+func createWindow(x, y, w, h float64, str string) *ui.Window {
 	// Window生成
 	window := ui.NewWindow(x, y, w, h, str)
 

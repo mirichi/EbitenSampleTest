@@ -20,7 +20,7 @@ type TextInputable struct {
 	Counter   *int             // カーソル点滅用カウンタ
 	isFocused func() bool      // フォーカス状態判定関数
 
-	FontSize    int         // フォントサイズ
+	FontSize    float64     // フォントサイズ
 	AlignX      TextAlign   // 横方向の配置 (AlignLeft, AlignCenter, AlignRight)
 	Color       color.Color // テキスト色
 	CursorColor color.Color // カーソル色
@@ -29,13 +29,13 @@ type TextInputable struct {
 	selectionStartIdx int  // ドラッグ選択開始時の文字インデックス
 }
 
-func NewTextInputable(c Control, field *textinput.Field, counter *int, fontSize int, alignX TextAlign, color, cursorColor color.Color, isFocused func() bool) *TextInputable {
+func NewTextInputable(c Control, field *textinput.Field, counter *int, fontSize float64, alignX TextAlign, color, cursorColor color.Color, isFocused func() bool) *TextInputable {
 	t := &TextInputable{}
 	t.InitTextInputable(c, field, counter, fontSize, alignX, color, cursorColor, isFocused)
 	return t
 }
 
-func (u *TextInputable) InitTextInputable(c Control, field *textinput.Field, counter *int, fontSize int, alignX TextAlign, color, cursorColor color.Color, isFocused func() bool) {
+func (u *TextInputable) InitTextInputable(c Control, field *textinput.Field, counter *int, fontSize float64, alignX TextAlign, color, cursorColor color.Color, isFocused func() bool) {
 	u.Control = c
 	u.Field = field
 	u.Counter = counter
@@ -62,10 +62,9 @@ func (u *TextInputable) updateFunction() {
 		}
 
 		cb := u.Control.GetControlBase()
-		gx, gy := cb.GetGlobalPos()
-		x, y := gx, gy
+		x, y := cb.GetGlobalPos()
 
-		handled, err := u.Field.HandleInputWithBounds(image.Rect(x, y, x+cb.Width, y+cb.Height))
+		handled, err := u.Field.HandleInputWithBounds(image.Rect(int(x), int(y), int(x+cb.Width), int(y+cb.Height)))
 		if err != nil {
 			return
 		}
@@ -190,7 +189,7 @@ func (u *TextInputable) updateFunction() {
 func (d *TextInputable) drawFunction(screen *ebiten.Image) {
 	f := &text.GoTextFace{
 		Source: MplusFaceSource,
-		Size:   float64(d.FontSize),
+		Size:   d.FontSize,
 	}
 
 	// 描画テキスト取得
@@ -201,22 +200,21 @@ func (d *TextInputable) drawFunction(screen *ebiten.Image) {
 
 	// 描画座標算出
 	cb := d.Control.GetControlBase()
-	gx, gy := cb.GetGlobalPos()
-	x, y := float64(gx), float64(gy)
+	x, y := cb.GetGlobalPos()
 
 	// 横方向整列
 	switch d.AlignX {
 	case AlignLeft:
 		// そのまま
 	case AlignCenter:
-		x += (float64(cb.Width) - mw) / 2
+		x += (cb.Width - mw) / 2
 	case AlignRight:
-		x += (float64(cb.Width) - mw)
+		x += (cb.Width - mw)
 	}
 
 	// 縦方向整列（中央寄せ固定）
 	m := f.Metrics()
-	y += (float64(cb.Height - int(m.HAscent) - int(m.HDescent))) / 2
+	y += (cb.Height - m.HAscent - m.HDescent) / 2
 
 	// 選択範囲の背景描画
 	selectionStart, selectionEnd := d.Field.Selection()
@@ -268,10 +266,10 @@ func (d *TextInputable) drawFunction(screen *ebiten.Image) {
 
 // getIndexFromPosは指定された座標(x, y)に対応するテキストの文字インデックスを取得します。
 // クリック位置からカーソル位置を特定するために使用されます。
-func (u *TextInputable) getIndexFromPos(x, y int) int {
+func (u *TextInputable) getIndexFromPos(x, y float64) int {
 	f := &text.GoTextFace{
 		Source: MplusFaceSource,
-		Size:   float64(u.FontSize),
+		Size:   u.FontSize,
 	}
 
 	// 描画テキスト取得
@@ -283,21 +281,20 @@ func (u *TextInputable) getIndexFromPos(x, y int) int {
 	// 描画座標算出
 	// 描画座標算出
 	cb := u.Control.GetControlBase()
-	gx, _ := cb.GetGlobalPos()
-	baseX := float64(gx)
+	baseX, _ := cb.GetGlobalPos()
 
 	// 横方向整列
 	switch u.AlignX {
 	case AlignLeft:
 		// そのまま
 	case AlignCenter:
-		baseX += (float64(cb.Width) - mw) / 2
+		baseX += (cb.Width - mw) / 2
 	case AlignRight:
-		baseX += (float64(cb.Width) - mw)
+		baseX += (cb.Width - mw)
 	}
 
 	// クリック位置の相対座標
-	relX := float64(x) - baseX
+	relX := x - baseX
 
 	// テキストの範囲外（左側）なら先頭
 	if relX < 0 {
@@ -324,7 +321,7 @@ func (u *TextInputable) getIndexFromPos(x, y int) int {
 }
 
 // 選択開始（クリック時）
-func (u *TextInputable) StartSelection(x, y int) {
+func (u *TextInputable) StartSelection(x, y float64) {
 	idx := u.getIndexFromPos(x, y)
 	u.Field.SetSelection(idx, idx)
 	u.selectionStartIdx = idx
@@ -332,7 +329,7 @@ func (u *TextInputable) StartSelection(x, y int) {
 }
 
 // 選択更新（ドラッグ時）
-func (u *TextInputable) UpdateSelection(x, y int) {
+func (u *TextInputable) UpdateSelection(x, y float64) {
 	idx := u.getIndexFromPos(x, y)
 
 	start := u.selectionStartIdx

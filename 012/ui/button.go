@@ -12,13 +12,13 @@ type Button struct {
 }
 
 // Button生成
-func NewButton(x, y, w, h int, text string, size int) *Button {
+func NewButton(x, y, w, h float64, text string, size float64) *Button {
 	b := &Button{}
 	b.InitButton(x, y, w, h, text, size)
 	return b
 }
 
-func (b *Button) InitButton(x, y, w, h int, text string, size int) {
+func (b *Button) InitButton(x, y, w, h float64, text string, size float64) {
 	theme := parts.CurrentTheme
 
 	b.InitInteractiveControl(x, y, w, h)

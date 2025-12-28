@@ -14,7 +14,7 @@ type ColorPanel struct {
 	OnSelect func(color.Color)
 }
 
-func NewColorPanel(x, y, w, h int) *ColorPanel {
+func NewColorPanel(x, y, w, h float64) *ColorPanel {
 	cp := &ColorPanel{}
 	cp.InitGroupingControl(x, y, w, h)
 
@@ -27,11 +27,11 @@ func NewColorPanel(x, y, w, h int) *ColorPanel {
 		color.RGBA{0x00, 0xff, 0x00, 0xff}, color.RGBA{0x00, 0xff, 0xff, 0xff}, color.RGBA{0x00, 0x00, 0xff, 0xff},
 		color.RGBA{0xff, 0x00, 0xff, 0xff}, color.RGBA{0xff, 0xff, 0xff, 0xff}}
 	for i, c := range cols {
-		cp.Buttons[i].InitInteractiveControl(0, i*32, 32, 32)
+		cp.Buttons[i].InitInteractiveControl(0, float64(i)*32, 32, 32)
 		cp.AddChild(&cp.Buttons[i])
 		cp.Buttons[i].BackColor = c
 		cp.Buttons[i].OnPress = func() {
-			cp.marker.Y = i*32 + 8
+			cp.marker.Y = float64(i)*32 + 8
 			cp.marker.TextColor = c
 			if cp.OnSelect != nil {
 				cp.OnSelect(c)

@@ -19,9 +19,9 @@ type Resizable struct {
 	OnResize func() // リサイズ時に呼ぶ関数
 
 	// ドラッグ開始時の状態
-	startMX, startMY int
-	startX, startY   int
-	startW, startH   int
+	startMX, startMY float64
+	startX, startY   float64
+	startW, startH   float64
 }
 
 func NewResizable(c Control) *Resizable {
@@ -38,7 +38,7 @@ func (r *Resizable) InitResizable(c Control) {
 }
 
 // 8方向のリサイズ判定
-func (r *Resizable) judgeResize(mx, my int) int {
+func (r *Resizable) judgeResize(mx, my float64) int {
 	c := r.Control.GetControlBase()
 	gx, gy := c.GetGlobalPos()
 	x := gx

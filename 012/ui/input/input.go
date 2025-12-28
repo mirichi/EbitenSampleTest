@@ -17,8 +17,8 @@ var touches []Touch = []Touch{}
 var mouseTouch MouseTouch = MouseTouch{id: -1}
 
 type Touch interface {
-	Pos() (int, int)
-	OldPos() (int, int)
+	Pos() (float64, float64)
+	OldPos() (float64, float64)
 	IsJustPressed() bool
 	IsPressed() bool
 	IsJustReleased() bool
@@ -33,14 +33,16 @@ type TouchTouch struct {
 	released bool
 }
 
-func (t *TouchTouch) Pos() (int, int) {
-	return ebiten.TouchPosition(t.id)
+func (t *TouchTouch) Pos() (float64, float64) {
+	x, y := ebiten.TouchPosition(t.id)
+	return float64(x), float64(y)
 }
-func (t *TouchTouch) OldPos() (int, int) {
+func (t *TouchTouch) OldPos() (float64, float64) {
 	if t.IsJustPressed() {
 		return t.Pos()
 	}
-	return inpututil.TouchPositionInPreviousTick(t.id)
+	x, y := inpututil.TouchPositionInPreviousTick(t.id)
+	return float64(x), float64(y)
 }
 func (t *TouchTouch) IsJustPressed() bool {
 	return inpututil.TouchPressDuration(t.id) == 1
@@ -69,11 +71,12 @@ type MouseTouch struct {
 	released bool
 }
 
-func (t *MouseTouch) Pos() (int, int) {
-	return ebiten.CursorPosition()
+func (t *MouseTouch) Pos() (float64, float64) {
+	x, y := ebiten.CursorPosition()
+	return float64(x), float64(y)
 }
-func (t *MouseTouch) OldPos() (int, int) {
-	return oldX, oldY
+func (t *MouseTouch) OldPos() (float64, float64) {
+	return float64(oldX), float64(oldY)
 }
 func (t *MouseTouch) IsJustPressed() bool {
 	return inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft)

@@ -30,7 +30,8 @@ func (p *PopupManager) InitPopupManager() {
 			p.Width = 640
 			p.Height = 480
 		} else {
-			p.Width, p.Height = ebiten.WindowSize()
+			w, h := ebiten.WindowSize()
+			p.Width, p.Height = float64(w), float64(h)
 		}
 	})
 
@@ -44,7 +45,7 @@ func (p *PopupManager) InitPopupManager() {
 }
 
 // ShowMenu は指定されたメニューを表示する
-func (p *PopupManager) ShowMenu(x, y int, menu []*MenuItem) {
+func (p *PopupManager) ShowMenu(x, y float64, menu []*MenuItem) {
 	// 既存のメニューを閉じる（単純化のため現在は1つのみ表示）
 	p.Children = []parts.Entity{}
 

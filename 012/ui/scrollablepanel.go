@@ -19,13 +19,13 @@ type ScrollablePanel struct {
 }
 
 // ScrollablePanel生成
-func NewScrollablePanel(x, y, sbw int) *ScrollablePanel {
+func NewScrollablePanel(x, y, sbw float64) *ScrollablePanel {
 	sp := &ScrollablePanel{}
 	sp.InitScrollablePanel(x, y, sbw)
 	return sp
 }
 
-func (sp *ScrollablePanel) InitScrollablePanel(x, y, sbw int) {
+func (sp *ScrollablePanel) InitScrollablePanel(x, y, sbw float64) {
 	sp.InitGroupingControl(x, y, 0, 0)
 	sp.AutoLayout = parts.FlexLayoutV(parts.FlexStart, parts.FlexStretch, 0)
 
@@ -58,10 +58,10 @@ func (sp *ScrollablePanel) InitScrollablePanel(x, y, sbw int) {
 
 	// スクロールバーのスライド時の動作
 	sp.ScrollbarV.OnSlide = func() {
-		sp.Panel.X, sp.Panel.Y = -int(sp.ScrollbarH.GetValue()), -int(sp.ScrollbarV.GetValue())
+		sp.Panel.X, sp.Panel.Y = -sp.ScrollbarH.GetValue(), -sp.ScrollbarV.GetValue()
 	}
 	sp.ScrollbarH.OnSlide = func() {
-		sp.Panel.X, sp.Panel.Y = -int(sp.ScrollbarH.GetValue()), -int(sp.ScrollbarV.GetValue())
+		sp.Panel.X, sp.Panel.Y = -sp.ScrollbarH.GetValue(), -sp.ScrollbarV.GetValue()
 	}
 	sp.OnLayout = sp.OnLayoutFunction
 
@@ -99,15 +99,15 @@ func (sp *ScrollablePanel) OnLayoutFunction() {
 		sp.Layout()
 	}
 
-	sp.Panel.X, sp.Panel.Y = -int(sp.ScrollbarH.GetValue()), -int(sp.ScrollbarV.GetValue())
+	sp.Panel.X, sp.Panel.Y = -sp.ScrollbarH.GetValue(), -sp.ScrollbarV.GetValue()
 }
 
-func (sp *ScrollablePanel) SetMaxRange(allrangeH, allrangeV *int) {
+func (sp *ScrollablePanel) SetMaxRange(allrangeH, allrangeV *float64) {
 	sp.ScrollbarH.SetMaxRange(allrangeH)
 	sp.ScrollbarV.SetMaxRange(allrangeV)
 }
 
-func (sp *ScrollablePanel) SetViewRange(viewrangeH, viewrangeV *int) {
+func (sp *ScrollablePanel) SetViewRange(viewrangeH, viewrangeV *float64) {
 	sp.ScrollbarH.SetViewRange(viewrangeH)
 	sp.ScrollbarV.SetViewRange(viewrangeV)
 }

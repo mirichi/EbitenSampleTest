@@ -6,7 +6,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 
 	"MyProject/objects"
 	"MyProject/parts"
@@ -14,15 +13,17 @@ import (
 
 type GameScene struct {
 	parts.EntityBase
-	Root        *objects.Container
-	Player      *Player
-	EnemyGroup  *objects.Container
-	BulletGroup *objects.Container
-	GameOver    bool
-	Score       int
-	KillCount   int
-	BossSpawned bool
-	Boss        *Boss
+	Root             *objects.Container
+	Player           *Player
+	EnemyGroup       *objects.Container
+	BulletGroup      *objects.Container
+	EnemyBulletGroup *objects.Container
+	GameOver         bool
+	Score            int
+	KillCount        int
+	BossSpawned      bool
+	Boss             *Boss
+	ShootTimer       int
 }
 
 func NewGameScene() *GameScene {
@@ -45,6 +46,10 @@ func (gs *GameScene) InitGameScene() {
 	gs.BulletGroup = objects.NewContainer(0, 0)
 	gs.Root.AddChild(gs.BulletGroup)
 
+	// Group for Enemy Bullets
+	gs.EnemyBulletGroup = objects.NewContainer(0, 0)
+	gs.Root.AddChild(gs.EnemyBulletGroup)
+
 	// Player
 	gs.Player = NewPlayer()
 	gs.Root.AddChild(gs.Player)
@@ -54,6 +59,7 @@ func (gs *GameScene) InitGameScene() {
 	gs.KillCount = 0
 	gs.BossSpawned = false
 	gs.Boss = nil
+	gs.ShootTimer = 0
 }
 
 func (gs *GameScene) Update() {
@@ -72,12 +78,28 @@ func (gs *GameScene) Update() {
 		return
 	}
 
+	// Transfer Pending Bullets from Boss
+	if gs.BossSpawned && gs.Boss != nil {
+		if len(gs.Boss.PendingBullets) > 0 {
+			for _, b := range gs.Boss.PendingBullets {
+				gs.EnemyBulletGroup.AddChild(b)
+			}
+			gs.Boss.PendingBullets = []*EnemyBullet{} // Clear
+		}
+	}
+
 	gs.Root.Update()
 
-	// Explicitly handle Shooting input here
-	if inpututil.IsKeyJustPressed(ebiten.KeyZ) {
-		bullet := NewBullet(gs.Player.X()+12, gs.Player.Y()-20)
-		gs.BulletGroup.AddChild(bullet)
+	// Shooting Logic (Auto-Fire)
+	if gs.ShootTimer > 0 {
+		gs.ShootTimer--
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyZ) {
+		if gs.ShootTimer <= 0 {
+			bullet := NewBullet(gs.Player.X()+12, gs.Player.Y()-20)
+			gs.BulletGroup.AddChild(bullet)
+			gs.ShootTimer = 8 // Cooldown frames
+		}
 	}
 
 	// Spawning Enemies
@@ -137,6 +159,18 @@ func (gs *GameScene) checkCollisions() {
 			}
 		}
 	}
+
+	// Enemy Bullets vs Player
+	ebChildren := gs.EnemyBulletGroup.GetChildren()
+	for _, ebChild := range ebChildren {
+		if bullet, ok := ebChild.(*EnemyBullet); ok {
+			if !bullet.IsDead {
+				if gs.Player.Test(bullet) {
+					gs.GameOver = true
+				}
+			}
+		}
+	}
 }
 
 func (gs *GameScene) cleanup() {
@@ -159,6 +193,17 @@ func (gs *GameScene) cleanup() {
 		if enemy, ok := child.(Enemy); ok {
 			if enemy.IsDead() {
 				gs.EnemyGroup.RemoveChild(enemy)
+			}
+		}
+	}
+
+	// Remove dead enemy bullets
+	ebChildren := gs.EnemyBulletGroup.GetChildren()
+	for i := len(ebChildren) - 1; i >= 0; i-- {
+		child := ebChildren[i]
+		if bullet, ok := child.(*EnemyBullet); ok {
+			if bullet.IsDead {
+				gs.EnemyBulletGroup.RemoveChild(bullet)
 			}
 		}
 	}

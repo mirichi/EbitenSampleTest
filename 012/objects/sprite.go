@@ -22,6 +22,8 @@ type Sprite struct {
 	ScaleX float64
 	ScaleY float64
 
+	ColorScale ebiten.ColorScale
+
 	Image *ebiten.Image
 }
 
@@ -40,6 +42,20 @@ func (s *Sprite) InitSprite(x, y float64, img *ebiten.Image) {
 	s.Image = img
 	s.ScaleX = 1
 	s.ScaleY = 1
+
+	// No strict identity needed for ColorScale as zero value allows Set, but explicit init is clearer
+	// s.ColorScale is zero value, which is effectively identity-like for ScaleWithColor but standard Scale is 0?
+	// Ebiten 2.5+: ColorScale zero value is identity? No.
+	// We should probably rely on not setting it if it's default, or init to 1,1,1,1
+	// Wait, Ebiten's ColorScale usage:
+	// op.ColorScale.Scale(r,g,b,a).
+	// If we want it to be 1,1,1,1 initially.
+	// Actually, let's just leave it zero value, and we apply it.
+	// If it is zero value, it might be 0,0,0,0?
+	// Let's check `ebiten.ColorScale`.
+	// It's a struct (r,g,b,a float32). Zero value is all 0.
+	// So we must initialize it to identity (1,1,1,1).
+	s.ColorScale.Scale(1, 1, 1, 1)
 
 	// 描画関数をメインのDrawフェーズに登録
 	s.AddDrawFunction(s.draw)
@@ -86,6 +102,7 @@ func (s *Sprite) draw(screen *ebiten.Image) {
 	m := s.GetGlobalMatrix()
 
 	op.GeoM = m
+	op.ColorScale = s.ColorScale
 
 	screen.DrawImage(s.Image, op)
 }

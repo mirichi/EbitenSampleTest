@@ -3,6 +3,7 @@ package main
 import (
 	"image/color"
 	"math"
+	"math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
 
@@ -25,8 +26,10 @@ type Boss struct {
 	MaxHP  int
 	isDead bool
 
-	time  float64
-	phase int // 0: Entering, 1: Fighting
+	time           float64
+	phase          int // 0: Entering, 1: Fighting
+	PendingBullets []*EnemyBullet
+	flashTimer     int
 }
 
 func NewBoss(x, y float64) *Boss {
@@ -38,6 +41,7 @@ func NewBoss(x, y float64) *Boss {
 func (b *Boss) InitBoss(x, y float64) {
 	b.EntityBase.InitEntityBase(b, x, y)
 	b.Root = objects.NewContainer(x, y)
+	b.PendingBullets = []*EnemyBullet{}
 
 	// --- Body ---
 	bodyImg := ebiten.NewImage(64, 64)
@@ -71,6 +75,7 @@ func (b *Boss) InitBoss(x, y float64) {
 	b.MaxHP = 50
 	b.HP = b.MaxHP
 	b.phase = 0 // Entering
+	b.flashTimer = 0
 
 	// --- Collision ---
 	// Composite collider: Body + Hands
@@ -91,6 +96,27 @@ func (b *Boss) Update() {
 	}
 	b.time += 1.0
 
+	// Flash Logic
+	if b.flashTimer > 0 {
+		b.flashTimer--
+		// Flash Effect: Scale color to be very bright (approximating white flash)
+		f := float32(2.0)
+		b.Body.ColorScale.Reset()
+		b.Body.ColorScale.Scale(f, f, f, 1)
+		b.LeftHand.ColorScale.Reset()
+		b.LeftHand.ColorScale.Scale(f, f, f, 1)
+		b.RightHand.ColorScale.Reset()
+		b.RightHand.ColorScale.Scale(f, f, f, 1)
+	} else {
+		// Normal Color
+		b.Body.ColorScale.Reset()
+		b.Body.ColorScale.Scale(1, 1, 1, 1)
+		b.LeftHand.ColorScale.Reset()
+		b.LeftHand.ColorScale.Scale(1, 1, 1, 1)
+		b.RightHand.ColorScale.Reset()
+		b.RightHand.ColorScale.Scale(1, 1, 1, 1)
+	}
+
 	// Logic
 	if b.phase == 0 {
 		// Moving down to position
@@ -103,6 +129,26 @@ func (b *Boss) Update() {
 		// Bobbing
 		b.Root.Y = 100 + math.Sin(b.time*0.05)*10
 		b.Root.X = 320 + math.Cos(b.time*0.02)*100
+
+		// Shooting logic (every 60 frames approx)
+		if int(b.time)%60 == 0 {
+			// Left Hand Shot
+			lx, ly := b.LeftHand.GetGlobalPos()
+			// Improve position to be center of hand (sprite origin is 12,0 so +0, +12 ish?)
+			// Actually origin is x:12 y:0 (pivot). Hand is 24x24. Center is roughly +0, +12 relative to pivot after rotation...
+			// Simplifying: Use Global Pos which returns the Anchor/Pivot global pos.
+			// Hand pivot is top-center. Center of hand visualization is roughly same X, +12 Y local.
+			// Let's just spawn at pivot for now.
+
+			// Aim down broadly
+			lb := NewEnemyBullet(lx, ly, math.Pi/2+rand.Float64()*0.5-0.25)
+			b.PendingBullets = append(b.PendingBullets, lb)
+
+			// Right Hand Shot
+			rx, ry := b.RightHand.GetGlobalPos()
+			rb := NewEnemyBullet(rx, ry, math.Pi/2+rand.Float64()*0.5-0.25)
+			b.PendingBullets = append(b.PendingBullets, rb)
+		}
 	}
 
 	// Arm Rotation
@@ -129,6 +175,7 @@ func (b *Boss) IsDead() bool {
 
 func (b *Boss) MarkDead() {
 	b.HP--
+	b.flashTimer = 4 // Flash for 4 frames
 	if b.HP <= 0 {
 		b.isDead = true
 	}

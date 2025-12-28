@@ -1,6 +1,6 @@
 package ui
 
-import "MyProject/ui/parts"
+import "MyProject/parts"
 
 // GroupingControlは複合コントロールの親になるコントロール
 type GroupingControl struct {

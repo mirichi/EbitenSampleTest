@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"MyProject/ui/parts"
+	"MyProject/parts"
 )
 
 // BlankControlは位置とサイズだけを持つ空のコントロール

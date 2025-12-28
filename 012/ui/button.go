@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"MyProject/ui/parts"
+	"MyProject/parts"
 )
 
 // Buttonはクリック可能なボタン

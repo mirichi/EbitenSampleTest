@@ -2,9 +2,9 @@
 package main
 
 import (
+	"MyProject/parts"
 	"MyProject/ui"
 	"MyProject/ui/input"
-	"MyProject/ui/parts"
 	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"

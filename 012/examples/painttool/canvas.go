@@ -6,7 +6,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 
-	"MyProject/ui/parts"
+	"MyProject/parts"
 )
 
 // Canvasは描画可能なキャンバス

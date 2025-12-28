@@ -50,7 +50,7 @@ func (u *TextInputable) InitTextInputable(c Control, field *textinput.Field, cou
 	c.GetControlBase().AddUpdateFunction(u.updateFunction)
 
 	// コントロールのDraw時に呼ばれる関数を登録する
-	c.GetControlBase().AddDrawFunction(u.drawFunction)
+	c.GetControlBase().AddAfterDrawFunction(u.drawFunction)
 }
 
 // updateFunctionは毎フレームの更新処理を行います。

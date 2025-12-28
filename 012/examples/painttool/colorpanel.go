@@ -3,6 +3,9 @@ package main
 import (
 	"MyProject/ui"
 	"image/color"
+
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 // ColorPanelは色選択パネル
@@ -29,7 +32,10 @@ func NewColorPanel(x, y, w, h float64) *ColorPanel {
 	for i, c := range cols {
 		cp.Buttons[i].InitInteractiveControl(0, float64(i)*32, 32, 32)
 		cp.AddChild(&cp.Buttons[i])
-		cp.Buttons[i].BackColor = c
+		cp.Buttons[i].AddDrawFunction(func(screen *ebiten.Image) {
+			gx, gy := cp.Buttons[i].GetGlobalPos()
+			vector.FillRect(screen, float32(gx), float32(gy), float32(cp.Buttons[i].Width), float32(cp.Buttons[i].Height), c, false)
+		})
 		cp.Buttons[i].OnPress = func() {
 			cp.marker.Y = float64(i)*32 + 8
 			cp.marker.TextColor = c

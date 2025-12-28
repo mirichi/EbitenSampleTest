@@ -79,7 +79,7 @@ func (s *ScrollSliderV) InitSliderV(x, y, w, h float64) {
 	s.knob.InitInteractiveControl(x, y, w, 60)
 
 	// ノブのカスタム描画（角丸カプセル）
-	s.knob.OnDraw = func(screen *ebiten.Image) {
+	s.knob.AddDrawFunction(func(screen *ebiten.Image) {
 		k := &s.knob
 		gx, gy := k.GetGlobalPos()
 
@@ -107,7 +107,7 @@ func (s *ScrollSliderV) InitSliderV(x, y, w, h float64) {
 		vector.FillCircle(screen, x+r, y+r, r, knobColor, true)
 		vector.FillCircle(screen, x+r, y+h-r, r, knobColor, true)
 		vector.FillRect(screen, x, y+r, w, h-r*2, knobColor, false)
-	}
+	})
 
 	s.AddChild(&s.knob)
 
@@ -170,7 +170,6 @@ func (s *ScrollSliderV) Layout() {
 // ScrollBarVは縦方向にスクロールするための複合Control
 type ScrollBarV struct {
 	parts.ControlBase
-	parts.Drawable
 	parts.Grouping
 
 	buttonUp   ScrollButton
@@ -189,7 +188,6 @@ func NewScrollBarV(x, y, w, h float64) *ScrollBarV {
 
 func (s *ScrollBarV) InitScrollBarV(x, y, w, h float64) {
 	s.InitControlBase(s, x, y, w, h)
-	s.InitDrawable(s)
 	s.InitGrouping(s)
 	s.AutoLayout = parts.FlexLayoutV(parts.FlexStart, parts.FlexStretch, 0)
 
@@ -216,7 +214,7 @@ func (s *ScrollBarV) InitScrollBarV(x, y, w, h float64) {
 		}
 	}
 
-	s.OnDraw = func(screen *ebiten.Image) {
+	s.AddBeforeDrawFunction(func(screen *ebiten.Image) {
 		theme := parts.CurrentTheme
 
 		gx, gy := s.GetGlobalPos()
@@ -232,7 +230,7 @@ func (s *ScrollBarV) InitScrollBarV(x, y, w, h float64) {
 		vector.FillCircle(screen, x+r, y+r, r, theme.ScrollBackground, true)
 		vector.FillCircle(screen, x+r, y+h-r, r, theme.ScrollBackground, true)
 		vector.FillRect(screen, x, y+r, w, h-r*2, theme.ScrollBackground, false)
-	}
+	})
 }
 
 func (s *ScrollBarV) SetViewRange(viewrange *float64) {
@@ -276,7 +274,7 @@ func (s *ScrollSliderH) InitSliderH(x, y, w, h float64) {
 	s.knob.InitInteractiveControl(x, 0, 60, h)
 
 	// ノブのカスタム描画
-	s.knob.OnDraw = func(screen *ebiten.Image) {
+	s.knob.AddDrawFunction(func(screen *ebiten.Image) {
 		k := &s.knob
 		gx, gy := k.GetGlobalPos()
 
@@ -301,7 +299,7 @@ func (s *ScrollSliderH) InitSliderH(x, y, w, h float64) {
 		vector.FillCircle(screen, x+r, y+r, r, knobColor, true)
 		vector.FillCircle(screen, x+w-r, y+r, r, knobColor, true)
 		vector.FillRect(screen, x+r, y, w-r*2, h, knobColor, false)
-	}
+	})
 
 	s.AddChild(&s.knob)
 
@@ -364,7 +362,6 @@ func (s *ScrollSliderH) Layout() {
 // ScrollBarHは横方向にスクロールするための複合Control
 type ScrollBarH struct {
 	parts.ControlBase
-	parts.Drawable
 	parts.Grouping
 
 	buttonLeft  ScrollButton
@@ -383,7 +380,6 @@ func NewScrollBarH(x, y, w, h float64) *ScrollBarH {
 
 func (s *ScrollBarH) InitScrollBarH(x, y, w, h float64) {
 	s.InitControlBase(s, x, y, w, h)
-	s.InitDrawable(s)
 	s.InitGrouping(s)
 	s.AutoLayout = parts.FlexLayoutH(parts.FlexStart, parts.FlexStretch, 0)
 
@@ -410,7 +406,7 @@ func (s *ScrollBarH) InitScrollBarH(x, y, w, h float64) {
 		}
 	}
 
-	s.OnDraw = func(screen *ebiten.Image) {
+	s.AddBeforeDrawFunction(func(screen *ebiten.Image) {
 		theme := parts.CurrentTheme
 
 		gx, gy := s.GetGlobalPos()
@@ -426,7 +422,7 @@ func (s *ScrollBarH) InitScrollBarH(x, y, w, h float64) {
 		vector.FillCircle(screen, x+r, y+r, r, theme.ScrollBackground, true)
 		vector.FillCircle(screen, x+w-r, y+r, r, theme.ScrollBackground, true)
 		vector.FillRect(screen, x+r, y, w-r*2, h, theme.ScrollBackground, false)
-	}
+	})
 }
 
 func (s *ScrollBarH) SetViewRange(viewrange *float64) {

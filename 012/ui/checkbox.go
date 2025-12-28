@@ -33,7 +33,7 @@ func (c *Checkbox) InitCheckbox(x, y, h float64, text string, size float64, init
 	c.InitInteractiveControl(x, y, w, h)
 	c.InitTextDrawable(c, text, size, parts.AlignLeft, parts.AlignCenter, w+5, 0, color.White, true)
 	c.InitFocusable(c)
-	c.OnDraw = c.drawCheckbox
+	c.AddDrawFunction(c.drawCheckbox)
 	c.Checked = initialChecked
 
 	if c.Checked {

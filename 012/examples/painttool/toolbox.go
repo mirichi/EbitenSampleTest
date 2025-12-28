@@ -18,7 +18,7 @@ type ToolButton struct {
 // ToolButton初期化
 func (b *ToolButton) InitToolButton(x, y, w, h, size float64) {
 	b.InitInteractiveControl(x, y, w, h)
-	b.OnDraw = b.drawToolButton
+	b.AddDrawFunction(b.drawToolButton)
 	b.Size = size
 }
 

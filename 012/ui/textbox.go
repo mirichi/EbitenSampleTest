@@ -33,7 +33,7 @@ func (tb *TextBox) InitTextBox(x, y, w, h float64, text string, fontSize float64
 	tb.InitInteractiveControl(x, y, w, h)
 	tb.InitTextInputable(tb, &tb.field, &tb.counter, fontSize, parts.AlignLeft, color.White, color.White, func() bool { return tb.Focused })
 	tb.InitFocusable(tb)
-	tb.OnDraw = tb.drawTextBox
+	tb.AddDrawFunction(tb.drawTextBox)
 
 	tb.OnFocus = func() {
 		tb.field.Focus()

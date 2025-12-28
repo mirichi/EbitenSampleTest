@@ -34,7 +34,7 @@ func (r *Resizable) InitResizable(c Control) {
 	r.Control = c
 
 	// ControlのHandleInput時に呼ばれる関数を登録する
-	c.GetControlBase().AddHandleInputFunction(r.handleInputFunction)
+	c.GetControlBase().AddAfterHandleInputFunction(r.handleInputFunction)
 }
 
 // 8方向のリサイズ判定

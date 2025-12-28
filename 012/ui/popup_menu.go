@@ -19,7 +19,6 @@ type MenuItem struct {
 // PopupMenuはドロップダウンやコンテキストメニューに使用するポップアップメニュー
 type PopupMenu struct {
 	parts.ControlBase
-	parts.Drawable
 	parts.Grouping
 
 	PopupItems      []*popupMenuItem
@@ -58,18 +57,17 @@ func (pm *PopupMenu) InitPopupMenu(x, y float64, items []*MenuItem) {
 	}
 
 	pm.InitControlBase(pm, x, y, width, height)
-	pm.InitDrawable(pm)
 	pm.InitGrouping(pm)
 	// pm.AutoLayout = parts.AutoLayoutFitV(pm.Margin)
 	pm.Timer.InitTimer(pm, 30, false)
 
 	// 背景描画
-	pm.OnDraw = func(screen *ebiten.Image) {
+	pm.AddBeforeDrawFunction(func(screen *ebiten.Image) {
 		theme := parts.CurrentTheme
 		gx, gy := pm.GetGlobalPos()
 		vector.FillRect(screen, float32(gx), float32(gy), float32(pm.Width), float32(pm.Height), theme.PopupBackground, false)
 		vector.StrokeRect(screen, float32(gx), float32(gy), float32(pm.Width-1), float32(pm.Height-1), 1, theme.FocusBorder, false)
-	}
+	})
 
 	// メニュー項目を生成
 	iy := pm.Margin
@@ -236,7 +234,7 @@ func newPopupMenuItem(x, y, width, height float64, menuItem *MenuItem) *popupMen
 	}
 
 	// 描画
-	item.OnDraw = func(screen *ebiten.Image) {
+	item.AddDrawFunction(func(screen *ebiten.Image) {
 		if item.menuItem.IsSeparator {
 			theme := parts.CurrentTheme
 			gx, gy := item.GetGlobalPos()
@@ -248,7 +246,7 @@ func newPopupMenuItem(x, y, width, height float64, menuItem *MenuItem) *popupMen
 				vector.FillRect(screen, float32(gx), float32(gy), float32(item.Width), float32(item.Height), theme.PopupHover, false)
 			}
 		}
-	}
+	})
 
 	return item
 }

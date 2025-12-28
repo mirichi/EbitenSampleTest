@@ -2,6 +2,9 @@ package ui
 
 import (
 	"MyProject/parts"
+
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 // TitleBarはウィンドウのタイトルバーを表すControl
@@ -23,7 +26,6 @@ func (t *TitleBar) InitTitleBar(x, y, h float64, text string) {
 	theme := parts.CurrentTheme
 	t.InitInteractiveControl(x, y, 0, h)
 	t.InitTextDrawable(t, text, h*2/3, parts.AlignCenter, parts.AlignCenter, 0, 0, theme.Text, true)
-	t.BackColor = theme.TitleBar
 
 	// TitleBarをドラッグすると親のWindowが移動するように設定
 	var dragOffsetX, dragOffsetY float64
@@ -39,6 +41,11 @@ func (t *TitleBar) InitTitleBar(x, y, h float64, text string) {
 		cb.X = x - dragOffsetX
 		cb.Y = y - dragOffsetY
 	}
+
+	t.AddBeforeDrawFunction(func(screen *ebiten.Image) {
+		gx, gy := t.GetGlobalPos()
+		vector.FillRect(screen, float32(gx), float32(gy), float32(t.Width), float32(t.Height), theme.TitleBar, false)
+	})
 }
 
 // ClientAreaはウィンドウのクライアント領域を表すControl
@@ -59,7 +66,6 @@ func NewClientArea(x, y float64) *ClientArea {
 func (c *ClientArea) InitClientArea(x, y float64) {
 	c.InitInteractiveControl(x, y, 0, 0)
 	c.InitGrouping(c)
-	c.BackColor = parts.CurrentTheme.ClientArea
 	c.FlexGrow = 1
 
 	// ClientAreaをドラッグすると親のWindowが移動する
@@ -76,6 +82,11 @@ func (c *ClientArea) InitClientArea(x, y float64) {
 		cb.X = x - dragOffsetX
 		cb.Y = y - dragOffsetY
 	}
+
+	c.AddBeforeDrawFunction(func(screen *ebiten.Image) {
+		gx, gy := c.GetGlobalPos()
+		vector.FillRect(screen, float32(gx), float32(gy), float32(c.Width), float32(c.Height), parts.CurrentTheme.ClientArea, false)
+	})
 }
 
 // Windowはタイトルバーとクライアント領域を持つ複合Control

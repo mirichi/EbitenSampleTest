@@ -63,7 +63,7 @@ func (d *TextDrawable) InitTextDrawable(c Control, text string, size float64, al
 	d.Shadow = shadow
 
 	// コントロールのDraw時に呼ばれる関数を登録する
-	c.GetControlBase().AddDrawFunction(d.drawFunction)
+	c.GetControlBase().AddAfterDrawFunction(d.drawFunction)
 }
 
 // コントロールのDraw時に呼ばれるDrawFunction

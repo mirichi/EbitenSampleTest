@@ -19,25 +19,25 @@ type ScrollablePanel struct {
 }
 
 // ScrollablePanel生成
-func NewScrollablePanel(x, y, w, h, sbw int) *ScrollablePanel {
+func NewScrollablePanel(x, y, sbw int) *ScrollablePanel {
 	sp := &ScrollablePanel{}
-	sp.InitScrollablePanel(x, y, w, h, sbw)
+	sp.InitScrollablePanel(x, y, sbw)
 	return sp
 }
 
-func (sp *ScrollablePanel) InitScrollablePanel(x, y, w, h, sbw int) {
-	sp.InitGroupingControl(x, y, w, h)
-	sp.AutoLayout = parts.AutoLayoutFitV(0)
+func (sp *ScrollablePanel) InitScrollablePanel(x, y, sbw int) {
+	sp.InitGroupingControl(x, y, 0, 0)
+	sp.AutoLayout = parts.FlexLayoutV(parts.FlexStart, parts.FlexStretch, 0)
 
 	// 上部（パネル＋縦スクロールバー）
-	sp.topGroup.InitGroupingControl(0, 0, w, h-sbw)
+	sp.topGroup.InitGroupingControl(0, 0, 0, 0)
 	sp.Grouping.AddChild(&sp.topGroup)
-	sp.topGroup.AutoResizable = true
-	sp.topGroup.AutoLayout = parts.AutoLayoutFitH(0)
+	sp.topGroup.FlexGrow = 1
+	sp.topGroup.AutoLayout = parts.FlexLayoutH(parts.FlexStart, parts.FlexStretch, 0)
 
 	sp.Area.InitGroupingControl(0, 0, 0, 0)
 	sp.topGroup.AddChild(&sp.Area)
-	sp.Area.AutoResizable = true
+	sp.Area.FlexGrow = 1
 	sp.ScrollbarV.InitScrollBarV(0, 0, sbw, 0)
 	sp.topGroup.AddChild(&sp.ScrollbarV)
 	sp.Area.ClippingFlag = true
@@ -46,12 +46,12 @@ func (sp *ScrollablePanel) InitScrollablePanel(x, y, w, h, sbw int) {
 	sp.Area.AddChild(&sp.Panel)
 
 	// 下部（横スクロールバー＋コーナー）
-	sp.bottomGroup.InitGroupingControl(0, 0, w, sbw)
+	sp.bottomGroup.InitGroupingControl(0, 0, 0, sbw)
 	sp.Grouping.AddChild(&sp.bottomGroup)
-	sp.bottomGroup.AutoLayout = parts.AutoLayoutFitH(0)
+	sp.bottomGroup.AutoLayout = parts.FlexLayoutH(parts.FlexStart, parts.FlexStretch, 0)
 
 	sp.ScrollbarH.InitScrollBarH(0, 0, 0, sbw)
-	sp.ScrollbarH.AutoResizable = true
+	sp.ScrollbarH.FlexGrow = 1
 	sp.bottomGroup.AddChild(&sp.ScrollbarH)
 	sp.corner.InitBlankControl(0, 0, sbw, sbw) // コーナーの空白
 	sp.bottomGroup.AddChild(&sp.corner)
@@ -69,7 +69,7 @@ func (sp *ScrollablePanel) InitScrollablePanel(x, y, w, h, sbw int) {
 }
 
 // ScrollablePanelに対してのAddChildはPanelに委譲する
-func (sp *ScrollablePanel) AddChild(c parts.Control) {
+func (sp *ScrollablePanel) AddChild(c parts.Entity) {
 	sp.Panel.AddChild(c)
 }
 

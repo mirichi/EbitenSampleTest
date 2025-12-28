@@ -15,7 +15,10 @@ const (
 // FlexLayoutHはFlexBoxの水平方向レイアウトを調整する
 func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Grouping) {
 	return func(gr *Grouping) {
-		con := gr.Control.GetControlBase()
+		if _, ok := gr.Entity.(Sizer); !ok {
+			return
+		}
+		width, height := gr.Entity.(Sizer).GetSize()
 
 		totalGrow := 0.0
 		totalShrink := 0.0
@@ -24,13 +27,14 @@ func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 		// 可視の子コントロールを抽出、合計basisとgrow、shrinkを計算
 		var visibleChildren []Control
 		for _, c := range gr.Children {
-			cb := c.GetControlBase()
-			if cb.Visible {
-				visibleChildren = append(visibleChildren, c)
-
-				totalFlexBasis += cb.FlexBasisWidth
-				totalGrow += cb.FlexGrow
-				totalShrink += cb.FlexShrink
+			if control, ok := c.(Control); ok {
+				cb := control.GetControlBase()
+				if cb.Visible {
+					visibleChildren = append(visibleChildren, control)
+					totalFlexBasis += cb.FlexBasisWidth
+					totalGrow += cb.FlexGrow
+					totalShrink += cb.FlexShrink
+				}
 			}
 		}
 
@@ -42,7 +46,7 @@ func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 		totalGap := gap * (len(visibleChildren) - 1)
 
 		// 残りスペース計算。マイナスの時は足りてないことを意味する
-		remainingSpace := con.Width - totalFlexBasis - totalGap
+		remainingSpace := width - totalFlexBasis - totalGap
 
 		// サイズ決定
 		currentMainSizeTotal := 0
@@ -62,7 +66,7 @@ func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 		}
 
 		// 位置決定(MainAxis)
-		totalSpace := con.Width - currentMainSizeTotal
+		totalSpace := width - currentMainSizeTotal
 		currentMainPos := 0
 		tgap := gap
 
@@ -103,11 +107,11 @@ func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 				cb.Y = 0
 			case FlexStretch:
 				cb.Y = 0
-				cb.Height = con.Height
+				cb.Height = height
 			case FlexCenter:
-				cb.Y = (con.Height - cb.Height) / 2
+				cb.Y = (height - cb.Height) / 2
 			case FlexEnd:
-				cb.Y = con.Height - cb.Height
+				cb.Y = height - cb.Height
 			}
 
 			// Layouter実装時の再帰呼び出し
@@ -121,7 +125,10 @@ func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 // FlexLayoutVはFlexBoxの垂直方向レイアウトを調整する
 func FlexLayoutV(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Grouping) {
 	return func(gr *Grouping) {
-		con := gr.Control.GetControlBase()
+		if _, ok := gr.Entity.(Sizer); !ok {
+			return
+		}
+		width, height := gr.Entity.(Sizer).GetSize()
 
 		totalGrow := 0.0
 		totalShrink := 0.0
@@ -130,13 +137,14 @@ func FlexLayoutV(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 		// 可視の子コントロールを抽出、合計basisとgrow、shrinkを計算
 		var visibleChildren []Control
 		for _, c := range gr.Children {
-			cb := c.GetControlBase()
-			if cb.Visible {
-				visibleChildren = append(visibleChildren, c)
-
-				totalFlexBasis += cb.FlexBasisHeight
-				totalGrow += cb.FlexGrow
-				totalShrink += cb.FlexShrink
+			if control, ok := c.(Control); ok {
+				cb := control.GetControlBase()
+				if cb.Visible {
+					visibleChildren = append(visibleChildren, control)
+					totalFlexBasis += cb.FlexBasisHeight
+					totalGrow += cb.FlexGrow
+					totalShrink += cb.FlexShrink
+				}
 			}
 		}
 
@@ -148,7 +156,7 @@ func FlexLayoutV(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 		totalGap := gap * (len(visibleChildren) - 1)
 
 		// 残りスペース計算。マイナスの時は足りてないことを意味する
-		remainingSpace := con.Height - totalFlexBasis - totalGap
+		remainingSpace := height - totalFlexBasis - totalGap
 
 		// サイズ決定
 		currentMainSizeTotal := 0
@@ -168,7 +176,7 @@ func FlexLayoutV(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 		}
 
 		// 位置決定(MainAxis)
-		totalSpace := con.Height - currentMainSizeTotal
+		totalSpace := height - currentMainSizeTotal
 		currentMainPos := 0
 		tgap := gap
 
@@ -189,7 +197,7 @@ func FlexLayoutV(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 
 		if tgap < 0 {
 			tgap = 0
-			currentMainPos = totalSpace / 2
+			currentMainPos = 0
 		}
 
 		// 垂直方向の位置計算
@@ -209,11 +217,11 @@ func FlexLayoutV(mainAlign FlexAlign, crossAlign FlexAlign, gap int) func(*Group
 				cb.X = 0
 			case FlexStretch:
 				cb.X = 0
-				cb.Width = con.Width
+				cb.Width = width
 			case FlexCenter:
-				cb.X = (con.Width - cb.Width) / 2
+				cb.X = (width - cb.Width) / 2
 			case FlexEnd:
-				cb.X = con.Width - cb.Width
+				cb.X = width - cb.Width
 			}
 
 			// Layouter実装時の再帰呼び出し

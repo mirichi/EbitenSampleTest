@@ -108,7 +108,7 @@ func (pm *PopupMenu) InitPopupMenu(x, y int, items []*MenuItem) {
 		pm.PopupItems = append(pm.PopupItems, item)
 	}
 
-	pm.OnAfterUpdate = func() {
+	pm.AddAfterUpdateFunction(func() {
 		pm.hasHighlight = false
 		activeItem := pm.findActiveItem()
 
@@ -149,7 +149,7 @@ func (pm *PopupMenu) InitPopupMenu(x, y int, items []*MenuItem) {
 				pm.Timer.Stop()
 			}
 		}
-	}
+	})
 
 	// Timerが発火したらサブメニューを開くか閉じる
 	pm.Timer.OnTimer = func() {

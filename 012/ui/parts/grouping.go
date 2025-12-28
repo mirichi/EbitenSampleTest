@@ -11,49 +11,52 @@ type Layouter interface {
 	Layout()
 }
 
+type Sizer interface {
+	GetSize() (int, int)
+}
+
 // Groupingは子コントロールを管理する機能
 // 子コントロールの追加、入力イベントの伝播、更新、描画を統括する
 type Grouping struct {
-	Control      Control
-	Children     []Control
+	Entity       Entity
+	Children     []Entity
 	OrderChange  bool
 	AutoLayout   func(g *Grouping)
 	OnLayout     func()
 	ClippingFlag bool
 }
 
-func NewGrouping(c Control) *Grouping {
+func NewGrouping(e Entity) *Grouping {
 	g := &Grouping{}
-	g.InitGrouping(c)
+	g.InitGrouping(e)
 	return g
 }
 
-func (g *Grouping) InitGrouping(c Control) {
-	g.Control = c
-	g.AutoLayout = DefaultLayout
+func (g *Grouping) InitGrouping(e Entity) {
+	g.Entity = e
 
 	// コントロールのHandleInput時に呼ばれる関数を登録する
-	c.GetControlBase().AddHandleInputFunction(g.handleInputFunction)
+	g.Entity.GetEntityBase().AddHandleInputFunction(g.handleInputFunction)
 
 	// コントロールのUpdate時に呼ばれる関数を登録する
-	c.GetControlBase().AddUpdateFunction(g.updateFunction)
+	g.Entity.GetEntityBase().AddUpdateFunction(g.updateFunction)
 
 	// コントロールのDraw時に呼ばれる関数を登録する
-	c.GetControlBase().AddDrawFunction(g.drawFunction)
+	g.Entity.GetEntityBase().AddDrawFunction(g.drawFunction)
 }
 
 // 子コントロールを登録する
-func (g *Grouping) AddChild(c Control) {
-	c.GetControlBase().Parent = g.Control
+func (g *Grouping) AddChild(c Entity) {
+	c.GetEntityBase().Parent = g.Entity
 	g.Children = append(g.Children, c)
 }
 
 // 子コントロールを削除する
-func (g *Grouping) RemoveChild(c Control) {
+func (g *Grouping) RemoveChild(c Entity) {
 	for i, child := range g.Children {
 		if child == c {
 			g.Children = append(g.Children[:i], g.Children[i+1:]...)
-			c.GetControlBase().Parent = nil
+			c.GetEntityBase().Parent = nil
 			break
 		}
 	}
@@ -62,20 +65,25 @@ func (g *Grouping) RemoveChild(c Control) {
 // コントロールのHandleInput時に呼ばれるHandleInputFunction
 func (c *Grouping) handleInputFunction(t input.Touch) bool {
 	handle := false
-	cb := c.Control.GetControlBase()
-	gx, gy := cb.GetGlobalPos()
+	eb := c.Entity.GetEntityBase()
+	gx, gy := eb.GetGlobalPos()
 	if t != nil {
 		x, y := t.Pos()
 		if c.ClippingFlag {
-			if gx <= x && x < gx+cb.Width && gy <= y && y < gy+cb.Height {
-			} else {
-				// 範囲に入っていなければ入力を渡さない
-				t = nil
+			// サイズを持っている（Sizerインターフェース実装）場合のみクリッピング判定を行う
+			if sizer, ok := c.Entity.(Sizer); ok {
+				w, h := sizer.GetSize()
+				if gx <= x && x < gx+w && gy <= y && y < gy+h {
+					// 範囲内
+				} else {
+					// 範囲に入っていなければ入力を渡さない
+					t = nil
+				}
 			}
 		}
 	}
 
-	if !cb.Visible {
+	if !eb.Visible {
 		t = nil
 	}
 
@@ -106,11 +114,13 @@ func (c *Grouping) updateFunction() {
 
 // コントロールのDraw時に呼ばれるDrawFunction
 func (c *Grouping) drawFunction(screen *ebiten.Image) {
-	cb := c.Control.GetControlBase()
-	ox, oy := cb.GetGlobalPos()
+	ox, oy := c.Entity.GetGlobalPos()
 	if c.ClippingFlag {
-		// クリッピング用SubImage。SubImageのSubImageは元の画像に対しての座標になるので入れ子構造でも大丈夫
-		screen = screen.SubImage(image.Rect(ox, oy, ox+cb.Width, oy+cb.Height)).(*ebiten.Image)
+		if sizer, ok := c.Entity.(Sizer); ok {
+			w, h := sizer.GetSize()
+			// クリッピング用SubImage。SubImageのSubImageは元の画像に対しての座標になるので入れ子構造でも大丈夫
+			screen = screen.SubImage(image.Rect(ox, oy, ox+w, oy+h)).(*ebiten.Image)
+		}
 	}
 	for _, ch := range c.Children {
 		ch.Draw(screen)
@@ -118,8 +128,18 @@ func (c *Grouping) drawFunction(screen *ebiten.Image) {
 }
 
 func (c *Grouping) Layout() {
-	c.AutoLayout(c)
-	if c.OnLayout != nil {
-		c.OnLayout()
+	if c.AutoLayout != nil {
+		c.AutoLayout(c)
+		if c.OnLayout != nil {
+			c.OnLayout()
+		}
+	} else {
+		for _, ch := range c.Children {
+			// Layouter実装時の再帰呼び出し
+			if ali, ok := ch.(Layouter); ok {
+				ali.Layout()
+			}
+		}
+
 	}
 }

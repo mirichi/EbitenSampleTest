@@ -25,14 +25,14 @@ func (p *PopupManager) InitPopupManager() {
 	p.InitGrouping(p)
 	p.Visible = false
 
-	p.OnBeforeHandleInput = func() {
+	p.AddBeforeUpdateFunction(func() {
 		if runtime.GOOS == "js" {
 			p.Width = 640
 			p.Height = 480
 		} else {
 			p.Width, p.Height = ebiten.WindowSize()
 		}
-	}
+	})
 
 	p.OnPress = func() {
 		p.Visible = false
@@ -46,7 +46,7 @@ func (p *PopupManager) InitPopupManager() {
 // ShowMenu は指定されたメニューを表示する
 func (p *PopupManager) ShowMenu(x, y int, menu []*MenuItem) {
 	// 既存のメニューを閉じる（単純化のため現在は1つのみ表示）
-	p.Children = []parts.Control{}
+	p.Children = []parts.Entity{}
 
 	popupMenu := NewPopupMenu(x, y, menu)
 
@@ -54,13 +54,15 @@ func (p *PopupManager) ShowMenu(x, y int, menu []*MenuItem) {
 	p.AddChild(popupMenu)
 	p.Visible = true
 
+	closeflg := false
+	p.AddAfterUpdateFunction(func() {
+		if closeflg {
+			p.Children = []parts.Entity{}
+			closeflg = false
+		}
+	})
 	popupMenu.OnCloseAll = func() {
 		p.Visible = false
-
-		// ループ中に消すとバグるのでUpdate後に1回だけ実行するようにして消す
-		p.OnAfterUpdate = func() {
-			p.Children = []parts.Control{}
-			p.OnAfterUpdate = nil
-		}
+		closeflg = true
 	}
 }

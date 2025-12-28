@@ -30,7 +30,7 @@ func (b *Button) InitButton(x, y, w, h int, text string, size int) {
 	}
 
 	// Updateの最後で色を決定する
-	b.OnAfterUpdate = func() {
+	b.AddAfterUpdateFunction(func() {
 		theme := parts.CurrentTheme
 		if b.IsHovering {
 			b.BackColor = theme.ButtonHover
@@ -39,5 +39,5 @@ func (b *Button) InitButton(x, y, w, h int, text string, size int) {
 		} else {
 			b.BackColor = theme.ButtonNormal
 		}
-	}
+	})
 }

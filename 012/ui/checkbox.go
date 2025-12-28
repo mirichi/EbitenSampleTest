@@ -42,7 +42,7 @@ func (c *Checkbox) InitCheckbox(x, y, h int, text string, size int, initialCheck
 		c.animationProgress = 0.0
 	}
 
-	c.OnAfterUpdate = func() {
+	c.AddAfterUpdateFunction(func() {
 		target := 0.0
 		if c.Checked {
 			target = 1.0
@@ -52,8 +52,7 @@ func (c *Checkbox) InitCheckbox(x, y, h int, text string, size int, initialCheck
 		if math.Abs(target-c.animationProgress) < 0.01 {
 			c.animationProgress = target
 		}
-
-	}
+	})
 
 	// クリック時の動作
 	c.OnClick = func() {

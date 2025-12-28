@@ -40,13 +40,13 @@ func (b *ScrollButton) InitScrollButton(x, y, w, h int, text string, size int) {
 	b.InitMouseInteraction(b)
 	b.InitTextDrawable(b, text, size, parts.AlignCenter, parts.AlignCenter, 0, 0, theme.Text, true)
 
-	b.OnAfterUpdate = func() {
+	b.AddAfterUpdateFunction(func() {
 		knobColor := theme.ScrollKnob
 		if b.IsHovering || b.IsPressed {
 			knobColor = theme.ScrollKnobHover
 		}
 		b.TextColor = knobColor
-	}
+	})
 }
 
 // ScrollSliderVはスクロールバー用のスライド範囲
@@ -74,7 +74,7 @@ func (s *ScrollSliderV) InitSliderV(x, y, w, h int) {
 	s.InitMouseInteraction(s)
 	s.InitGrouping(s)
 
-	s.AutoResizable = true
+	s.FlexGrow = 1
 
 	s.knob.InitInteractiveControl(x, y, w, 60)
 
@@ -191,7 +191,7 @@ func (s *ScrollBarV) InitScrollBarV(x, y, w, h int) {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitDrawable(s)
 	s.InitGrouping(s)
-	s.AutoLayout = parts.AutoLayoutFitV(0)
+	s.AutoLayout = parts.FlexLayoutV(parts.FlexStart, parts.FlexStretch, 0)
 
 	s.buttonUp.InitScrollButton(0, 0, w, w, "▲", w/2)
 	s.slider.InitSliderV(x, w, w, h)
@@ -271,7 +271,7 @@ func (s *ScrollSliderH) InitSliderH(x, y, w, h int) {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitMouseInteraction(s)
 	s.InitGrouping(s)
-	s.AutoResizable = true
+	s.FlexGrow = 1
 
 	s.knob.InitInteractiveControl(x, 0, 60, h)
 
@@ -385,7 +385,7 @@ func (s *ScrollBarH) InitScrollBarH(x, y, w, h int) {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitDrawable(s)
 	s.InitGrouping(s)
-	s.AutoLayout = parts.AutoLayoutFitH(0)
+	s.AutoLayout = parts.FlexLayoutH(parts.FlexStart, parts.FlexStretch, 0)
 
 	s.buttonLeft.InitScrollButton(0, 0, h, h, "◀", h/2)
 	s.Slider.InitSliderH(h, 0, w, h)

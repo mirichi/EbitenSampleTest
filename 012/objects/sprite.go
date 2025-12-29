@@ -13,7 +13,6 @@ type Sprite struct {
 
 	Angle float64
 
-	// 各パラメータをX,Yに分離
 	OriginX float64
 	OriginY float64
 	OffsetX float64
@@ -43,28 +42,11 @@ func (s *Sprite) InitSprite(x, y float64, img *ebiten.Image) {
 	s.ScaleX = 1
 	s.ScaleY = 1
 
-	// No strict identity needed for ColorScale as zero value allows Set, but explicit init is clearer
-	// s.ColorScale is zero value, which is effectively identity-like for ScaleWithColor but standard Scale is 0?
-	// Ebiten 2.5+: ColorScale zero value is identity? No.
-	// We should probably rely on not setting it if it's default, or init to 1,1,1,1
-	// Wait, Ebiten's ColorScale usage:
-	// op.ColorScale.Scale(r,g,b,a).
-	// If we want it to be 1,1,1,1 initially.
-	// Actually, let's just leave it zero value, and we apply it.
-	// If it is zero value, it might be 0,0,0,0?
-	// Let's check `ebiten.ColorScale`.
-	// It's a struct (r,g,b,a float32). Zero value is all 0.
-	// So we must initialize it to identity (1,1,1,1).
 	s.ColorScale.Scale(1, 1, 1, 1)
 
 	// 描画関数をメインのDrawフェーズに登録
 	s.AddDrawFunction(s.draw)
 }
-
-// GlobalMatrixer is defined in container.go, but we can rely on interface matching or duplicate locally if needed.
-// To avoid strict dependency on container.go (though they are in same package), we just define it locally or use it if exported.
-// Note: In Go, they are in the same package 'objects', so 'GlobalMatrixer' is visible if it was exported.
-// But I didn't export it in Container (I named it 'GlobalMatrixer' with uppercase G). good.
 
 func (s *Sprite) GetGlobalMatrix() ebiten.GeoM {
 	m := ebiten.GeoM{}

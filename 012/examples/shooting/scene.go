@@ -1,6 +1,7 @@
 package main
 
 import (
+	"image/color"
 	"math/rand"
 	"strconv"
 
@@ -13,17 +14,19 @@ import (
 
 type GameScene struct {
 	parts.EntityBase
-	Root             *objects.Container
-	Player           *Player
-	EnemyGroup       *objects.Container
-	BulletGroup      *objects.Container
-	EnemyBulletGroup *objects.Container
-	GameOver         bool
-	Score            int
-	KillCount        int
-	BossSpawned      bool
-	Boss             *Boss
-	ShootTimer       int
+	Root              *objects.Container
+	Player            *Player
+	EnemyGroup        *objects.Container
+	BulletGroup       *objects.Container
+	EnemyBulletGroup  *objects.Container
+	GameOver          bool
+	Score             int
+	KillCount         int
+	BossSpawned       bool
+	Boss              *Boss
+	ShootTimer        int
+	EffectManager     *EffectManager
+	BossDefeatedTimer int
 }
 
 func NewGameScene() *GameScene {
@@ -60,6 +63,9 @@ func (gs *GameScene) InitGameScene() {
 	gs.BossSpawned = false
 	gs.Boss = nil
 	gs.ShootTimer = 0
+	gs.EffectManager = NewEffectManager()
+	gs.Root.AddChild(gs.EffectManager)
+	gs.BossDefeatedTimer = 0
 }
 
 func (gs *GameScene) Update() {
@@ -72,10 +78,37 @@ func (gs *GameScene) Update() {
 
 	// Reset logic (Boss Defeated)
 	if gs.BossSpawned && gs.Boss != nil && gs.Boss.IsDead() {
-		// Simple reset for now, or you could show "YOU WIN"
-		// Let's just reset the scene for loop
-		gs.InitGameScene()
-		return
+		// Start timer if not started
+		if gs.BossDefeatedTimer == 0 {
+			gs.BossDefeatedTimer = 180 // 3 seconds
+
+			// Initial Big Explosion
+			ex, ey := gs.Boss.Root.GetGlobalPos()
+			gs.EffectManager.SpawnBossExplosion(ex, ey)
+		}
+	}
+
+	if gs.BossDefeatedTimer > 0 {
+		gs.BossDefeatedTimer--
+		// Random small explosions during wait
+		if gs.BossDefeatedTimer%10 == 0 && gs.BossDefeatedTimer > 60 {
+			// Random position around boss
+			if gs.Boss != nil {
+				ex, ey := gs.Boss.Root.GetGlobalPos()
+				rx := ex - 50 + rand.Float64()*100
+				ry := ey - 50 + rand.Float64()*100
+				gs.EffectManager.SpawnExplosion(rx, ry, color.RGBA{255, 100, 0, 255})
+			}
+		}
+
+		if gs.BossDefeatedTimer <= 0 {
+			// Time to reset
+			gs.InitGameScene()
+			return
+		}
+
+		// Continue updating visual effects but maybe stop player or game logic?
+		// For now, let everything run but just wait for reset.
 	}
 
 	// Transfer Pending Bullets from Boss
@@ -152,6 +185,19 @@ func (gs *GameScene) checkCollisions() {
 						if enemy.IsDead() {
 							gs.KillCount++
 							gs.Score += 100
+							// Spawn Explosion
+							// Assuming enemy has X, Y. We need to cast to something with position or just use what we have.
+							// Since Enemy is an interface that likely doesn't expose X/Y directly without casting to *objects.Sprite or similar if embedded.
+							// But we know concrete types or check EnemyBase.
+							// Actually, Enemy embeds Entity which has X() Y() or similar?
+							// Let's check Enemy interface. It has Entity parts.
+							// parts.Entity has X(), Y().
+							// If it's the Boss, we handle explosion in Update loop via BossDefeatedTimer.
+							// Check if enemy is NOT the boss.
+							if enemy != gs.Boss {
+								ex, ey := enemy.GetGlobalPos()
+								gs.EffectManager.SpawnExplosion(ex, ey, color.White)
+							}
 						}
 						break
 					}

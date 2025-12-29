@@ -25,13 +25,13 @@ type EntityBase struct {
 	// 基本は真ん中で実行だが、前処理や後処理をしたいときに活用する
 
 	// 入力処理
-	beforeHandleInputFunctions []func(t input.Touch) bool
-	handleInputFunctions       []func(t input.Touch) bool
-	afterHandleInputFunctions  []func(t input.Touch) bool
+	beforeHandleInputFunctions []func(t input.Touch) bool // Groupingの配下の処理などが始まる前の前処理
+	handleInputFunctions       []func(t input.Touch) bool // メインの入力処理(Groupingの配下含む)
+	afterHandleInputFunctions  []func(t input.Touch) bool // Groupingの配下の処理などが終わってからの後処理
 
 	// 更新処理
 	beforeUpdateFunctions []func() // Groupingの配下の処理などが始まる前の前処理
-	updateFunctions       []func() // メインの更新処理
+	updateFunctions       []func() // メインの更新処理(Groupingの配下含む)
 	afterUpdateFunctions  []func() // Groupingの配下の処理などが終わってからの後処理
 
 	// 描画処理

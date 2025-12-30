@@ -11,9 +11,7 @@ import (
 type Container struct {
 	parts.EntityBase
 	parts.Grouping
-	Angle  float64
-	ScaleX float64
-	ScaleY float64
+	Angle float64
 }
 
 func NewContainer(x, y float64) *Container {
@@ -25,8 +23,6 @@ func NewContainer(x, y float64) *Container {
 func (c *Container) InitContainer(x, y float64) {
 	c.EntityBase.InitEntityBase(c, x, y)
 	c.InitGrouping(c)
-	c.ScaleX = 1
-	c.ScaleY = 1
 }
 
 func (c *Container) GetChildren() []parts.Entity {
@@ -40,8 +36,7 @@ type GlobalMatrixer interface {
 
 func (c *Container) GetGlobalMatrix() ebiten.GeoM {
 	m := ebiten.GeoM{}
-	// Local Transform: Scale -> Rotate -> Translate
-	m.Scale(c.ScaleX, c.ScaleY)
+	// Local Transform: Rotate -> Translate
 	m.Rotate(c.Angle)
 	m.Translate(c.X, c.Y)
 

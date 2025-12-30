@@ -17,12 +17,10 @@ type Bullet struct {
 
 func NewBullet(x, y float64) *Bullet {
 	// 8x8 Yellow Circle-ish
-	img := ebiten.NewImage(8, 8)
+	img := ebiten.NewImage(12, 12)
 	img.Fill(color.RGBA{255, 255, 0, 255})
 
 	s := objects.NewSprite(x, y, img)
-	s.OriginX = 4
-	s.OriginY = 4
 
 	b := &Bullet{
 		Sprite: s,
@@ -31,7 +29,7 @@ func NewBullet(x, y float64) *Bullet {
 	}
 
 	// Circle Collider
-	b.CircleCollider = objects.NewCircleCollider(s, objects.Vector2{X: 4, Y: 4}, 4)
+	b.CircleCollider = objects.NewCircleCollider(s, objects.Vector2{X: 6, Y: 6}, 6)
 
 	return b
 }

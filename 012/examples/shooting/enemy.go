@@ -124,7 +124,7 @@ func SpawnEnemy() Enemy {
 	var img *ebiten.Image
 	var speed float64
 	var col color.Color
-	w, h := 32, 32
+	w, h := 48, 48
 
 	switch t {
 	case 0: // Straight
@@ -144,8 +144,6 @@ func SpawnEnemy() Enemy {
 	startX := rand.Float64()*(ScreenWidth-float64(w)) + float64(w)/2
 
 	s := objects.NewSprite(startX, -float64(h), img)
-	s.OriginX = float64(w) / 2
-	s.OriginY = float64(h) / 2
 	s.Angle = rand.Float64() * 6.28
 
 	base := EnemyBase{

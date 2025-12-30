@@ -220,10 +220,6 @@ func TestCirclePolygon(c1 *CircleCollider, p1 *PolygonCollider) bool {
 	before_edge_flg := make([]bool, len(p1.Vertices)) // エッジより前に円の中心があるフラグ
 	after_edge_flg := make([]bool, len(p1.Vertices))  // エッジより後に円の中心があるフラグ
 
-	// 中略なしで実装を戻す必要があるが、replace_file_contentの制限でここだけ修正するとしても周囲のコンテキストが必要。
-	// ここではTestCirclePolygonの後半は変更がないため、前半の座標計算部分とループ初期化のみを置き換える形にするのが安全だが、
-	// replace_file_contentはブロック置換なので、関数全体を再定義する。
-
 	for i := 0; i < len(r)-1; i++ {
 		edges[i] = r[i+1].Sub(r[i])
 		norms[i] = edges[i].Normalize()

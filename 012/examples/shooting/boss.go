@@ -44,29 +44,27 @@ func (b *Boss) InitBoss(x, y float64) {
 	b.PendingBullets = []*EnemyBullet{}
 
 	// --- Body ---
-	bodyImg := ebiten.NewImage(64, 64)
+	bodyImg := ebiten.NewImage(96, 96)
 	bodyImg.Fill(color.RGBA{200, 50, 50, 255}) // Reddish body
 	b.Body = objects.NewSprite(0, 0, bodyImg)
-	b.Body.OriginX = 32
-	b.Body.OriginY = 32
 	b.Root.AddChild(b.Body)
 
 	// --- Arms (Containers for rotation) ---
 	// Left Arm
 	b.LeftArm = objects.NewContainer(-40, 0)
 	// Left Hand Sprite
-	handImg := ebiten.NewImage(24, 24)
-	handImg.Fill(color.RGBA{150, 150, 0, 255})     // Yellowish hand
-	b.LeftHand = objects.NewSprite(0, 30, handImg) // Offset from arm joint
-	b.LeftHand.OriginX = 12
-	b.LeftHand.OriginY = 0 // Pivot at wrist/connection
+	handImg := ebiten.NewImage(36, 36)
+	handImg.Fill(color.RGBA{150, 150, 0, 255})      // Yellowish hand
+	b.LeftHand = objects.NewSprite(18, 62, handImg) // Pivot at wrist/connection
+	b.LeftHand.OriginX = 18
+	b.LeftHand.OriginY = 0
 	b.LeftArm.AddChild(b.LeftHand)
 	b.Root.AddChild(b.LeftArm)
 
 	// Right Arm
-	b.RightArm = objects.NewContainer(40+34, 0)
-	b.RightHand = objects.NewSprite(0, 30, handImg)
-	b.RightHand.OriginX = 12
+	b.RightArm = objects.NewContainer(40, 0)
+	b.RightHand = objects.NewSprite(18, 62, handImg)
+	b.RightHand.OriginX = 18
 	b.RightHand.OriginY = 0
 	b.RightArm.AddChild(b.RightHand)
 	b.Root.AddChild(b.RightArm)
@@ -81,8 +79,8 @@ func (b *Boss) InitBoss(x, y float64) {
 	// Composite collider: Body + Hands
 	// Note: We use the Sprites directly for primitive colliders
 	bodyCol := objects.NewRectCollider(b.Body)
-	lHandCol := objects.NewCircleCollider(b.LeftHand, objects.Vector2{X: 12, Y: 12}, 12)
-	rHandCol := objects.NewCircleCollider(b.RightHand, objects.Vector2{X: 12, Y: 12}, 12)
+	lHandCol := objects.NewCircleCollider(b.LeftHand, objects.Vector2{X: 18, Y: 18}, 18)
+	rHandCol := objects.NewCircleCollider(b.RightHand, objects.Vector2{X: 18, Y: 18}, 18)
 
 	b.Collider = objects.NewCompositeCollider(
 		[]objects.CollisionTester{bodyCol, lHandCol, rHandCol},
@@ -134,19 +132,12 @@ func (b *Boss) Update() {
 		if int(b.time)%60 == 0 {
 			// Left Hand Shot
 			lx, ly := b.LeftHand.GetGlobalPos()
-			// Improve position to be center of hand (sprite origin is 12,0 so +0, +12 ish?)
-			// Actually origin is x:12 y:0 (pivot). Hand is 24x24. Center is roughly +0, +12 relative to pivot after rotation...
-			// Simplifying: Use Global Pos which returns the Anchor/Pivot global pos.
-			// Hand pivot is top-center. Center of hand visualization is roughly same X, +12 Y local.
-			// Let's just spawn at pivot for now.
-
-			// Aim down broadly
-			lb := NewEnemyBullet(lx, ly, math.Pi/2+rand.Float64()*0.5-0.25)
+			lb := NewEnemyBullet(lx, ly+18, math.Pi/2+rand.Float64()*0.5-0.25)
 			b.PendingBullets = append(b.PendingBullets, lb)
 
 			// Right Hand Shot
 			rx, ry := b.RightHand.GetGlobalPos()
-			rb := NewEnemyBullet(rx, ry, math.Pi/2+rand.Float64()*0.5-0.25)
+			rb := NewEnemyBullet(rx, ry+18, math.Pi/2+rand.Float64()*0.5-0.25)
 			b.PendingBullets = append(b.PendingBullets, rb)
 		}
 	}

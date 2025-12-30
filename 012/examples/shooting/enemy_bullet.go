@@ -18,13 +18,11 @@ type EnemyBullet struct {
 }
 
 func NewEnemyBullet(x, y float64, angle float64) *EnemyBullet {
-	// 8x8 Pink/Red Circle
-	img := ebiten.NewImage(8, 8)
+	// 12x12 Pink/Red Circle
+	img := ebiten.NewImage(12, 12)
 	img.Fill(color.RGBA{255, 100, 100, 255})
 
 	s := objects.NewSprite(x, y, img)
-	s.OriginX = 4
-	s.OriginY = 4
 
 	speed := 4.0
 	vx := math.Cos(angle) * speed
@@ -37,7 +35,7 @@ func NewEnemyBullet(x, y float64, angle float64) *EnemyBullet {
 		IsDead: false,
 	}
 
-	b.CircleCollider = objects.NewCircleCollider(s, objects.Vector2{X: 4, Y: 4}, 4)
+	b.CircleCollider = objects.NewCircleCollider(s, objects.Vector2{X: 6, Y: 6}, 6)
 
 	return b
 }

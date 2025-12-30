@@ -16,13 +16,11 @@ type Player struct {
 
 func NewPlayer() *Player {
 	// 32x32 Blue Rect
-	img := ebiten.NewImage(32, 32)
+	img := ebiten.NewImage(48, 48)
 	img.Fill(color.RGBA{0, 0, 255, 255})
 
 	// Start at bottom center
 	s := objects.NewSprite(ScreenWidth/2, ScreenHeight-50, img)
-	s.OriginX = 16
-	s.OriginY = 16
 
 	p := &Player{
 		Sprite: s,
@@ -38,26 +36,26 @@ func NewPlayer() *Player {
 func (p *Player) Update() {
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
 		p.Sprite.X -= p.Speed
-		if p.Sprite.X < 16 {
-			p.Sprite.X = 16
+		if p.Sprite.X < float64(p.Sprite.Image.Bounds().Dx())/2 {
+			p.Sprite.X = float64(p.Sprite.Image.Bounds().Dx()) / 2
 		}
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyRight) {
 		p.Sprite.X += p.Speed
-		if p.Sprite.X > ScreenWidth-16 {
-			p.Sprite.X = ScreenWidth - 16
+		if p.Sprite.X > ScreenWidth-float64(p.Sprite.Image.Bounds().Dx())/2 {
+			p.Sprite.X = ScreenWidth - float64(p.Sprite.Image.Bounds().Dx())/2
 		}
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyUp) {
 		p.Sprite.Y -= p.Speed
-		if p.Sprite.Y < 16 {
-			p.Sprite.Y = 16
+		if p.Sprite.Y < float64(p.Sprite.Image.Bounds().Dy())/2 {
+			p.Sprite.Y = float64(p.Sprite.Image.Bounds().Dy()) / 2
 		}
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyDown) {
 		p.Sprite.Y += p.Speed
-		if p.Sprite.Y > ScreenHeight-16 {
-			p.Sprite.Y = ScreenHeight - 16
+		if p.Sprite.Y > ScreenHeight-float64(p.Sprite.Image.Bounds().Dy())/2 {
+			p.Sprite.Y = ScreenHeight - float64(p.Sprite.Image.Bounds().Dy())/2
 		}
 	}
 

@@ -129,7 +129,7 @@ func (gs *GameScene) Update() {
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyZ) {
 		if gs.ShootTimer <= 0 {
-			bullet := NewBullet(gs.Player.X()+12, gs.Player.Y()-20)
+			bullet := NewBullet(gs.Player.X()+18, gs.Player.Y()-24)
 			gs.BulletGroup.AddChild(bullet)
 			gs.ShootTimer = 8 // Cooldown frames
 		}
@@ -185,15 +185,6 @@ func (gs *GameScene) checkCollisions() {
 						if enemy.IsDead() {
 							gs.KillCount++
 							gs.Score += 100
-							// Spawn Explosion
-							// Assuming enemy has X, Y. We need to cast to something with position or just use what we have.
-							// Since Enemy is an interface that likely doesn't expose X/Y directly without casting to *objects.Sprite or similar if embedded.
-							// But we know concrete types or check EnemyBase.
-							// Actually, Enemy embeds Entity which has X() Y() or similar?
-							// Let's check Enemy interface. It has Entity parts.
-							// parts.Entity has X(), Y().
-							// If it's the Boss, we handle explosion in Update loop via BossDefeatedTimer.
-							// Check if enemy is NOT the boss.
 							if enemy != gs.Boss {
 								ex, ey := enemy.GetGlobalPos()
 								gs.EffectManager.SpawnExplosion(ex, ey, color.White)

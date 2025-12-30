@@ -15,11 +15,6 @@ type Sprite struct {
 
 	OriginX float64
 	OriginY float64
-	OffsetX float64
-	OffsetY float64
-
-	ScaleX float64
-	ScaleY float64
 
 	ColorScale ebiten.ColorScale
 
@@ -39,8 +34,8 @@ func (s *Sprite) InitSprite(x, y float64, img *ebiten.Image) {
 	s.InitEntityBase(s, x, y)
 
 	s.Image = img
-	s.ScaleX = 1
-	s.ScaleY = 1
+	s.OriginX = float64(img.Bounds().Dx()) / 2
+	s.OriginY = float64(img.Bounds().Dy()) / 2
 
 	s.ColorScale.Scale(1, 1, 1, 1)
 
@@ -51,12 +46,10 @@ func (s *Sprite) InitSprite(x, y float64, img *ebiten.Image) {
 func (s *Sprite) GetGlobalMatrix() ebiten.GeoM {
 	m := ebiten.GeoM{}
 
-	// Local Transform: Translate(-Origin) -> Scale -> Rotate -> Translate(Origin) -> Translate(X, Y)
+	// Local Transform: Translate(-Origin) -> Rotate -> Translate(X, Y)
+	// (X, Y) becomes the Pivot Point in parent space
 	m.Translate(-s.OriginX, -s.OriginY)
-	m.Scale(s.ScaleX, s.ScaleY)
 	m.Rotate(s.Angle)
-	m.Translate(s.OriginX, s.OriginY)
-	m.Translate(-s.OffsetX, -s.OffsetY)
 	m.Translate(s.X, s.Y)
 
 	// Parent Transform
@@ -91,22 +84,18 @@ func (s *Sprite) draw(screen *ebiten.Image) {
 
 // GetGlobalPos override
 func (s *Sprite) GetGlobalPos() (float64, float64) {
-	m := s.GetGlobalMatrix()
+	m := ebiten.GeoM{}
+	m.Translate(s.X, s.Y)
+
+	// Parent Transform
+	if p := s.EntityBase.Parent; p != nil {
+		if gm, ok := p.(GlobalMatrixer); ok {
+			pm := gm.GetGlobalMatrix()
+			m.Concat(pm)
+		} else {
+			px, py := p.GetGlobalPos()
+			m.Translate(px, py)
+		}
+	}
 	return m.Apply(0, 0)
-}
-
-// GetCollisionPos は衝突判定用のグローバル座標を返す
-func (s *Sprite) GetCollisionPos() Vector2 {
-	x, y := s.GetGlobalPos()
-	return Vector2{X: x, Y: y}
-}
-
-// GetOrigin は回転中心座標をVector2で返す(衝突判定用)
-func (s *Sprite) GetOrigin() Vector2 {
-	return Vector2{X: s.OriginX, Y: s.OriginY}
-}
-
-// GetOffset はオフセット座標をVector2で返す(衝突判定用)
-func (s *Sprite) GetOffset() Vector2 {
-	return Vector2{X: s.OffsetX, Y: s.OffsetY}
 }

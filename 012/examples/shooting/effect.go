@@ -42,16 +42,6 @@ func (p *Particle) Update() {
 	if p.Life <= 0 {
 		// Remove from parent
 		if parent := p.EntityBase.Parent; parent != nil {
-			// Need to cast parent to something that can remove child.
-			// EffectManager embeds Container, which implements Grouping.
-			// Grouping has RemoveChild.
-			// But Parent is stored as Entity.
-			// We can check if Parent implements a interface with RemoveChild,
-			// or assume it's a *EffectManager or *objects.Container.
-
-			// Checking parts.Grouping would be ideal if exported, or checking if it has RemoveChild.
-			// Since Grouping struct is in parts package, and RemoveChild takes Entity.
-
 			// Use type assertion for now. EffectManager embeds objects.Container.
 			if container, ok := parent.(*EffectManager); ok {
 				container.RemoveChild(p)
@@ -73,23 +63,6 @@ func (p *Particle) Draw(screen *ebiten.Image) {
 		B: uint8(b >> 8),
 		A: a,
 	}
-
-	// GetGlobalPos() is available via EntityBase, but vector.DrawFilledCircle takes screen coords?
-	// The screen passed to Draw is usually the target image.
-	// If we are children of a Container that handles transforms (Scale/Rotate),
-	// Ebiten's standard DrawImage handles matrix.
-	// BUT vector.DrawFilledCircle draws directly to the image at x, y.
-	// It does NOT respect Ebiten's DrawImageOptions (GeoM) because it's a direct pixel operation helper.
-
-	// Issue: If the parent Container moves/rotates, vector.DrawFilledCircle won't automatically transform
-	// unless we calculate global position manually.
-	// Container's Draw implementation calls child.Draw(screen). It doesn't apply transform to screen.
-	// Wait, objects.Container uses Grouping. Grouping draws children.
-	// Usually in Ebiten, hierarchy is handled by passing GeoM to DrawImage.
-	// But vector package draws primitives.
-
-	// If the EffectManager is at 0,0 and never moves, then local Pos = Global Pos.
-	// If EffectManager moves, we need Global Pos.
 
 	gx, gy := p.GetGlobalPos()
 	vector.DrawFilledCircle(screen, float32(gx), float32(gy), p.Radius, c, true)

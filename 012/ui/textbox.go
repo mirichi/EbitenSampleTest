@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"MyProject/parts"
+	"MyProject/uiparts"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -12,8 +12,8 @@ import (
 // TextBoxは文字入力と描画をするControl
 type TextBox struct {
 	InteractiveControl
-	parts.TextInputable
-	parts.Focusable
+	uiparts.TextInputable
+	uiparts.Focusable
 
 	field   textinput.Field
 	counter int
@@ -31,7 +31,7 @@ func (tb *TextBox) InitTextBox(x, y, w, h float64, text string, fontSize float64
 	tb.field.SetTextAndSelection(text, len(text), len(text))
 
 	tb.InitInteractiveControl(x, y, w, h)
-	tb.InitTextInputable(tb, &tb.field, &tb.counter, fontSize, parts.AlignLeft, color.White, color.White, func() bool { return tb.Focused })
+	tb.InitTextInputable(tb, &tb.field, &tb.counter, fontSize, uiparts.AlignLeft, color.White, color.White, func() bool { return tb.Focused })
 	tb.InitFocusable(tb)
 	tb.AddDrawFunction(tb.drawTextBox)
 

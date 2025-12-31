@@ -2,6 +2,7 @@ package ui
 
 import (
 	"MyProject/parts"
+	"MyProject/uiparts"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -29,16 +30,16 @@ func calculateKnobPos(value, sliderSize, knobSize, viewRange, allRange float64) 
 
 // ScrollButtonはスクロールバー用ボタン
 type ScrollButton struct {
-	parts.ControlBase
-	parts.MouseInteraction
-	parts.TextDrawable
+	uiparts.ControlBase
+	uiparts.MouseInteraction
+	uiparts.TextDrawable
 }
 
 func (b *ScrollButton) InitScrollButton(x, y, w, h float64, text string, size float64) {
-	theme := parts.CurrentTheme
+	theme := uiparts.CurrentTheme
 	b.InitControlBase(b, x, y, w, h)
 	b.InitMouseInteraction(b)
-	b.InitTextDrawable(b, text, size, parts.AlignCenter, parts.AlignCenter, 0, 0, theme.Text, true)
+	b.InitTextDrawable(b, text, size, uiparts.AlignCenter, uiparts.AlignCenter, 0, 0, theme.Text, true)
 
 	b.AddAfterUpdateFunction(func() {
 		knobColor := theme.ScrollKnob
@@ -51,8 +52,8 @@ func (b *ScrollButton) InitScrollButton(x, y, w, h float64, text string, size fl
 
 // ScrollSliderVはスクロールバー用のスライド範囲
 type ScrollSliderV struct {
-	parts.ControlBase
-	parts.MouseInteraction
+	uiparts.ControlBase
+	uiparts.MouseInteraction
 	parts.Grouping
 
 	knob                InteractiveControl
@@ -69,7 +70,7 @@ func NewSliderV(x, y, w, h float64) *ScrollSliderV {
 }
 
 func (s *ScrollSliderV) InitSliderV(x, y, w, h float64) {
-	theme := parts.CurrentTheme
+	theme := uiparts.CurrentTheme
 	s.InitControlBase(s, x, y, w, h)
 	s.InitMouseInteraction(s)
 	s.InitGrouping(s)
@@ -169,7 +170,7 @@ func (s *ScrollSliderV) Layout() {
 
 // ScrollBarVは縦方向にスクロールするための複合Control
 type ScrollBarV struct {
-	parts.ControlBase
+	uiparts.ControlBase
 	parts.Grouping
 
 	buttonUp   ScrollButton
@@ -189,7 +190,7 @@ func NewScrollBarV(x, y, w, h float64) *ScrollBarV {
 func (s *ScrollBarV) InitScrollBarV(x, y, w, h float64) {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitGrouping(s)
-	s.AutoLayout = parts.FlexLayoutV(parts.FlexStart, parts.FlexStretch, 0)
+	s.AutoLayout = uiparts.FlexLayoutV(uiparts.FlexStart, uiparts.FlexStretch, 0)
 
 	s.buttonUp.InitScrollButton(0, 0, w, w, "▲", w/2)
 	s.slider.InitSliderV(x, w, w, h)
@@ -215,7 +216,7 @@ func (s *ScrollBarV) InitScrollBarV(x, y, w, h float64) {
 	}
 
 	s.AddBeforeDrawFunction(func(screen *ebiten.Image) {
-		theme := parts.CurrentTheme
+		theme := uiparts.CurrentTheme
 
 		gx, gy := s.GetGlobalPos()
 
@@ -247,8 +248,8 @@ func (s *ScrollBarV) GetValue() float64 {
 
 // ScrollSliderHは横方向のスクロールバー用のスライド範囲
 type ScrollSliderH struct {
-	parts.ControlBase
-	parts.MouseInteraction
+	uiparts.ControlBase
+	uiparts.MouseInteraction
 	parts.Grouping
 
 	knob                InteractiveControl
@@ -265,7 +266,7 @@ func NewSliderH(x, y, w, h float64) *ScrollSliderH {
 }
 
 func (s *ScrollSliderH) InitSliderH(x, y, w, h float64) {
-	theme := parts.CurrentTheme
+	theme := uiparts.CurrentTheme
 	s.InitControlBase(s, x, y, w, h)
 	s.InitMouseInteraction(s)
 	s.InitGrouping(s)
@@ -361,7 +362,7 @@ func (s *ScrollSliderH) Layout() {
 
 // ScrollBarHは横方向にスクロールするための複合Control
 type ScrollBarH struct {
-	parts.ControlBase
+	uiparts.ControlBase
 	parts.Grouping
 
 	buttonLeft  ScrollButton
@@ -381,7 +382,7 @@ func NewScrollBarH(x, y, w, h float64) *ScrollBarH {
 func (s *ScrollBarH) InitScrollBarH(x, y, w, h float64) {
 	s.InitControlBase(s, x, y, w, h)
 	s.InitGrouping(s)
-	s.AutoLayout = parts.FlexLayoutH(parts.FlexStart, parts.FlexStretch, 0)
+	s.AutoLayout = uiparts.FlexLayoutH(uiparts.FlexStart, uiparts.FlexStretch, 0)
 
 	s.buttonLeft.InitScrollButton(0, 0, h, h, "◀", h/2)
 	s.Slider.InitSliderH(h, 0, w, h)
@@ -407,7 +408,7 @@ func (s *ScrollBarH) InitScrollBarH(x, y, w, h float64) {
 	}
 
 	s.AddBeforeDrawFunction(func(screen *ebiten.Image) {
-		theme := parts.CurrentTheme
+		theme := uiparts.CurrentTheme
 
 		gx, gy := s.GetGlobalPos()
 

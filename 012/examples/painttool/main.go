@@ -7,8 +7,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 
 	"MyProject/input"
-	"MyProject/parts"
 	"MyProject/ui"
+	"MyProject/uiparts"
 )
 
 type Game struct {
@@ -38,7 +38,7 @@ func main() {
 
 	// ウィンドウ生成
 	win := ui.NewWindow(50, 20, 580, 350, "Paint Tool")
-	win.ClientArea.AutoLayout = parts.FlexLayoutH(parts.FlexStart, parts.FlexStretch, 0)
+	win.ClientArea.AutoLayout = uiparts.FlexLayoutH(uiparts.FlexStart, uiparts.FlexStretch, 0)
 
 	// ColorPanel生成
 	cp := NewColorPanel(0, 0, 50, 256)

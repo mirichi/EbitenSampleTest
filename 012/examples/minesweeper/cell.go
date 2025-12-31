@@ -4,8 +4,8 @@ import (
 	"image/color"
 	"strconv"
 
-	"MyProject/parts"
 	"MyProject/ui"
+	"MyProject/uiparts"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -13,8 +13,8 @@ import (
 
 type Cell struct {
 	ui.InteractiveControl
-	parts.TextDrawable
-	parts.Focusable
+	uiparts.TextDrawable
+	uiparts.Focusable
 
 	XIndex    int
 	YIndex    int
@@ -33,10 +33,10 @@ func NewCell(x, y, w, h float64, xi, yi int, logic *MinesweeperLogic) *Cell {
 }
 
 func (c *Cell) InitCell(x, y, w, h float64) {
-	theme := parts.CurrentTheme
+	theme := uiparts.CurrentTheme
 
 	c.InitInteractiveControl(x, y, w, h)
-	c.InitTextDrawable(c, "", 16, parts.AlignCenter, parts.AlignCenter, 0, 0, theme.Text, false)
+	c.InitTextDrawable(c, "", 16, uiparts.AlignCenter, uiparts.AlignCenter, 0, 0, theme.Text, false)
 	c.InitFocusable(c)
 
 	c.OnClick = func() {
@@ -52,7 +52,7 @@ func (c *Cell) InitCell(x, y, w, h float64) {
 		if cellData == nil {
 			return
 		}
-		theme := parts.CurrentTheme
+		theme := uiparts.CurrentTheme
 
 		switch cellData.State {
 		case CellStateHidden:

@@ -1,4 +1,4 @@
-package parts
+package uiparts
 
 import (
 	"image/color"

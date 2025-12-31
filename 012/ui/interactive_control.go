@@ -1,13 +1,13 @@
 package ui
 
 import (
-	"MyProject/parts"
+	"MyProject/uiparts"
 )
 
 // InteractiveControlはマウス操作と描画機能を持つ基本セット
 type InteractiveControl struct {
-	parts.ControlBase      // 基本機能
-	parts.MouseInteraction // マウス操作（クリックなど）の処理
+	uiparts.ControlBase      // 基本機能
+	uiparts.MouseInteraction // マウス操作（クリックなど）の処理
 
 	// BackColor color.Color
 }

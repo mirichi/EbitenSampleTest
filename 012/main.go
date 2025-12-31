@@ -3,8 +3,8 @@ package main
 
 import (
 	"MyProject/input"
-	"MyProject/parts"
 	"MyProject/ui"
+	"MyProject/uiparts"
 	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -79,7 +79,7 @@ func createWindow(x, y, w, h float64, str string) *ui.Window {
 
 	// ClientAreaのAutoLayoutを設定してオートレイアウト実行
 	// window.ClientArea.AutoLayout = parts.AutoLayoutV
-	window.ClientArea.AutoLayout = parts.FlexLayoutV(parts.FlexSpaceAround, parts.FlexCenter, 0)
+	window.ClientArea.AutoLayout = uiparts.FlexLayoutV(uiparts.FlexSpaceAround, uiparts.FlexCenter, 0)
 
 	return window
 }
@@ -94,7 +94,7 @@ func main() {
 	label := ui.NewLabel(50, 50, 200, 50, "Label", 30)
 	mainscreen.AddChild(label)
 
-	labelclicker := parts.NewMouseInteraction(label)
+	labelclicker := uiparts.NewMouseInteraction(label)
 	labelclicker.OnClick = func() {
 		label.Text = "Clicked"
 	}

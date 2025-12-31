@@ -1,7 +1,8 @@
-package parts
+package uiparts
 
 import (
 	"MyProject/input"
+	"MyProject/parts"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -19,7 +20,7 @@ type Control interface {
 // 親Controlの参照、座標、サイズ、可視性などの共通プロパティを管理する
 // また、HandleInput/Update/Drawの各フェーズで実行される関数リストを保持している
 type ControlBase struct {
-	EntityBase
+	parts.EntityBase
 
 	Control         Control
 	Width, Height   float64
@@ -36,7 +37,7 @@ func NewControlBase(c Control, x, y, w, h float64) *ControlBase {
 }
 
 func (cb *ControlBase) InitControlBase(c Control, x, y, w, h float64) {
-	cb.EntityBase.InitEntityBase(c.(Entity), x, y)
+	cb.EntityBase.InitEntityBase(c.(parts.Entity), x, y)
 	cb.Control = c
 	cb.Width = w
 	cb.Height = h

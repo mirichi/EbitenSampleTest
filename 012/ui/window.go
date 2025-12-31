@@ -2,6 +2,7 @@ package ui
 
 import (
 	"MyProject/parts"
+	"MyProject/uiparts"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -11,7 +12,7 @@ import (
 // マウスドラッグによるウィンドウの移動機能を提供する
 type TitleBar struct {
 	InteractiveControl
-	parts.TextDrawable
+	uiparts.TextDrawable
 }
 
 // NewTitleBarは新しいタイトルバーを作成する
@@ -23,9 +24,9 @@ func NewTitleBar(x, y, h float64, text string) *TitleBar {
 }
 
 func (t *TitleBar) InitTitleBar(x, y, h float64, text string) {
-	theme := parts.CurrentTheme
+	theme := uiparts.CurrentTheme
 	t.InitInteractiveControl(x, y, 0, h)
-	t.InitTextDrawable(t, text, h*2/3, parts.AlignCenter, parts.AlignCenter, 0, 0, theme.Text, true)
+	t.InitTextDrawable(t, text, h*2/3, uiparts.AlignCenter, uiparts.AlignCenter, 0, 0, theme.Text, true)
 
 	// TitleBarをドラッグすると親のWindowが移動するように設定
 	var dragOffsetX, dragOffsetY float64
@@ -85,15 +86,15 @@ func (c *ClientArea) InitClientArea(x, y float64) {
 
 	c.AddBeforeDrawFunction(func(screen *ebiten.Image) {
 		gx, gy := c.GetGlobalPos()
-		vector.FillRect(screen, float32(gx), float32(gy), float32(c.Width), float32(c.Height), parts.CurrentTheme.ClientArea, false)
+		vector.FillRect(screen, float32(gx), float32(gy), float32(c.Width), float32(c.Height), uiparts.CurrentTheme.ClientArea, false)
 	})
 }
 
 // Windowはタイトルバーとクライアント領域を持つ複合Control
 // これ自体はコンテナとしての役割を持ち、具体的な機能はTitleBarとClientAreaに実装する
 type Window struct {
-	parts.ControlBase
-	parts.Resizable // Resizableは自前でマウス処理を持っている
+	uiparts.ControlBase
+	uiparts.Resizable // Resizableは自前でマウス処理を持っている
 	parts.Grouping
 
 	TitleBar   TitleBar
@@ -107,7 +108,7 @@ func NewWindow(x, y, w, h float64, text string) *Window {
 	win.InitControlBase(win, x, y, w, h)
 	win.InitResizable(win)
 	win.InitGrouping(win)
-	win.AutoLayout = parts.FlexLayoutV(parts.FlexStart, parts.FlexStretch, 0)
+	win.AutoLayout = uiparts.FlexLayoutV(uiparts.FlexStart, uiparts.FlexStretch, 0)
 	win.ClippingFlag = true
 
 	// TitleBarとClientArea生成

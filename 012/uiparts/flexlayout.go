@@ -1,5 +1,7 @@
 // FlexBox風レイアウトシステム
-package parts
+package uiparts
+
+import "MyProject/parts"
 
 type FlexAlign int
 
@@ -13,12 +15,12 @@ const (
 )
 
 // FlexLayoutHはFlexBoxの水平方向レイアウトを調整する
-func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap float64) func(*Grouping) {
-	return func(gr *Grouping) {
-		if _, ok := gr.Entity.(Sizer); !ok {
+func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap float64) func(*parts.Grouping) {
+	return func(gr *parts.Grouping) {
+		if _, ok := gr.Entity.(parts.Sizer); !ok {
 			return
 		}
-		width, height := gr.Entity.(Sizer).GetSize()
+		width, height := gr.Entity.(parts.Sizer).GetSize()
 
 		totalGrow := 0.0
 		totalShrink := 0.0
@@ -115,7 +117,7 @@ func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap float64) func(*G
 			}
 
 			// Layouter実装時の再帰呼び出し
-			if ali, ok := c.(Layouter); ok {
+			if ali, ok := c.(parts.Layouter); ok {
 				ali.Layout()
 			}
 		}
@@ -123,12 +125,12 @@ func FlexLayoutH(mainAlign FlexAlign, crossAlign FlexAlign, gap float64) func(*G
 }
 
 // FlexLayoutVはFlexBoxの垂直方向レイアウトを調整する
-func FlexLayoutV(mainAlign FlexAlign, crossAlign FlexAlign, gap float64) func(*Grouping) {
-	return func(gr *Grouping) {
-		if _, ok := gr.Entity.(Sizer); !ok {
+func FlexLayoutV(mainAlign FlexAlign, crossAlign FlexAlign, gap float64) func(*parts.Grouping) {
+	return func(gr *parts.Grouping) {
+		if _, ok := gr.Entity.(parts.Sizer); !ok {
 			return
 		}
-		width, height := gr.Entity.(Sizer).GetSize()
+		width, height := gr.Entity.(parts.Sizer).GetSize()
 
 		totalGrow := 0.0
 		totalShrink := 0.0
@@ -225,7 +227,7 @@ func FlexLayoutV(mainAlign FlexAlign, crossAlign FlexAlign, gap float64) func(*G
 			}
 
 			// Layouter実装時の再帰呼び出し
-			if ali, ok := c.(Layouter); ok {
+			if ali, ok := c.(parts.Layouter); ok {
 				ali.Layout()
 			}
 		}

@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"MyProject/parts"
+	"MyProject/uiparts"
 	"image/color"
 
 	"math"
@@ -13,8 +13,8 @@ import (
 // Checkboxはチェック状態を持つControl
 type Checkbox struct {
 	InteractiveControl
-	parts.TextDrawable
-	parts.Focusable
+	uiparts.TextDrawable
+	uiparts.Focusable
 
 	Checked           bool
 	OnCheckChanged    func(bool)
@@ -31,7 +31,7 @@ func NewCheckbox(x, y, h float64, text string, size float64, initialChecked bool
 func (c *Checkbox) InitCheckbox(x, y, h float64, text string, size float64, initialChecked bool) {
 	w := float64(int(float64(h) * 1.8))
 	c.InitInteractiveControl(x, y, w, h)
-	c.InitTextDrawable(c, text, size, parts.AlignLeft, parts.AlignCenter, w+5, 0, color.White, true)
+	c.InitTextDrawable(c, text, size, uiparts.AlignLeft, uiparts.AlignCenter, w+5, 0, color.White, true)
 	c.InitFocusable(c)
 	c.AddDrawFunction(c.drawCheckbox)
 	c.Checked = initialChecked
@@ -70,7 +70,7 @@ func (c *Checkbox) drawCheckbox(screen *ebiten.Image) {
 	w := float32(c.Width)
 	h := float32(c.Height)
 
-	theme := parts.CurrentTheme
+	theme := uiparts.CurrentTheme
 
 	// 背景色をアニメーションに合わせて補間
 	offColor := theme.CheckOffColor

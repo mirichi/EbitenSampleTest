@@ -1,13 +1,13 @@
 package ui
 
 import (
-	"MyProject/parts"
+	"MyProject/uiparts"
 	"image/color"
 )
 
 type Label struct {
-	parts.ControlBase
-	parts.TextDrawable
+	uiparts.ControlBase
+	uiparts.TextDrawable
 }
 
 func NewLabel(x, y, w, h float64, text string, size float64) *Label {
@@ -18,5 +18,5 @@ func NewLabel(x, y, w, h float64, text string, size float64) *Label {
 
 func (l *Label) InitLabel(x, y, w, h float64, text string, size float64) {
 	l.InitControlBase(l, x, y, w, h)
-	l.InitTextDrawable(l, text, size, parts.AlignLeft, parts.AlignCenter, 0, 0, color.White, true)
+	l.InitTextDrawable(l, text, size, uiparts.AlignLeft, uiparts.AlignCenter, 0, 0, color.White, true)
 }

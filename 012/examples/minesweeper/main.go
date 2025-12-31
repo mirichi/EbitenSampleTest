@@ -10,6 +10,7 @@ import (
 	"MyProject/input"
 	"MyProject/parts"
 	"MyProject/ui"
+	"MyProject/uiparts"
 )
 
 const (
@@ -51,11 +52,11 @@ func main() {
 
 	// メインウィンドウ
 	win := ui.NewWindow(20, 20, BoardWidth*CellSize+40, BoardHeight*CellSize+80, "Minesweeper")
-	win.ClientArea.AutoLayout = parts.FlexLayoutV(parts.FlexStart, parts.FlexStretch, 10)
+	win.ClientArea.AutoLayout = uiparts.FlexLayoutV(uiparts.FlexStart, uiparts.FlexStretch, 10)
 
 	// ステータスエリア
 	statusPanel := ui.NewGroupingControl(0, 0, 0, 40)
-	statusPanel.AutoLayout = parts.FlexLayoutH(parts.FlexSpaceAround, parts.FlexCenter, 0)
+	statusPanel.AutoLayout = uiparts.FlexLayoutH(uiparts.FlexSpaceAround, uiparts.FlexCenter, 0)
 	win.AddChild(statusPanel)
 
 	bombLabel := ui.NewLabel(0, 0, 60, 30, "Bombs: 10", 14)

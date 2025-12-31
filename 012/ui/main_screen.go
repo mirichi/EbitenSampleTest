@@ -2,7 +2,7 @@ package ui
 
 import (
 	"MyProject/input"
-	"MyProject/parts"
+	"MyProject/uiparts"
 	"runtime"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -29,7 +29,7 @@ func NewMainScreen() *MainScreen {
 		ms.PopupManager.Update()
 		ms.Layout()
 		ms.PopupManager.Layout()
-		parts.FinalizeCursor()
+		uiparts.FinalizeCursor()
 	})
 
 	ms.AddDrawFunction(func(screen *ebiten.Image) {
@@ -51,15 +51,15 @@ func (ms *MainScreen) HandleInput(t input.Touch) bool {
 		ms.Width, ms.Height = float64(w), float64(h)
 	}
 
-	parts.FlameFocus = false
+	uiparts.FlameFocus = false
 
 	r := ms.PopupManager.HandleInput(t)
 	if !r {
 		r = ms.GroupingControl.HandleInput(t)
 	}
 
-	if !parts.FlameFocus && t != nil && t.IsJustPressed() && parts.FocusedControl != nil {
-		parts.FocusedControl.Blur()
+	if !uiparts.FlameFocus && t != nil && t.IsJustPressed() && uiparts.FocusedControl != nil {
+		uiparts.FocusedControl.Blur()
 	}
 
 	return r

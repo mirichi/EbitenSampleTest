@@ -1,12 +1,10 @@
 package ui
 
-import (
-	"MyProject/parts"
-)
+import "MyProject/uiparts"
 
 // BlankControlは位置とサイズだけを持つ空のコントロール
 type BlankControl struct {
-	parts.ControlBase
+	uiparts.ControlBase
 }
 
 func NewBlankControl(x, y, w, h float64) *BlankControl {

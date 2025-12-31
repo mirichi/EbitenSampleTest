@@ -2,6 +2,7 @@ package ui
 
 import (
 	"MyProject/parts"
+	"MyProject/uiparts"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -18,7 +19,7 @@ type MenuItem struct {
 
 // PopupMenuはドロップダウンやコンテキストメニューに使用するポップアップメニュー
 type PopupMenu struct {
-	parts.ControlBase
+	uiparts.ControlBase
 	parts.Grouping
 
 	PopupItems      []*popupMenuItem
@@ -63,7 +64,7 @@ func (pm *PopupMenu) InitPopupMenu(x, y float64, items []*MenuItem) {
 
 	// 背景描画
 	pm.AddBeforeDrawFunction(func(screen *ebiten.Image) {
-		theme := parts.CurrentTheme
+		theme := uiparts.CurrentTheme
 		gx, gy := pm.GetGlobalPos()
 		vector.FillRect(screen, float32(gx), float32(gy), float32(pm.Width), float32(pm.Height), theme.PopupBackground, false)
 		vector.StrokeRect(screen, float32(gx), float32(gy), float32(pm.Width-1), float32(pm.Height-1), 1, theme.FocusBorder, false)
@@ -206,15 +207,15 @@ func (pm *PopupMenu) ShowSubMenu(x, y float64, submenu []*MenuItem, item *popupM
 // popupMenuItemはPopupMenuの各項目
 type popupMenuItem struct {
 	InteractiveControl
-	parts.TextDrawable
+	uiparts.TextDrawable
 
 	menuItem      *MenuItem
-	submenuMarker parts.TextDrawable
+	submenuMarker uiparts.TextDrawable
 	Highlight     bool
 }
 
 func newPopupMenuItem(x, y, width, height float64, menuItem *MenuItem) *popupMenuItem {
-	theme := parts.CurrentTheme
+	theme := uiparts.CurrentTheme
 	item := &popupMenuItem{}
 	item.menuItem = menuItem
 
@@ -227,16 +228,16 @@ func newPopupMenuItem(x, y, width, height float64, menuItem *MenuItem) *popupMen
 			textColor = theme.DisabledText
 		}
 
-		item.InitTextDrawable(item, menuItem.Text, 14, parts.AlignLeft, parts.AlignCenter, 8, 0, textColor, true)
+		item.InitTextDrawable(item, menuItem.Text, 14, uiparts.AlignLeft, uiparts.AlignCenter, 8, 0, textColor, true)
 		if menuItem.SubMenu != nil {
-			item.submenuMarker.InitTextDrawable(item, ">", 14, parts.AlignRight, parts.AlignCenter, -8, 0, textColor, true)
+			item.submenuMarker.InitTextDrawable(item, ">", 14, uiparts.AlignRight, uiparts.AlignCenter, -8, 0, textColor, true)
 		}
 	}
 
 	// 描画
 	item.AddDrawFunction(func(screen *ebiten.Image) {
 		if item.menuItem.IsSeparator {
-			theme := parts.CurrentTheme
+			theme := uiparts.CurrentTheme
 			gx, gy := item.GetGlobalPos()
 			lineY := float32(gy) + float32(height)/2
 			vector.StrokeLine(screen, float32(gx)+4, lineY, float32(gx+item.Width)-4, lineY, 1, theme.DisabledText, false)

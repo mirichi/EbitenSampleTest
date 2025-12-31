@@ -2,14 +2,15 @@ package ui
 
 import (
 	"MyProject/parts"
+	"MyProject/uiparts"
 	"runtime"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type PopupManager struct {
-	parts.ControlBase
-	parts.MouseInteraction
+	uiparts.ControlBase
+	uiparts.MouseInteraction
 	parts.Grouping
 }
 

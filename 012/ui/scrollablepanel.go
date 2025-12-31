@@ -2,6 +2,7 @@ package ui
 
 import (
 	"MyProject/parts"
+	"MyProject/uiparts"
 )
 
 // ScrollablePanelはスクロール可能なパネル
@@ -27,13 +28,13 @@ func NewScrollablePanel(x, y, sbw float64) *ScrollablePanel {
 
 func (sp *ScrollablePanel) InitScrollablePanel(x, y, sbw float64) {
 	sp.InitGroupingControl(x, y, 0, 0)
-	sp.AutoLayout = parts.FlexLayoutV(parts.FlexStart, parts.FlexStretch, 0)
+	sp.AutoLayout = uiparts.FlexLayoutV(uiparts.FlexStart, uiparts.FlexStretch, 0)
 
 	// 上部（パネル＋縦スクロールバー）
 	sp.topGroup.InitGroupingControl(0, 0, 0, 0)
 	sp.Grouping.AddChild(&sp.topGroup)
 	sp.topGroup.FlexGrow = 1
-	sp.topGroup.AutoLayout = parts.FlexLayoutH(parts.FlexStart, parts.FlexStretch, 0)
+	sp.topGroup.AutoLayout = uiparts.FlexLayoutH(uiparts.FlexStart, uiparts.FlexStretch, 0)
 
 	sp.Area.InitGroupingControl(0, 0, 0, 0)
 	sp.topGroup.AddChild(&sp.Area)
@@ -48,7 +49,7 @@ func (sp *ScrollablePanel) InitScrollablePanel(x, y, sbw float64) {
 	// 下部（横スクロールバー＋コーナー）
 	sp.bottomGroup.InitGroupingControl(0, 0, 0, sbw)
 	sp.Grouping.AddChild(&sp.bottomGroup)
-	sp.bottomGroup.AutoLayout = parts.FlexLayoutH(parts.FlexStart, parts.FlexStretch, 0)
+	sp.bottomGroup.AutoLayout = uiparts.FlexLayoutH(uiparts.FlexStart, uiparts.FlexStretch, 0)
 
 	sp.ScrollbarH.InitScrollBarH(0, 0, 0, sbw)
 	sp.ScrollbarH.FlexGrow = 1

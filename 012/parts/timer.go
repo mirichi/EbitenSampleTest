@@ -3,7 +3,7 @@ package parts
 // Timerは指定時間経過後に処理を実行するパーツ
 // 画面には表示されないが、partsとして追加することでUpdateが呼ばれて時間が進む
 type Timer struct {
-	Control Control
+	Entity Entity
 
 	Interval int  // タイムアウトまでの時間（フレーム数）
 	Current  int  // 現在の経過時間
@@ -14,19 +14,19 @@ type Timer struct {
 }
 
 // Timer生成
-func NewTimer(c Control, interval int, repeat bool) *Timer {
+func NewTimer(e Entity, interval int, repeat bool) *Timer {
 	t := &Timer{}
-	t.InitTimer(c, interval, repeat)
+	t.InitTimer(e, interval, repeat)
 	return t
 }
 
-func (t *Timer) InitTimer(c Control, interval int, repeat bool) {
-	t.Control = c
+func (t *Timer) InitTimer(e Entity, interval int, repeat bool) {
+	t.Entity = e
 	t.Interval = interval
 	t.Repeat = repeat
 
 	// Update処理の登録
-	c.GetControlBase().AddUpdateFunction(t.updateTimer)
+	e.GetEntityBase().AddUpdateFunction(t.updateTimer)
 }
 
 func (t *Timer) updateTimer() {

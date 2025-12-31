@@ -6,14 +6,14 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 
-	"MyProject/parts"
+	"MyProject/uiparts"
 )
 
 // Canvasは描画可能なキャンバス
 type Canvas struct {
-	parts.ControlBase
-	parts.ImageDrawable
-	parts.MouseInteraction
+	uiparts.ControlBase
+	uiparts.ImageDrawable
+	uiparts.MouseInteraction
 
 	lastX     float64
 	lastY     float64

@@ -141,7 +141,7 @@ const (
 // 点と円の判定
 func TestPointCircle(pos Vector2, c1 *CircleCollider) bool {
 	// グローバル行列を使用して円の中心座標を変換
-	matrix := c1.Sprite.GetGlobalMatrix()
+	matrix := c1.Sprite.GetVertexMatrix()
 	gx, gy := matrix.Apply(c1.Center.X, c1.Center.Y)
 
 	cpos := Vector2{X: gx, Y: gy}
@@ -151,7 +151,7 @@ func TestPointCircle(pos Vector2, c1 *CircleCollider) bool {
 // 点と凸型多角形の判定
 func TestPointPolygon(pos Vector2, p1 *PolygonCollider) bool {
 	// グローバル行列を取得
-	matrix := p1.Sprite.GetGlobalMatrix()
+	matrix := p1.Sprite.GetVertexMatrix()
 
 	r := make([]Vector2, 0, len(p1.Vertices)+1)
 	for _, p := range p1.Vertices {
@@ -183,11 +183,11 @@ func TestPointPolygon(pos Vector2, p1 *PolygonCollider) bool {
 
 // 円同士の判定
 func TestCircleCircle(c1 *CircleCollider, c2 *CircleCollider) bool {
-	m1 := c1.Sprite.GetGlobalMatrix()
+	m1 := c1.Sprite.GetVertexMatrix()
 	gx1, gy1 := m1.Apply(c1.Center.X, c1.Center.Y)
 	cpos1 := Vector2{X: gx1, Y: gy1}
 
-	m2 := c2.Sprite.GetGlobalMatrix()
+	m2 := c2.Sprite.GetVertexMatrix()
 	gx2, gy2 := m2.Apply(c2.Center.X, c2.Center.Y)
 	cpos2 := Vector2{X: gx2, Y: gy2}
 
@@ -196,11 +196,11 @@ func TestCircleCircle(c1 *CircleCollider, c2 *CircleCollider) bool {
 
 // 円と凸型多角形の判定
 func TestCirclePolygon(c1 *CircleCollider, p1 *PolygonCollider) bool {
-	m1 := c1.Sprite.GetGlobalMatrix()
+	m1 := c1.Sprite.GetVertexMatrix()
 	gx1, gy1 := m1.Apply(c1.Center.X, c1.Center.Y)
 	cpos := Vector2{X: gx1, Y: gy1}
 
-	m2 := p1.Sprite.GetGlobalMatrix()
+	m2 := p1.Sprite.GetVertexMatrix()
 
 	r := make([]Vector2, 0, len(p1.Vertices)+1)
 	for _, v := range p1.Vertices {
@@ -267,7 +267,7 @@ func TestCirclePolygon(c1 *CircleCollider, p1 *PolygonCollider) bool {
 
 // 凸型多角形同士の判定(SAT)
 func TestPolygonPolygon(c1 *PolygonCollider, c2 *PolygonCollider) bool {
-	m1 := c1.Sprite.GetGlobalMatrix()
+	m1 := c1.Sprite.GetVertexMatrix()
 	r1 := make([]Vector2, 0, len(c1.Vertices)+1)
 	for _, p := range c1.Vertices {
 		gx, gy := m1.Apply(p.X, p.Y)
@@ -277,7 +277,7 @@ func TestPolygonPolygon(c1 *PolygonCollider, c2 *PolygonCollider) bool {
 	// 1個目の頂点をスライスに追加する
 	r1 = append(r1, r1[0])
 
-	m2 := c2.Sprite.GetGlobalMatrix()
+	m2 := c2.Sprite.GetVertexMatrix()
 	r2 := make([]Vector2, 0, len(c2.Vertices)+1)
 	for _, p := range c2.Vertices {
 		gx, gy := m2.Apply(p.X, p.Y)

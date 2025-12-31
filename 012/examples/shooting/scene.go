@@ -83,7 +83,7 @@ func (gs *GameScene) Update() {
 			gs.BossDefeatedTimer = 180 // 3 seconds
 
 			// Initial Big Explosion
-			ex, ey := gs.Boss.Root.GetGlobalPos()
+			ex, ey := gs.Boss.GetGlobalPos()
 			gs.EffectManager.SpawnBossExplosion(ex, ey)
 		}
 	}
@@ -94,7 +94,7 @@ func (gs *GameScene) Update() {
 		if gs.BossDefeatedTimer%10 == 0 && gs.BossDefeatedTimer > 60 {
 			// Random position around boss
 			if gs.Boss != nil {
-				ex, ey := gs.Boss.Root.GetGlobalPos()
+				ex, ey := gs.Boss.GetGlobalPos()
 				rx := ex - 50 + rand.Float64()*100
 				ry := ey - 50 + rand.Float64()*100
 				gs.EffectManager.SpawnExplosion(rx, ry, color.RGBA{255, 100, 0, 255})
@@ -129,7 +129,7 @@ func (gs *GameScene) Update() {
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyZ) {
 		if gs.ShootTimer <= 0 {
-			bullet := NewBullet(gs.Player.X()+18, gs.Player.Y()-24)
+			bullet := NewBullet(gs.Player.X(), gs.Player.Y()-24)
 			gs.BulletGroup.AddChild(bullet)
 			gs.ShootTimer = 8 // Cooldown frames
 		}
@@ -145,7 +145,7 @@ func (gs *GameScene) Update() {
 			}
 		} else {
 			// Stop spawning, wait for clear
-			if len(gs.EnemyGroup.GetChildren()) == 0 {
+			if len(gs.EnemyGroup.Children) == 0 {
 				// Spawn Boss
 				gs.BossSpawned = true
 				gs.Boss = NewBoss(320, -100) // Start off-screen
@@ -163,7 +163,7 @@ func (gs *GameScene) Update() {
 
 func (gs *GameScene) checkCollisions() {
 	// Enemy vs Player
-	children := gs.EnemyGroup.GetChildren()
+	children := gs.EnemyGroup.Children
 	for _, child := range children {
 		if enemy, ok := child.(Enemy); ok {
 			// Skip dead enemies (like Boss dying frame)
@@ -176,7 +176,7 @@ func (gs *GameScene) checkCollisions() {
 			}
 
 			// Enemy vs Bullets
-			bChildren := gs.BulletGroup.GetChildren()
+			bChildren := gs.BulletGroup.Children
 			for _, bChild := range bChildren {
 				if bullet, ok := bChild.(*Bullet); ok {
 					if !bullet.IsDead && bullet.Test(enemy) {
@@ -198,7 +198,7 @@ func (gs *GameScene) checkCollisions() {
 	}
 
 	// Enemy Bullets vs Player
-	ebChildren := gs.EnemyBulletGroup.GetChildren()
+	ebChildren := gs.EnemyBulletGroup.Children
 	for _, ebChild := range ebChildren {
 		if bullet, ok := ebChild.(*EnemyBullet); ok {
 			if !bullet.IsDead {
@@ -213,7 +213,7 @@ func (gs *GameScene) checkCollisions() {
 func (gs *GameScene) cleanup() {
 	// Remove dead bullets
 	// Iterate backwards to safely remove
-	bChildren := gs.BulletGroup.GetChildren()
+	bChildren := gs.BulletGroup.Children
 	for i := len(bChildren) - 1; i >= 0; i-- {
 		child := bChildren[i]
 		if bullet, ok := child.(*Bullet); ok {
@@ -224,7 +224,7 @@ func (gs *GameScene) cleanup() {
 	}
 
 	// Remove dead enemies
-	eChildren := gs.EnemyGroup.GetChildren()
+	eChildren := gs.EnemyGroup.Children
 	for i := len(eChildren) - 1; i >= 0; i-- {
 		child := eChildren[i]
 		if enemy, ok := child.(Enemy); ok {
@@ -235,7 +235,7 @@ func (gs *GameScene) cleanup() {
 	}
 
 	// Remove dead enemy bullets
-	ebChildren := gs.EnemyBulletGroup.GetChildren()
+	ebChildren := gs.EnemyBulletGroup.Children
 	for i := len(ebChildren) - 1; i >= 0; i-- {
 		child := ebChildren[i]
 		if bullet, ok := child.(*EnemyBullet); ok {

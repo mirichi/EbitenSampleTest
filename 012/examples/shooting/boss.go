@@ -8,12 +8,10 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 
 	"MyProject/objects"
-	"MyProject/parts"
 )
 
 type Boss struct {
-	parts.EntityBase
-	Root      *objects.Container
+	*objects.Container
 	Body      *objects.Sprite
 	LeftArm   *objects.Container
 	RightArm  *objects.Container
@@ -39,15 +37,14 @@ func NewBoss(x, y float64) *Boss {
 }
 
 func (b *Boss) InitBoss(x, y float64) {
-	b.EntityBase.InitEntityBase(b, x, y)
-	b.Root = objects.NewContainer(x, y)
+	b.Container = objects.NewContainer(x, y)
 	b.PendingBullets = []*EnemyBullet{}
 
 	// --- Body ---
 	bodyImg := ebiten.NewImage(96, 96)
 	bodyImg.Fill(color.RGBA{200, 50, 50, 255}) // Reddish body
 	b.Body = objects.NewSprite(0, 0, bodyImg)
-	b.Root.AddChild(b.Body)
+	b.AddChild(b.Body)
 
 	// --- Arms (Containers for rotation) ---
 	// Left Arm
@@ -59,7 +56,7 @@ func (b *Boss) InitBoss(x, y float64) {
 	b.LeftHand.OriginX = 18
 	b.LeftHand.OriginY = 0
 	b.LeftArm.AddChild(b.LeftHand)
-	b.Root.AddChild(b.LeftArm)
+	b.AddChild(b.LeftArm)
 
 	// Right Arm
 	b.RightArm = objects.NewContainer(40, 0)
@@ -67,7 +64,7 @@ func (b *Boss) InitBoss(x, y float64) {
 	b.RightHand.OriginX = 18
 	b.RightHand.OriginY = 0
 	b.RightArm.AddChild(b.RightHand)
-	b.Root.AddChild(b.RightArm)
+	b.AddChild(b.RightArm)
 
 	// --- Attributes ---
 	b.MaxHP = 50
@@ -118,15 +115,15 @@ func (b *Boss) Update() {
 	// Logic
 	if b.phase == 0 {
 		// Moving down to position
-		if b.Root.Y < 100 {
-			b.Root.Y += 2
+		if b.Y < 100 {
+			b.Y += 2
 		} else {
 			b.phase = 1
 		}
 	} else {
 		// Bobbing
-		b.Root.Y = 100 + math.Sin(b.time*0.05)*10
-		b.Root.X = 320 + math.Cos(b.time*0.02)*100
+		b.Y = 100 + math.Sin(b.time*0.05)*10
+		b.X = 320 + math.Cos(b.time*0.02)*100
 
 		// Shooting logic (every 60 frames approx)
 		if int(b.time)%60 == 0 {
@@ -150,14 +147,14 @@ func (b *Boss) Update() {
 	b.LeftHand.Angle = math.Cos(b.time*0.1) * 0.5
 	b.RightHand.Angle = -math.Cos(b.time*0.1) * 0.5
 
-	b.Root.Update()
+	b.Container.Update()
 }
 
 func (b *Boss) Draw(screen *ebiten.Image) {
 	if b.isDead {
 		return
 	}
-	b.Root.Draw(screen)
+	b.Container.Draw(screen)
 }
 
 func (b *Boss) IsDead() bool {

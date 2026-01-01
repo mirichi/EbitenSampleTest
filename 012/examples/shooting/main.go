@@ -9,6 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 
 	"MyProject/input"
+	"MyProject/objects"
 	"MyProject/ui"
 	"MyProject/uiparts"
 )
@@ -19,7 +20,7 @@ const (
 )
 
 type Game struct {
-	Scene         *GameScene
+	SceneManager  *objects.SceneManager
 	MainScreen    *ui.MainScreen
 	ScoreLabel    *ui.Label
 	BossHPLabel   *ui.Label
@@ -33,7 +34,9 @@ func NewGame() *Game {
 }
 
 func (g *Game) Init() {
-	g.Scene = NewGameScene()
+	// シーンマネージャー初期化
+	// 最初はGameScene
+	g.SceneManager = objects.NewSceneManager(NewGameScene())
 
 	// UI初期化
 	g.MainScreen = ui.NewMainScreen()
@@ -62,7 +65,9 @@ func (g *Game) Init() {
 
 	resetBtn := ui.NewButton(0, 0, 0, 30, "Reset", 16)
 	resetBtn.OnPress = func() {
-		g.Scene.InitGameScene()
+		if gs, ok := g.SceneManager.GetCurrentScene().(*GameScene); ok {
+			gs.InitGameScene()
+		}
 	}
 	menuWin.AddChild(resetBtn)
 
@@ -83,27 +88,31 @@ func (g *Game) Update() error {
 	g.MainScreen.HandleInput(input.GetPointer())
 	g.MainScreen.Update()
 
-	// UIがマウスをキャプチャしていない場合のみゲームを更新する... としたいところだが
-	// 今のところクリック判定くらいしかないので、とりあえず常に更新する
-	g.Scene.Update()
-
-	// ゲームの状態をUIに反映
-	g.ScoreLabel.Text = "Score: " + strconv.Itoa(g.Scene.Score)
-
-	if g.Scene.BossSpawned && g.Scene.Boss != nil {
-		g.BossHPLabel.Text = "HP: " + strconv.Itoa(g.Scene.Boss.HP)
-	} else {
-		g.BossHPLabel.Text = "HP: -"
+	// シーン更新
+	if err := g.SceneManager.Update(); err != nil {
+		return err
 	}
 
-	// ゲームオーバー表示制御
-	if g.Scene.GameOver {
-		if g.GameOverLabel.GetEntityBase().Parent == nil {
-			g.MainScreen.AddChild(g.GameOverLabel)
+	// ゲームの状態をUIに反映
+	// 現在のシーンがGameSceneの場合のみ反映
+	if gs, ok := g.SceneManager.GetCurrentScene().(*GameScene); ok {
+		g.ScoreLabel.Text = "Score: " + strconv.Itoa(gs.Score)
+
+		if gs.BossSpawned && gs.Boss != nil {
+			g.BossHPLabel.Text = "HP: " + strconv.Itoa(gs.Boss.HP)
+		} else {
+			g.BossHPLabel.Text = "HP: -"
 		}
-	} else {
-		if g.GameOverLabel.GetEntityBase().Parent != nil {
-			g.MainScreen.RemoveChild(g.GameOverLabel)
+
+		// ゲームオーバー表示制御
+		if gs.GameOver {
+			if g.GameOverLabel.GetEntityBase().Parent == nil {
+				g.MainScreen.AddChild(g.GameOverLabel)
+			}
+		} else {
+			if g.GameOverLabel.GetEntityBase().Parent != nil {
+				g.MainScreen.RemoveChild(g.GameOverLabel)
+			}
 		}
 	}
 
@@ -114,7 +123,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Debug Info
 	ebitenutil.DebugPrint(screen, input.GetGamepadDebugInfo())
 
-	g.Scene.Draw(screen)
+	g.SceneManager.Draw(screen)
 	g.MainScreen.Draw(screen)
 }
 

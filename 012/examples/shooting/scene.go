@@ -8,11 +8,9 @@ import (
 
 	"MyProject/input"
 	"MyProject/objects"
-	"MyProject/parts"
 )
 
 type GameScene struct {
-	parts.EntityBase
 	Root              *objects.Container
 	Player            *Player
 	EnemyGroup        *objects.Container
@@ -26,6 +24,12 @@ type GameScene struct {
 	ShootTimer        int
 	EffectManager     *EffectManager
 	BossDefeatedTimer int
+
+	// Stage Management
+	Stage             *StageData
+	CurrentEventIndex int
+	WaitTimer         int
+	StageFinished     bool
 }
 
 func NewGameScene() *GameScene {
@@ -35,10 +39,7 @@ func NewGameScene() *GameScene {
 }
 
 func (gs *GameScene) InitGameScene() {
-	// Initialize EntityBase
-	gs.EntityBase.InitEntityBase(gs, 0, 0)
-
-	// Create Root Container
+	// Root Container
 	gs.Root = objects.NewContainer(0, 0)
 
 	// Groups for Enemies and Bullets
@@ -65,16 +66,23 @@ func (gs *GameScene) InitGameScene() {
 	gs.EffectManager = NewEffectManager()
 	gs.Root.AddChild(gs.EffectManager)
 	gs.BossDefeatedTimer = 0
+
+	// Stage Init
+	gs.Stage = CreateStage1()
+	gs.CurrentEventIndex = 0
+	gs.WaitTimer = 0
+	gs.StageFinished = false
 }
 
-func (gs *GameScene) Update() {
+func (gs *GameScene) Update() error {
 	// Reset logic
 	if gs.GameOver {
 		if input.IsActionJustPressed(input.ActionShot) || input.IsActionJustPressed(input.ActionShowMenu) {
 			gs.InitGameScene()
 		}
-		return
+		return nil
 	}
+
 	// Reset logic (Boss Defeated)
 	if gs.BossSpawned && gs.Boss != nil && gs.Boss.IsDead() {
 		// Start timer if not started
@@ -103,11 +111,8 @@ func (gs *GameScene) Update() {
 		if gs.BossDefeatedTimer <= 0 {
 			// Time to reset
 			gs.InitGameScene()
-			return
+			return nil
 		}
-
-		// Continue updating visual effects but maybe stop player or game logic?
-		// For now, let everything run but just wait for reset.
 	}
 
 	// Transfer Pending Bullets from Boss
@@ -134,22 +139,35 @@ func (gs *GameScene) Update() {
 		}
 	}
 
-	// Spawning Enemies
-	if !gs.BossSpawned {
-		// Spawn normal enemies until 10 kills
-		if gs.KillCount < 10 {
-			if rand.Float64() < 0.02 {
-				enemy := SpawnEnemy()
-				gs.EnemyGroup.AddChild(enemy)
-			}
+	// Stage Progression
+	if !gs.StageFinished && !gs.BossSpawned {
+		if gs.WaitTimer > 0 {
+			gs.WaitTimer--
 		} else {
-			// Stop spawning, wait for clear
-			if len(gs.EnemyGroup.Children) == 0 {
-				// Spawn Boss
-				gs.BossSpawned = true
-				gs.Boss = NewBoss(320, -100) // Start off-screen
-				gs.EnemyGroup.AddChild(gs.Boss)
+			// Process Events
+			for gs.CurrentEventIndex < len(gs.Stage.Events) {
+				event := gs.Stage.Events[gs.CurrentEventIndex]
+				gs.CurrentEventIndex++
+
+				switch event.Type {
+				case EventTypeSpawnEnemy:
+					enemy := SpawnEnemyByType(event.EnemyType, event.X, event.Y)
+					gs.EnemyGroup.AddChild(enemy)
+					// Continue to next event immediately (unless wait is explicitly called)
+				case EventTypeWait:
+					gs.WaitTimer = event.Time
+					goto BreakLoop // Wait commands pause processing
+				case EventTypeSpawnBoss:
+					gs.BossSpawned = true
+					gs.Boss = NewBoss(320, -100) // Start off-screen
+					gs.EnemyGroup.AddChild(gs.Boss)
+					goto BreakLoop
+				case EventTypeEnd:
+					gs.StageFinished = true
+					goto BreakLoop
+				}
 			}
+		BreakLoop:
 		}
 	}
 
@@ -158,6 +176,8 @@ func (gs *GameScene) Update() {
 
 	// Cleanup dead entities
 	gs.cleanup()
+
+	return nil
 }
 
 func (gs *GameScene) checkCollisions() {

@@ -21,7 +21,7 @@ type GameScene struct {
 	Score             int
 	KillCount         int
 	BossSpawned       bool
-	Boss              *Boss
+	Boss              Enemy // Changed from *Boss
 	ShootTimer        int
 	EffectManager     *EffectManager
 	BossDefeatedTimer int
@@ -146,11 +146,11 @@ func (gs *GameScene) Update() error {
 
 	// Transfer Pending Bullets from Boss
 	if gs.BossSpawned && gs.Boss != nil {
-		if len(gs.Boss.PendingBullets) > 0 {
-			for _, b := range gs.Boss.PendingBullets {
+		bullets := gs.Boss.GetPendingBullets()
+		if len(bullets) > 0 {
+			for _, b := range bullets {
 				gs.EnemyBulletGroup.AddChild(b)
 			}
-			gs.Boss.PendingBullets = []*EnemyBullet{} // Clear
 		}
 	}
 
@@ -210,7 +210,11 @@ func (gs *GameScene) Update() error {
 					goto BreakLoop // Wait commands pause processing
 				case EventTypeSpawnBoss:
 					gs.BossSpawned = true
-					gs.Boss = NewBoss(320, -100) // Start off-screen
+					if gs.StageNum == 2 {
+						gs.Boss = NewBoss2(320, -100)
+					} else {
+						gs.Boss = NewBoss(320, -100) // Start off-screen
+					}
 					gs.EnemyGroup.AddChild(gs.Boss)
 					goto BreakLoop
 				case EventTypeEnd:
@@ -256,13 +260,9 @@ func (gs *GameScene) checkCollisions() {
 							gs.KillCount++
 							gs.Score += 100
 
-							// Check if it is Boss via type assertion or pointer comparison if possible
-							// Safe way: check if it matches the boss instance
 							isBoss := false
-							if gs.Boss != nil {
-								if b, ok := enemy.(*Boss); ok && b == gs.Boss {
-									isBoss = true
-								}
+							if gs.Boss != nil && enemy == gs.Boss {
+								isBoss = true
 							}
 
 							if !isBoss {

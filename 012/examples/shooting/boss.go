@@ -174,3 +174,17 @@ func (b *Boss) ApplyDamage(damage int) {
 func (b *Boss) DropItem() *Item {
 	return nil
 }
+
+func (b *Boss) GetPendingBullets() []*EnemyBullet {
+	bullets := b.PendingBullets
+	b.PendingBullets = []*EnemyBullet{}
+	return bullets
+}
+
+func (b *Boss) GetHP() int {
+	return b.HP
+}
+
+func (b *Boss) GetMaxHP() int {
+	return b.MaxHP
+}

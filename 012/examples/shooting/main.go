@@ -99,7 +99,7 @@ func (g *Game) Update() error {
 		g.ScoreLabel.Text = "Score: " + strconv.Itoa(gs.Score)
 
 		if gs.BossSpawned && gs.Boss != nil {
-			g.BossHPLabel.Text = "HP: " + strconv.Itoa(gs.Boss.HP)
+			g.BossHPLabel.Text = "HP: " + strconv.Itoa(gs.Boss.GetHP())
 		} else {
 			g.BossHPLabel.Text = "HP: -"
 		}

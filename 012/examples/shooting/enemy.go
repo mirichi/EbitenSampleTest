@@ -21,6 +21,9 @@ type Enemy interface {
 	MarkDead()
 	ApplyDamage(damage int)
 	DropItem() *Item
+	GetPendingBullets() []*EnemyBullet
+	GetHP() int
+	GetMaxHP() int
 }
 
 // EnemyBase Struct
@@ -34,6 +37,16 @@ type EnemyBase struct {
 	time   float64
 	speedY float64
 	hp     int
+	maxHp  int
+}
+
+// ...
+func (e *EnemyBase) GetHP() int {
+	return e.hp
+}
+
+func (e *EnemyBase) GetMaxHP() int {
+	return e.maxHp // Default 0/1 depending on init
 }
 
 func (e *EnemyBase) Draw(screen *ebiten.Image) {
@@ -58,6 +71,10 @@ func (e *EnemyBase) ApplyDamage(damage int) {
 }
 
 func (e *EnemyBase) DropItem() *Item {
+	return nil
+}
+
+func (e *EnemyBase) GetPendingBullets() []*EnemyBullet {
 	return nil
 }
 

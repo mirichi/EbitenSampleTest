@@ -3,10 +3,8 @@ package main
 import (
 	"image/color"
 	"math/rand"
-	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 
 	"MyProject/objects"
 	"MyProject/parts"
@@ -248,7 +246,7 @@ func (gs *GameScene) cleanup() {
 
 func (gs *GameScene) Draw(screen *ebiten.Image) {
 	if gs.GameOver {
-		ebitenutil.DebugPrint(screen, "GAME OVER (Press R to Reset)")
+		// ebitenutil.DebugPrint(screen, "GAME OVER (Press R to Reset)")
 		return
 	}
 
@@ -256,9 +254,6 @@ func (gs *GameScene) Draw(screen *ebiten.Image) {
 	gs.Root.Draw(screen)
 
 	// HUD
-	ebitenutil.DebugPrint(screen, "Arrow Keys: Move, Z: Shoot")
-	ebitenutil.DebugPrintAt(screen, "Score: "+strconv.Itoa(gs.Score), 0, 15)
-	if gs.BossSpawned && gs.Boss != nil {
-		ebitenutil.DebugPrintAt(screen, "BOSS HP: "+strconv.Itoa(gs.Boss.HP), 0, 30)
-	}
+	// Use GUI instead
+	// ebitenutil.DebugPrint(screen, "Arrow Keys: Move, Z: Shoot")
 }

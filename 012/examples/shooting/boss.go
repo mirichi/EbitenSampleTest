@@ -11,14 +11,14 @@ import (
 )
 
 type Boss struct {
-	*objects.Container
-	Body      *objects.Sprite
+	*objects.ContainerSprite
+	// Body removed, Boss itself is the body
 	LeftArm   *objects.Container
 	RightArm  *objects.Container
 	LeftHand  *objects.Sprite
 	RightHand *objects.Sprite
 
-	Collider objects.CollisionTester
+	objects.CollisionTester
 
 	HP     int
 	MaxHP  int
@@ -37,14 +37,12 @@ func NewBoss(x, y float64) *Boss {
 }
 
 func (b *Boss) InitBoss(x, y float64) {
-	b.Container = objects.NewContainer(x, y)
-	b.PendingBullets = []*EnemyBullet{}
-
-	// --- Body ---
+	// --- Body (Boss itself) ---
 	bodyImg := ebiten.NewImage(96, 96)
 	bodyImg.Fill(color.RGBA{200, 50, 50, 255}) // Reddish body
-	b.Body = objects.NewSprite(0, 0, bodyImg)
-	b.AddChild(b.Body)
+
+	b.ContainerSprite = objects.NewContainerSprite(x, y, bodyImg)
+	b.PendingBullets = []*EnemyBullet{}
 
 	// --- Arms (Containers for rotation) ---
 	// Left Arm
@@ -74,12 +72,12 @@ func (b *Boss) InitBoss(x, y float64) {
 
 	// --- Collision ---
 	// Composite collider: Body + Hands
-	// Note: We use the Sprites directly for primitive colliders
-	bodyCol := objects.NewRectCollider(b.Body)
+	// Use b.ContainerSprite.Sprite for the collision tester
+	bodyCol := objects.NewRectCollider(b.Sprite)
 	lHandCol := objects.NewCircleCollider(b.LeftHand, objects.Vector2{X: 18, Y: 18}, 18)
 	rHandCol := objects.NewCircleCollider(b.RightHand, objects.Vector2{X: 18, Y: 18}, 18)
 
-	b.Collider = objects.NewCompositeCollider(
+	b.CollisionTester = objects.NewCompositeCollider(
 		[]objects.CollisionTester{bodyCol, lHandCol, rHandCol},
 		objects.CompositeOr,
 	)
@@ -96,16 +94,16 @@ func (b *Boss) Update() {
 		b.flashTimer--
 		// Flash Effect: Scale color to be very bright (approximating white flash)
 		f := float32(2.0)
-		b.Body.ColorScale.Reset()
-		b.Body.ColorScale.Scale(f, f, f, 1)
+		b.ColorScale.Reset()
+		b.ColorScale.Scale(f, f, f, 1)
 		b.LeftHand.ColorScale.Reset()
 		b.LeftHand.ColorScale.Scale(f, f, f, 1)
 		b.RightHand.ColorScale.Reset()
 		b.RightHand.ColorScale.Scale(f, f, f, 1)
 	} else {
 		// Normal Color
-		b.Body.ColorScale.Reset()
-		b.Body.ColorScale.Scale(1, 1, 1, 1)
+		b.ColorScale.Reset()
+		b.ColorScale.Scale(1, 1, 1, 1)
 		b.LeftHand.ColorScale.Reset()
 		b.LeftHand.ColorScale.Scale(1, 1, 1, 1)
 		b.RightHand.ColorScale.Reset()
@@ -147,14 +145,14 @@ func (b *Boss) Update() {
 	b.LeftHand.Angle = math.Cos(b.time*0.1) * 0.5
 	b.RightHand.Angle = -math.Cos(b.time*0.1) * 0.5
 
-	b.Container.Update()
+	b.ContainerSprite.Update()
 }
 
 func (b *Boss) Draw(screen *ebiten.Image) {
 	if b.isDead {
 		return
 	}
-	b.Container.Draw(screen)
+	b.ContainerSprite.Draw(screen)
 }
 
 func (b *Boss) IsDead() bool {
@@ -167,13 +165,4 @@ func (b *Boss) MarkDead() {
 	if b.HP <= 0 {
 		b.isDead = true
 	}
-}
-
-// Implement CollisionTester interface for Boss
-func (b *Boss) Test(c objects.CollisionTester) bool {
-	return b.Collider.Test(c)
-}
-
-func (b *Boss) CollisionShape() objects.CollisionTester {
-	return b.Collider
 }

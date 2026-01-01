@@ -39,7 +39,7 @@ func NewItem(x, y float64, t ItemType) *Item {
 		isDead: false,
 	}
 	// コリジョンは少し大きめに
-	i.CircleCollider = objects.NewCircleCollider(s, objects.Vector2{X: 12, Y: 12}, 16)
+	i.CircleCollider = objects.NewCircleCollider(s, objects.Vector2{X: 12, Y: 12}, 20)
 
 	return i
 }

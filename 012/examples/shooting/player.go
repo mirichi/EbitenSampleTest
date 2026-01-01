@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 
 	"MyProject/input"
 
@@ -98,9 +99,13 @@ func (p *Player) Update() {
 }
 
 // Draw is promoted from Sprite
-// func (p *Player) Draw(screen *ebiten.Image) {
-// 	p.Sprite.Draw(screen)
-// }
+func (p *Player) Draw(screen *ebiten.Image) {
+	p.Sprite.Draw(screen)
+
+	// DEBUG: Draw Hitbox
+	ebitenutil.DrawCircle(screen, p.Sprite.X, p.Sprite.Y, 10, color.RGBA{255, 0, 0, 60})
+
+}
 
 func (p *Player) X() float64 { return p.Sprite.X }
 func (p *Player) Y() float64 { return p.Sprite.Y }

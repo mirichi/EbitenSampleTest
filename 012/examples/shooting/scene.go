@@ -48,6 +48,10 @@ func (gs *GameScene) InitGameScene() {
 	// Root Container
 	gs.Root = objects.NewContainer(0, 0)
 
+	// Player (Drawn first, behind everything)
+	gs.Player = NewPlayer()
+	gs.Root.AddChild(gs.Player)
+
 	// Groups for Enemies and Bullets
 	gs.EnemyGroup = objects.NewContainer(0, 0)
 	gs.Root.AddChild(gs.EnemyGroup)
@@ -62,10 +66,6 @@ func (gs *GameScene) InitGameScene() {
 	// Group for Items
 	gs.ItemGroup = objects.NewContainer(0, 0)
 	gs.Root.AddChild(gs.ItemGroup)
-
-	// Player
-	gs.Player = NewPlayer()
-	gs.Root.AddChild(gs.Player)
 
 	gs.GameOver = false
 	gs.Score = 0

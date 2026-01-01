@@ -2,6 +2,7 @@ package main
 
 import (
 	"image/color"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 
@@ -45,29 +46,52 @@ func (p *Player) PowerUp() {
 }
 
 func (p *Player) Update() {
+	// Keyboard Move
 	if input.IsActionPressed(input.ActionMoveLeft) {
 		p.Sprite.X -= p.Speed
-		if p.Sprite.X < float64(p.Sprite.Image.Bounds().Dx())/2 {
-			p.Sprite.X = float64(p.Sprite.Image.Bounds().Dx()) / 2
-		}
 	}
 	if input.IsActionPressed(input.ActionMoveRight) {
 		p.Sprite.X += p.Speed
-		if p.Sprite.X > ScreenWidth-float64(p.Sprite.Image.Bounds().Dx())/2 {
-			p.Sprite.X = ScreenWidth - float64(p.Sprite.Image.Bounds().Dx())/2
-		}
 	}
 	if input.IsActionPressed(input.ActionMoveUp) {
 		p.Sprite.Y -= p.Speed
-		if p.Sprite.Y < float64(p.Sprite.Image.Bounds().Dy())/2 {
-			p.Sprite.Y = float64(p.Sprite.Image.Bounds().Dy()) / 2
-		}
 	}
 	if input.IsActionPressed(input.ActionMoveDown) {
 		p.Sprite.Y += p.Speed
-		if p.Sprite.Y > ScreenHeight-float64(p.Sprite.Image.Bounds().Dy())/2 {
-			p.Sprite.Y = ScreenHeight - float64(p.Sprite.Image.Bounds().Dy())/2
+	}
+
+	// Touch/Mouse Move
+	t := input.GetPointer()
+	if t != nil && t.IsPressed() {
+		tx, ty := t.Pos()
+		dx := tx - p.Sprite.X
+		dy := ty - p.Sprite.Y
+		dist := math.Hypot(dx, dy)
+
+		if dist > p.Speed {
+			p.Sprite.X += (dx / dist) * p.Speed
+			p.Sprite.Y += (dy / dist) * p.Speed
+		} else {
+			p.Sprite.X = tx
+			p.Sprite.Y = ty
 		}
+	}
+
+	// Clamp to Screen
+	w := float64(p.Sprite.Image.Bounds().Dx())
+	h := float64(p.Sprite.Image.Bounds().Dy())
+
+	if p.Sprite.X < w/2 {
+		p.Sprite.X = w / 2
+	}
+	if p.Sprite.X > ScreenWidth-w/2 {
+		p.Sprite.X = ScreenWidth - w/2
+	}
+	if p.Sprite.Y < h/2 {
+		p.Sprite.Y = h / 2
+	}
+	if p.Sprite.Y > ScreenHeight-h/2 {
+		p.Sprite.Y = ScreenHeight - h/2
 	}
 
 	p.Sprite.Update()

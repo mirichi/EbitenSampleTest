@@ -171,7 +171,12 @@ func (gs *GameScene) Update() error {
 	if gs.ShootTimer > 0 {
 		gs.ShootTimer--
 	}
-	if input.IsActionPressed(input.ActionShot) {
+	isShooting := input.IsActionPressed(input.ActionShot)
+	if t := input.GetPointer(); t != nil && t.IsPressed() {
+		isShooting = true
+	}
+
+	if isShooting {
 		if gs.ShootTimer <= 0 {
 			switch gs.Player.PowerLevel {
 			case 1:

@@ -183,10 +183,10 @@ func (e *ShootingEnemy) Update() {
 	e.Sprite.Y += e.speedY
 	e.Sprite.Angle += 0.01
 
-	// Shooting (every 60 frames)
+	// Shooting (every 120 frames)
 	if e.tick%120 == 0 {
 		// 3-way shot downwards
-		bx, by := e.Sprite.X, e.Sprite.Y
+		bx, by := e.Sprite.GetGlobalPos()
 		b1 := NewEnemyBullet(bx, by, math.Pi/2)
 		b2 := NewEnemyBullet(bx, by, math.Pi/2-0.3)
 		b3 := NewEnemyBullet(bx, by, math.Pi/2+0.3)

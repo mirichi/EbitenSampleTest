@@ -15,20 +15,22 @@ import (
 
 type GameScene struct {
 	Root              *objects.Container
+	World             *objects.Container // Added
+	Background        *Background
 	Player            *Player
 	EnemyGroup        *objects.Container
 	BulletGroup       *objects.Container
 	EnemyBulletGroup  *objects.Container
-	ItemGroup         *objects.Container // Added
+	ItemGroup         *objects.Container
 	GameOver          bool
 	Score             int
 	KillCount         int
 	BossSpawned       bool
-	Boss              Enemy // Changed from *Boss
+	Boss              Enemy
 	ShootTimer        int
 	EffectManager     *EffectManager
 	BossDefeatedTimer int
-	StageStartTimer   int // Added
+	StageStartTimer   int
 
 	// Stage Management
 	Stage             *StageData
@@ -48,24 +50,34 @@ func (gs *GameScene) InitGameScene() {
 	// Root Container
 	gs.Root = objects.NewContainer(0, 0)
 
-	// Player (Drawn first, behind everything)
-	gs.Player = NewPlayer()
-	gs.Root.AddChild(gs.Player)
+	// World Container (For Scrolling/Parallax)
+	gs.World = objects.NewContainer(0, 0)
+	gs.Root.AddChild(gs.World)
 
-	// Groups for Enemies and Bullets
+	// Background
+	gs.Background = NewBackground("assets/bg_space.png", 0.5)
+	gs.World.AddChild(gs.Background)
+
+	// Groups for Enemies and Bullets (Added to World)
 	gs.EnemyGroup = objects.NewContainer(0, 0)
-	gs.Root.AddChild(gs.EnemyGroup)
+	gs.World.AddChild(gs.EnemyGroup)
 
 	gs.BulletGroup = objects.NewContainer(0, 0)
-	gs.Root.AddChild(gs.BulletGroup)
+	gs.World.AddChild(gs.BulletGroup)
 
-	// Group for Enemy Bullets
 	gs.EnemyBulletGroup = objects.NewContainer(0, 0)
-	gs.Root.AddChild(gs.EnemyBulletGroup)
+	gs.World.AddChild(gs.EnemyBulletGroup)
 
-	// Group for Items
 	gs.ItemGroup = objects.NewContainer(0, 0)
-	gs.Root.AddChild(gs.ItemGroup)
+	gs.World.AddChild(gs.ItemGroup)
+
+	// EffectManager (Added to World)
+	gs.EffectManager = NewEffectManager()
+	gs.World.AddChild(gs.EffectManager)
+
+	// Player (Drawn on Screen / Root, On Top of World)
+	gs.Player = NewPlayer()
+	gs.Root.AddChild(gs.Player)
 
 	gs.GameOver = false
 	gs.Score = 0
@@ -73,8 +85,6 @@ func (gs *GameScene) InitGameScene() {
 	gs.BossSpawned = false
 	gs.Boss = nil
 	gs.ShootTimer = 0
-	gs.EffectManager = NewEffectManager()
-	gs.Root.AddChild(gs.EffectManager)
 	gs.BossDefeatedTimer = 0
 
 	// Stage Init
@@ -129,6 +139,10 @@ func (gs *GameScene) Update() error {
 
 			// Initial Big Explosion
 			ex, ey := gs.Boss.GetGlobalPos()
+			if gs.World != nil {
+				ex -= gs.World.X
+				ey -= gs.World.Y
+			}
 			gs.EffectManager.SpawnBossExplosion(ex, ey)
 		}
 	}
@@ -142,6 +156,10 @@ func (gs *GameScene) Update() error {
 				ex, ey := gs.Boss.GetGlobalPos()
 				rx := ex - 50 + rand.Float64()*100
 				ry := ey - 50 + rand.Float64()*100
+				if gs.World != nil {
+					rx -= gs.World.X
+					ry -= gs.World.Y
+				}
 				gs.EffectManager.SpawnExplosion(rx, ry, color.RGBA{255, 100, 0, 255})
 			}
 		}
@@ -163,10 +181,22 @@ func (gs *GameScene) Update() error {
 			bullets := enemy.GetPendingBullets()
 			if len(bullets) > 0 {
 				for _, b := range bullets {
+					// Convert Global (Screen) Pos to World Local Pos
+					if gs.World != nil {
+						b.X -= gs.World.X
+						b.Y -= gs.World.Y
+					}
 					gs.EnemyBulletGroup.AddChild(b)
 				}
 			}
 		}
+	}
+
+	// Update World Scroll (Parallax) based on Player Position
+	if gs.World != nil && gs.Player != nil {
+		center := float64(ScreenWidth) / 2
+		diff := center - gs.Player.X()
+		gs.World.X = diff * 0.15
 	}
 
 	gs.Root.Update()
@@ -182,36 +212,42 @@ func (gs *GameScene) Update() error {
 
 	if isShooting {
 		if gs.ShootTimer <= 0 {
+			// Calculate spawn position in World Space
+			// BulletGroup is in World, so we need to convert Player Screen Pos to World Pos.
+			// World.X is the shift. Local = Screen - World.X
+			px := gs.Player.X() - gs.World.X
+			py := gs.Player.Y() - 24
+
 			switch gs.Player.PowerLevel {
 			case 1:
-				bullet := NewBullet(gs.Player.X(), gs.Player.Y()-24)
+				bullet := NewBullet(px, py)
 				gs.BulletGroup.AddChild(bullet)
 			case 2:
-				b1 := NewBullet(gs.Player.X()-8, gs.Player.Y()-24)
-				b2 := NewBullet(gs.Player.X()+8, gs.Player.Y()-24)
+				b1 := NewBullet(px-8, py)
+				b2 := NewBullet(px+8, py)
 				gs.BulletGroup.AddChild(b1)
 				gs.BulletGroup.AddChild(b2)
 			case 3:
-				b1 := NewBulletAngled(gs.Player.X()-16, gs.Player.Y()-24, -math.Pi/2-0.2, 8.0)
-				b2 := NewBullet(gs.Player.X(), gs.Player.Y()-24)
-				b3 := NewBulletAngled(gs.Player.X()+16, gs.Player.Y()-24, -math.Pi/2+0.2, 8.0)
+				b1 := NewBulletAngled(px-16, py, -math.Pi/2-0.2, 8.0)
+				b2 := NewBullet(px, py)
+				b3 := NewBulletAngled(px+16, py, -math.Pi/2+0.2, 8.0)
 				gs.BulletGroup.AddChild(b1)
 				gs.BulletGroup.AddChild(b2)
 				gs.BulletGroup.AddChild(b3)
 			case 4:
-				b1 := NewBullet(gs.Player.X()-8, gs.Player.Y()-24)
-				b2 := NewBullet(gs.Player.X()+8, gs.Player.Y()-24)
-				b3 := NewBulletAngled(gs.Player.X()-20, gs.Player.Y()-24, -math.Pi/2-0.2, 8.0)
-				b4 := NewBulletAngled(gs.Player.X()+20, gs.Player.Y()-24, -math.Pi/2+0.2, 8.0)
+				b1 := NewBullet(px-8, py)
+				b2 := NewBullet(px+8, py)
+				b3 := NewBulletAngled(px-20, py, -math.Pi/2-0.2, 8.0)
+				b4 := NewBulletAngled(px+20, py, -math.Pi/2+0.2, 8.0)
 				gs.BulletGroup.AddChild(b1)
 				gs.BulletGroup.AddChild(b2)
 				gs.BulletGroup.AddChild(b3)
 				gs.BulletGroup.AddChild(b4)
 			default: // Fallback same as 4
-				b1 := NewBullet(gs.Player.X()-8, gs.Player.Y()-24)
-				b2 := NewBullet(gs.Player.X()+8, gs.Player.Y()-24)
-				b3 := NewBulletAngled(gs.Player.X()-20, gs.Player.Y()-24, -math.Pi/2-0.2, 8.0)
-				b4 := NewBulletAngled(gs.Player.X()+20, gs.Player.Y()-24, -math.Pi/2+0.2, 8.0)
+				b1 := NewBullet(px-8, py)
+				b2 := NewBullet(px+8, py)
+				b3 := NewBulletAngled(px-20, py, -math.Pi/2-0.2, 8.0)
+				b4 := NewBulletAngled(px+20, py, -math.Pi/2+0.2, 8.0)
 				gs.BulletGroup.AddChild(b1)
 				gs.BulletGroup.AddChild(b2)
 				gs.BulletGroup.AddChild(b3)
@@ -300,6 +336,10 @@ func (gs *GameScene) checkCollisions() {
 
 							if !isBoss {
 								ex, ey := enemy.GetGlobalPos()
+								if gs.World != nil {
+									ex -= gs.World.X
+									ey -= gs.World.Y
+								}
 								gs.EffectManager.SpawnExplosion(ex, ey, color.White)
 
 								// Drop Item

@@ -125,11 +125,11 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	// Debug Info
-	ebitenutil.DebugPrint(screen, input.GetGamepadDebugInfo())
-
 	g.SceneManager.Draw(screen)
 	g.MainScreen.Draw(screen)
+
+	// Debug Info
+	ebitenutil.DebugPrint(screen, input.GetGamepadDebugInfo())
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {

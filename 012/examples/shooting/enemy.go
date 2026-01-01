@@ -31,11 +31,12 @@ type EnemyBase struct {
 	isDead bool
 
 	// Common state for logic
-	baseX  float64
-	tick   int
-	speedY float64
-	hp     int
-	maxHp  int
+	baseX      float64
+	tick       int
+	speedY     float64
+	hp         int
+	maxHp      int
+	flashTimer int
 }
 
 // ...
@@ -63,6 +64,7 @@ func (e *EnemyBase) MarkDead() {
 
 func (e *EnemyBase) ApplyDamage(damage int) {
 	e.hp -= damage
+	e.flashTimer = 4
 	if e.hp <= 0 {
 		e.MarkDead()
 	}
@@ -82,6 +84,17 @@ func (e *EnemyBase) checkBounds() {
 	}
 }
 
+func (e *EnemyBase) ProcessFlash() {
+	if e.flashTimer > 0 {
+		e.flashTimer--
+		f := float32(2.0)
+		e.Sprite.ColorScale.Reset()
+		e.Sprite.ColorScale.Scale(f, f, f, 1)
+	} else {
+		e.Sprite.ColorScale.Reset()
+	}
+}
+
 // --- Concrete Implementations ---
 
 // StraightEnemy
@@ -94,6 +107,7 @@ func (e *StraightEnemy) Update() {
 		return
 	}
 	e.tick++
+	e.ProcessFlash()
 
 	e.Sprite.Y += e.speedY
 	e.Sprite.Angle += 0.05
@@ -112,6 +126,7 @@ func (e *WaveEnemy) Update() {
 		return
 	}
 	e.tick++
+	e.ProcessFlash()
 
 	e.Sprite.Y += e.speedY
 	// Sine wave movement
@@ -132,6 +147,7 @@ func (e *FastEnemy) Update() {
 		return
 	}
 	e.tick++
+	e.ProcessFlash()
 
 	e.Sprite.Y += e.speedY
 	// Zigzag
@@ -156,6 +172,7 @@ func (e *MediumEnemy) Update() {
 		return
 	}
 	e.tick++
+	e.ProcessFlash()
 
 	e.Sprite.Y += e.speedY
 	e.Sprite.Angle -= 0.02 // Reverse rotation
@@ -179,6 +196,7 @@ func (e *ShootingEnemy) Update() {
 		return
 	}
 	e.tick++
+	e.ProcessFlash()
 
 	e.Sprite.Y += e.speedY
 	e.Sprite.Angle += 0.01

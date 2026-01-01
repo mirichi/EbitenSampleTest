@@ -170,3 +170,67 @@ func CreateStage2() *StageData {
 
 	return &StageData{Events: events}
 }
+
+// CreateStage3 はステージ3のデータを生成して返す
+// 弾幕地獄の入り口
+func CreateStage3() *StageData {
+	events := []StageEvent{}
+
+	spawn := func(t EnemyType, x float64) {
+		events = append(events, StageEvent{
+			Type:      EventTypeSpawnEnemy,
+			EnemyType: t,
+			X:         x,
+			Y:         -50,
+		})
+	}
+
+	wait := func(frames int) {
+		events = append(events, StageEvent{
+			Type: EventTypeWait,
+			Time: frames,
+		})
+	}
+
+	wait(60)
+
+	// Wave 1: Introduction to Shooting Enemies
+	spawn(EnemyTypeShooting, 200)
+	wait(60)
+	spawn(EnemyTypeShooting, 440)
+	wait(60)
+	spawn(EnemyTypeShooting, 320)
+	wait(120)
+
+	// Wave 2: Shooting Rush
+	spawn(EnemyTypeShooting, 100)
+	spawn(EnemyTypeShooting, 540)
+	wait(60)
+	spawn(EnemyTypeShooting, 220)
+	spawn(EnemyTypeShooting, 420)
+	wait(60)
+	spawn(EnemyTypeMedium, 320) // PowerUp
+	wait(180)
+
+	// Wave 3: Mixed Assault
+	spawn(EnemyTypeFast, 50)
+	spawn(EnemyTypeFast, 590)
+	spawn(EnemyTypeShooting, 320)
+	wait(60)
+	spawn(EnemyTypeWave, 100)
+	spawn(EnemyTypeWave, 540)
+	spawn(EnemyTypeShooting, 200)
+	spawn(EnemyTypeShooting, 440)
+	wait(120)
+
+	// Boss Spawn
+	events = append(events, StageEvent{
+		Type: EventTypeSpawnBoss,
+	})
+
+	events = append(events, StageEvent{
+		Type: EventTypeEnd,
+	})
+
+	return &StageData{Events: events}
+}

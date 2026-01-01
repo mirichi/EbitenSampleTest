@@ -15,6 +15,7 @@ const (
 	EnemyTypeWave
 	EnemyTypeFast
 	EnemyTypeMedium
+	EnemyTypeShooting
 )
 
 // SpawnEnemyByType は指定されたタイプと位置で敵を生成する
@@ -37,6 +38,9 @@ func SpawnEnemyByType(t EnemyType, x, y float64) Enemy {
 	case EnemyTypeMedium:
 		col = color.RGBA{150, 0, 255, 255} // Purple
 		speed = 0.5                        // Slow
+	case EnemyTypeShooting:
+		col = color.RGBA{255, 120, 0, 255} // Orange
+		speed = 1.0
 	}
 
 	img = ebiten.NewImage(w, h)
@@ -51,6 +55,9 @@ func SpawnEnemyByType(t EnemyType, x, y float64) Enemy {
 	hp := 1
 	if t == EnemyTypeMedium {
 		hp = 20 // Hard
+	}
+	if t == EnemyTypeShooting {
+		hp = 3
 	}
 
 	base := EnemyBase{
@@ -71,6 +78,8 @@ func SpawnEnemyByType(t EnemyType, x, y float64) Enemy {
 		return &FastEnemy{EnemyBase: base}
 	case EnemyTypeMedium:
 		return &MediumEnemy{EnemyBase: base}
+	case EnemyTypeShooting:
+		return &ShootingEnemy{EnemyBase: base, PendingBullets: []*EnemyBullet{}}
 	default:
 		return &StraightEnemy{EnemyBase: base}
 	}

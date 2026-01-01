@@ -90,6 +90,8 @@ func (gs *GameScene) LoadStage(stageNum int) {
 		gs.Stage = CreateStage1()
 	case 2:
 		gs.Stage = CreateStage2()
+	case 3:
+		gs.Stage = CreateStage3()
 	default:
 		// Fallback or Loop
 		gs.Stage = CreateStage1()
@@ -155,12 +157,14 @@ func (gs *GameScene) Update() error {
 		gs.StageStartTimer--
 	}
 
-	// Transfer Pending Bullets from Boss
-	if gs.BossSpawned && gs.Boss != nil {
-		bullets := gs.Boss.GetPendingBullets()
-		if len(bullets) > 0 {
-			for _, b := range bullets {
-				gs.EnemyBulletGroup.AddChild(b)
+	// Transfer Pending Bullets from All Enemies
+	for _, child := range gs.EnemyGroup.Children {
+		if enemy, ok := child.(Enemy); ok {
+			bullets := enemy.GetPendingBullets()
+			if len(bullets) > 0 {
+				for _, b := range bullets {
+					gs.EnemyBulletGroup.AddChild(b)
+				}
 			}
 		}
 	}
@@ -239,6 +243,8 @@ func (gs *GameScene) Update() error {
 					gs.BossSpawned = true
 					if gs.StageNum == 2 {
 						gs.Boss = NewBoss2(320, -100)
+					} else if gs.StageNum == 3 {
+						gs.Boss = NewBoss3(320, -100)
 					} else {
 						gs.Boss = NewBoss(320, -100) // Start off-screen
 					}

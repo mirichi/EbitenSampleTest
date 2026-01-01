@@ -13,7 +13,7 @@ import (
 
 type Player struct {
 	*objects.Sprite
-	*objects.PolygonCollider
+	objects.CollisionTester
 	Speed      float64
 	PowerLevel int
 }
@@ -33,7 +33,7 @@ func NewPlayer() *Player {
 	}
 
 	// Collision
-	p.PolygonCollider = objects.NewRectCollider(s)
+	p.CollisionTester = objects.NewCircleCollider(s, objects.Vector2{X: 24, Y: 24}, 10)
 
 	return p
 }

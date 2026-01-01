@@ -103,6 +103,8 @@ func init() {
 }
 
 func Update() {
+	UpdateGamepadID()
+
 	oldX, oldY = x, y
 	x, y = ebiten.CursorPosition()
 

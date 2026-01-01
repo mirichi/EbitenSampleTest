@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 
 	"MyProject/input"
 	"MyProject/ui"
@@ -39,7 +40,7 @@ func (g *Game) Init() {
 
 	// ステータス表示用のパネル
 	// ゲーム画面の左上に配置
-	hudPanel := ui.NewPanel(10, 10, 150, 50)
+	hudPanel := ui.NewPanel(10, 100, 150, 50)
 	hudPanel.BackgroundColor = color.RGBA{25, 25, 25, 255}
 	// レイアウト設定（縦並び、左寄せ、幅ストレッチ、隙間5px）
 	hudPanel.AutoLayout = uiparts.FlexLayoutV(uiparts.FlexStart, uiparts.FlexStretch, 5)
@@ -110,6 +111,9 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	// Debug Info
+	ebitenutil.DebugPrint(screen, input.GetGamepadDebugInfo())
+
 	g.Scene.Draw(screen)
 	g.MainScreen.Draw(screen)
 }

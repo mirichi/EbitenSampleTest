@@ -5,6 +5,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
+	"MyProject/input"
+
 	"MyProject/objects"
 )
 
@@ -34,25 +36,25 @@ func NewPlayer() *Player {
 }
 
 func (p *Player) Update() {
-	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
+	if input.IsActionPressed(input.ActionMoveLeft) {
 		p.Sprite.X -= p.Speed
 		if p.Sprite.X < float64(p.Sprite.Image.Bounds().Dx())/2 {
 			p.Sprite.X = float64(p.Sprite.Image.Bounds().Dx()) / 2
 		}
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyRight) {
+	if input.IsActionPressed(input.ActionMoveRight) {
 		p.Sprite.X += p.Speed
 		if p.Sprite.X > ScreenWidth-float64(p.Sprite.Image.Bounds().Dx())/2 {
 			p.Sprite.X = ScreenWidth - float64(p.Sprite.Image.Bounds().Dx())/2
 		}
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyUp) {
+	if input.IsActionPressed(input.ActionMoveUp) {
 		p.Sprite.Y -= p.Speed
 		if p.Sprite.Y < float64(p.Sprite.Image.Bounds().Dy())/2 {
 			p.Sprite.Y = float64(p.Sprite.Image.Bounds().Dy()) / 2
 		}
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyDown) {
+	if input.IsActionPressed(input.ActionMoveDown) {
 		p.Sprite.Y += p.Speed
 		if p.Sprite.Y > ScreenHeight-float64(p.Sprite.Image.Bounds().Dy())/2 {
 			p.Sprite.Y = ScreenHeight - float64(p.Sprite.Image.Bounds().Dy())/2

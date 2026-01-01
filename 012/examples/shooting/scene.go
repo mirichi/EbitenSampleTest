@@ -6,6 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
+	"MyProject/input"
 	"MyProject/objects"
 	"MyProject/parts"
 )
@@ -67,13 +68,13 @@ func (gs *GameScene) InitGameScene() {
 }
 
 func (gs *GameScene) Update() {
+	// Reset logic
 	if gs.GameOver {
-		if ebiten.IsKeyPressed(ebiten.KeyR) {
+		if input.IsActionJustPressed(input.ActionShot) || input.IsActionJustPressed(input.ActionShowMenu) {
 			gs.InitGameScene()
 		}
 		return
 	}
-
 	// Reset logic (Boss Defeated)
 	if gs.BossSpawned && gs.Boss != nil && gs.Boss.IsDead() {
 		// Start timer if not started
@@ -125,7 +126,7 @@ func (gs *GameScene) Update() {
 	if gs.ShootTimer > 0 {
 		gs.ShootTimer--
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyZ) {
+	if input.IsActionPressed(input.ActionShot) {
 		if gs.ShootTimer <= 0 {
 			bullet := NewBullet(gs.Player.X(), gs.Player.Y()-24)
 			gs.BulletGroup.AddChild(bullet)

@@ -160,9 +160,17 @@ func (b *Boss) IsDead() bool {
 }
 
 func (b *Boss) MarkDead() {
-	b.HP--
+	b.isDead = true
+}
+
+func (b *Boss) ApplyDamage(damage int) {
+	b.HP -= damage
 	b.flashTimer = 4 // Flash for 4 frames
 	if b.HP <= 0 {
-		b.isDead = true
+		b.MarkDead()
 	}
+}
+
+func (b *Boss) DropItem() *Item {
+	return nil
 }

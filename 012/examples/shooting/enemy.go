@@ -19,6 +19,8 @@ type Enemy interface {
 	objects.CollisionTester
 	IsDead() bool
 	MarkDead()
+	ApplyDamage(damage int)
+	DropItem() *Item
 }
 
 // EnemyBase Struct
@@ -31,6 +33,7 @@ type EnemyBase struct {
 	baseX  float64
 	time   float64
 	speedY float64
+	hp     int
 }
 
 func (e *EnemyBase) Draw(screen *ebiten.Image) {
@@ -45,6 +48,17 @@ func (e *EnemyBase) IsDead() bool {
 
 func (e *EnemyBase) MarkDead() {
 	e.isDead = true
+}
+
+func (e *EnemyBase) ApplyDamage(damage int) {
+	e.hp -= damage
+	if e.hp <= 0 {
+		e.MarkDead()
+	}
+}
+
+func (e *EnemyBase) DropItem() *Item {
+	return nil
 }
 
 func (e *EnemyBase) checkBounds() {
@@ -117,8 +131,33 @@ func (e *FastEnemy) Update() {
 	e.checkBounds()
 }
 
-// Factory
+// MediumEnemy (Slow, Hard, Drops Item)
+type MediumEnemy struct {
+	EnemyBase
+}
+
+func (e *MediumEnemy) Update() {
+	if e.isDead {
+		return
+	}
+	e.time += 1.0
+
+	e.Sprite.Y += e.speedY
+	e.Sprite.Angle -= 0.02 // Reverse rotation
+
+	e.Sprite.Update()
+	e.checkBounds()
+}
+
+func (e *MediumEnemy) DropItem() *Item {
+	return NewItem(e.Sprite.X, e.Sprite.Y, ItemTypePowerUp)
+}
+
+// Factory (Old one, kept for compatibility if needed, but we use SpawnEnemyByType mostly)
 func SpawnEnemy() Enemy {
+	// ... (This function is less used now, maybe update it or leave it)
+	// For brevity, just calling SpawnEnemyByType inside or recreating logic is fine.
+	// Let's keep the existing logic layout for now but update initialization
 	t := rand.Intn(3)
 
 	var img *ebiten.Image
@@ -151,6 +190,7 @@ func SpawnEnemy() Enemy {
 		isDead: false,
 		baseX:  startX,
 		speedY: speed,
+		hp:     1,
 	}
 	base.PolygonCollider = objects.NewRectCollider(s)
 

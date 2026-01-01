@@ -16,6 +16,7 @@ type GameScene struct {
 	EnemyGroup        *objects.Container
 	BulletGroup       *objects.Container
 	EnemyBulletGroup  *objects.Container
+	ItemGroup         *objects.Container // Added
 	GameOver          bool
 	Score             int
 	KillCount         int
@@ -27,6 +28,7 @@ type GameScene struct {
 
 	// Stage Management
 	Stage             *StageData
+	StageNum          int
 	CurrentEventIndex int
 	WaitTimer         int
 	StageFinished     bool
@@ -53,6 +55,10 @@ func (gs *GameScene) InitGameScene() {
 	gs.EnemyBulletGroup = objects.NewContainer(0, 0)
 	gs.Root.AddChild(gs.EnemyBulletGroup)
 
+	// Group for Items
+	gs.ItemGroup = objects.NewContainer(0, 0)
+	gs.Root.AddChild(gs.ItemGroup)
+
 	// Player
 	gs.Player = NewPlayer()
 	gs.Root.AddChild(gs.Player)
@@ -68,10 +74,33 @@ func (gs *GameScene) InitGameScene() {
 	gs.BossDefeatedTimer = 0
 
 	// Stage Init
-	gs.Stage = CreateStage1()
+	gs.StageNum = 1
+	gs.LoadStage(gs.StageNum)
+}
+
+func (gs *GameScene) LoadStage(stageNum int) {
+	gs.StageNum = stageNum
+
+	switch stageNum {
+	case 1:
+		gs.Stage = CreateStage1()
+	case 2:
+		gs.Stage = CreateStage2()
+	default:
+		// Fallback or Loop
+		gs.Stage = CreateStage1()
+		gs.StageNum = 1
+	}
+
 	gs.CurrentEventIndex = 0
 	gs.WaitTimer = 0
 	gs.StageFinished = false
+	gs.BossSpawned = false
+	gs.Boss = nil
+	gs.BossDefeatedTimer = 0
+
+	// Clear existing enemies for safety (if any remain)
+	// Usually handled by cleanup or boss dead logic, but good to be sure if loading mid-game
 }
 
 func (gs *GameScene) Update() error {
@@ -109,8 +138,8 @@ func (gs *GameScene) Update() error {
 		}
 
 		if gs.BossDefeatedTimer <= 0 {
-			// Time to reset
-			gs.InitGameScene()
+			// Stage Clear! Next Stage!
+			gs.LoadStage(gs.StageNum + 1)
 			return nil
 		}
 	}
@@ -133,8 +162,30 @@ func (gs *GameScene) Update() error {
 	}
 	if input.IsActionPressed(input.ActionShot) {
 		if gs.ShootTimer <= 0 {
-			bullet := NewBullet(gs.Player.X(), gs.Player.Y()-24)
-			gs.BulletGroup.AddChild(bullet)
+			switch gs.Player.PowerLevel {
+			case 1:
+				bullet := NewBullet(gs.Player.X(), gs.Player.Y()-24)
+				gs.BulletGroup.AddChild(bullet)
+			case 2:
+				b1 := NewBullet(gs.Player.X()-8, gs.Player.Y()-24)
+				b2 := NewBullet(gs.Player.X()+8, gs.Player.Y()-24)
+				gs.BulletGroup.AddChild(b1)
+				gs.BulletGroup.AddChild(b2)
+			case 3:
+				b1 := NewBullet(gs.Player.X()-16, gs.Player.Y()-24)
+				b2 := NewBullet(gs.Player.X(), gs.Player.Y()-24)
+				b3 := NewBullet(gs.Player.X()+16, gs.Player.Y()-24)
+				gs.BulletGroup.AddChild(b1)
+				gs.BulletGroup.AddChild(b2)
+				gs.BulletGroup.AddChild(b3)
+			default: // Fallback same as 3
+				b1 := NewBullet(gs.Player.X()-16, gs.Player.Y()-24)
+				b2 := NewBullet(gs.Player.X(), gs.Player.Y()-24)
+				b3 := NewBullet(gs.Player.X()+16, gs.Player.Y()-24)
+				gs.BulletGroup.AddChild(b1)
+				gs.BulletGroup.AddChild(b2)
+				gs.BulletGroup.AddChild(b3)
+			}
 			gs.ShootTimer = 8 // Cooldown frames
 		}
 	}
@@ -200,13 +251,28 @@ func (gs *GameScene) checkCollisions() {
 				if bullet, ok := bChild.(*Bullet); ok {
 					if !bullet.IsDead && bullet.Test(enemy) {
 						bullet.IsDead = true
-						enemy.MarkDead()
+						enemy.ApplyDamage(1)
 						if enemy.IsDead() {
 							gs.KillCount++
 							gs.Score += 100
-							if enemy != gs.Boss {
+
+							// Check if it is Boss via type assertion or pointer comparison if possible
+							// Safe way: check if it matches the boss instance
+							isBoss := false
+							if gs.Boss != nil {
+								if b, ok := enemy.(*Boss); ok && b == gs.Boss {
+									isBoss = true
+								}
+							}
+
+							if !isBoss {
 								ex, ey := enemy.GetGlobalPos()
 								gs.EffectManager.SpawnExplosion(ex, ey, color.White)
+
+								// Drop Item
+								if item := enemy.DropItem(); item != nil {
+									gs.ItemGroup.AddChild(item)
+								}
 							}
 						}
 						break
@@ -223,6 +289,19 @@ func (gs *GameScene) checkCollisions() {
 			if !bullet.IsDead {
 				if gs.Player.Test(bullet) {
 					gs.GameOver = true
+				}
+			}
+		}
+	}
+
+	// Items vs Player
+	iChildren := gs.ItemGroup.Children
+	for _, iChild := range iChildren {
+		if item, ok := iChild.(*Item); ok {
+			if !item.IsDead() {
+				if gs.Player.Test(item) {
+					item.MarkDead()
+					gs.Player.PowerUp()
 				}
 			}
 		}
@@ -260,6 +339,17 @@ func (gs *GameScene) cleanup() {
 		if bullet, ok := child.(*EnemyBullet); ok {
 			if bullet.IsDead {
 				gs.EnemyBulletGroup.RemoveChild(bullet)
+			}
+		}
+	}
+
+	// Remove dead items
+	iChildren := gs.ItemGroup.Children
+	for i := len(iChildren) - 1; i >= 0; i-- {
+		child := iChildren[i]
+		if item, ok := child.(*Item); ok {
+			if item.IsDead() {
+				gs.ItemGroup.RemoveChild(item)
 			}
 		}
 	}

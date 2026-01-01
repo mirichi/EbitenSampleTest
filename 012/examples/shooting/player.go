@@ -13,7 +13,8 @@ import (
 type Player struct {
 	*objects.Sprite
 	*objects.PolygonCollider
-	Speed float64
+	Speed      float64
+	PowerLevel int
 }
 
 func NewPlayer() *Player {
@@ -25,14 +26,22 @@ func NewPlayer() *Player {
 	s := objects.NewSprite(ScreenWidth/2, ScreenHeight-50, img)
 
 	p := &Player{
-		Sprite: s,
-		Speed:  4.0,
+		Sprite:     s,
+		Speed:      4.0,
+		PowerLevel: 1,
 	}
 
 	// Collision
 	p.PolygonCollider = objects.NewRectCollider(s)
 
 	return p
+}
+
+func (p *Player) PowerUp() {
+	p.PowerLevel++
+	if p.PowerLevel > 3 {
+		p.PowerLevel = 3
+	}
 }
 
 func (p *Player) Update() {

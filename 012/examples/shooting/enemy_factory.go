@@ -14,6 +14,7 @@ const (
 	EnemyTypeStraight EnemyType = iota
 	EnemyTypeWave
 	EnemyTypeFast
+	EnemyTypeMedium
 )
 
 // SpawnEnemyByType は指定されたタイプと位置で敵を生成する
@@ -33,6 +34,9 @@ func SpawnEnemyByType(t EnemyType, x, y float64) Enemy {
 	case EnemyTypeFast:
 		col = color.RGBA{255, 255, 0, 255}
 		speed = 4.0
+	case EnemyTypeMedium:
+		col = color.RGBA{150, 0, 255, 255} // Purple
+		speed = 0.5                        // Slow
 	}
 
 	img = ebiten.NewImage(w, h)
@@ -44,11 +48,17 @@ func SpawnEnemyByType(t EnemyType, x, y float64) Enemy {
 	// 回転は一旦なしで
 	// s.Angle = rand.Float64() * 6.28
 
+	hp := 1
+	if t == EnemyTypeMedium {
+		hp = 20 // Hard
+	}
+
 	base := EnemyBase{
 		Sprite: s,
 		isDead: false,
 		baseX:  x,
 		speedY: speed,
+		hp:     hp,
 	}
 	base.PolygonCollider = objects.NewRectCollider(s)
 
@@ -59,6 +69,8 @@ func SpawnEnemyByType(t EnemyType, x, y float64) Enemy {
 		return &WaveEnemy{EnemyBase: base}
 	case EnemyTypeFast:
 		return &FastEnemy{EnemyBase: base}
+	case EnemyTypeMedium:
+		return &MediumEnemy{EnemyBase: base}
 	default:
 		return &StraightEnemy{EnemyBase: base}
 	}

@@ -20,6 +20,7 @@ type Boss3 struct {
 	isDead bool
 
 	time           float64
+	phaseTime      float64
 	phase          int
 	PendingBullets []*EnemyBullet
 	flashTimer     int
@@ -115,24 +116,26 @@ func (b *Boss3) Update() {
 			b.Y += 1.0
 		} else {
 			b.phase = 1
+			b.phaseTime = 0
 		}
 	} else {
+		b.phaseTime += 1.0
 		// Side to side movement
-		b.X = 320 + math.Sin(b.time*0.03)*200
+		b.X = 320 + math.Sin(b.phaseTime*0.03)*200
 
 		// Cannon Rotation
 		b.Cannon.Angle = math.Sin(b.time*0.1) * 0.3
 
 		// Shooting Pattern
 		// 1. Core rapid fire (straight)
-		if int(b.time)%80 == 0 {
+		if int(b.phaseTime)%80 == 0 {
 			bx, by := b.Core.GetGlobalPos()
 			b.PendingBullets = append(b.PendingBullets, NewEnemyBullet(bx+16, by+64, math.Pi/2))
 			b.PendingBullets = append(b.PendingBullets, NewEnemyBullet(bx+48, by+64, math.Pi/2))
 		}
 
 		// 2. Wing spread shot (slow interval)
-		if int(b.time)%150 == 0 {
+		if int(b.phaseTime)%150 == 0 {
 			lx, ly := b.WingL.GetGlobalPos()
 			rx, ry := b.WingR.GetGlobalPos()
 
@@ -149,7 +152,7 @@ func (b *Boss3) Update() {
 		}
 
 		// 3. Cannon aimed shot (if implemented aim, else random spray)
-		if int(b.time)%50 == 0 {
+		if int(b.phaseTime)%50 == 0 {
 			cx, cy := b.Cannon.GetGlobalPos()
 			angle := math.Pi/2 + b.Cannon.Angle + (rand.Float64()*0.2 - 0.1)
 			b.PendingBullets = append(b.PendingBullets, NewEnemyBullet(cx+12, cy+48, angle))

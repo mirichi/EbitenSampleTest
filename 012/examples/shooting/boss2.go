@@ -23,6 +23,7 @@ type Boss2 struct {
 	isDead bool
 
 	time           float64
+	phaseTime      float64
 	phase          int
 	PendingBullets []*EnemyBullet
 	flashTimer     int
@@ -99,17 +100,19 @@ func (b *Boss2) Update() {
 			b.Y += 1.5
 		} else {
 			b.phase = 1
+			b.phaseTime = 0
 		}
 	} else {
+		b.phaseTime += 1.0
 		// Figure-8 movement
-		b.X = 320 + math.Cos(b.time*0.02)*150
-		b.Y = 100 + math.Sin(b.time*0.04)*50
+		b.X = 320 + math.Sin(b.phaseTime*0.02)*150
+		b.Y = 80 + math.Sin(b.phaseTime*0.04)*50
 
 		// Turret Rotation
 		b.Turret.Angle += 0.05
 
 		// Shooting (Spread shot)
-		if int(b.time)%90 == 0 {
+		if int(b.phaseTime)%90 == 0 {
 			tx, ty := b.Turret.GetGlobalPos()
 
 			// 5-way shot

@@ -25,7 +25,8 @@ type Boss struct {
 	isDead bool
 
 	time           float64
-	phase          int // 0: Entering, 1: Fighting
+	phaseTime      float64 // Added for smooth phase transition
+	phase          int     // 0: Entering, 1: Fighting
 	PendingBullets []*EnemyBullet
 	flashTimer     int
 }
@@ -117,14 +118,16 @@ func (b *Boss) Update() {
 			b.Y += 2
 		} else {
 			b.phase = 1
+			b.phaseTime = 0
 		}
 	} else {
+		b.phaseTime += 1.0
 		// Bobbing
-		b.Y = 100 + math.Sin(b.time*0.05)*10
-		b.X = 320 + math.Cos(b.time*0.02)*100
+		b.Y = 100 + math.Sin(b.phaseTime*0.05)*10
+		b.X = 320 + math.Sin(b.phaseTime*0.02)*100
 
 		// Shooting logic (every 60 frames approx)
-		if int(b.time)%60 == 0 {
+		if int(b.phaseTime)%60 == 0 {
 			// Left Hand Shot
 			lx, ly := b.LeftHand.GetGlobalPos()
 			lb := NewEnemyBullet(lx, ly+18, math.Pi/2+rand.Float64()*0.5-0.25)

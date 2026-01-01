@@ -33,15 +33,15 @@ var KeyBindings = map[Action][]ebiten.Key{
 	ActionShowMenu:  {ebiten.KeyEscape},
 }
 
-// ゲームパッドボタン割り当て（汎用的な配置を想定）
-var GamepadButtonBindings = map[Action][]ebiten.GamepadButton{
-	ActionMoveUp:    {ebiten.GamepadButton10},                       // D-pad Up
-	ActionMoveDown:  {ebiten.GamepadButton12},                       // D-pad Down
-	ActionMoveLeft:  {ebiten.GamepadButton13},                       // D-pad Left
-	ActionMoveRight: {ebiten.GamepadButton11},                       // D-pad Right
-	ActionShot:      {ebiten.GamepadButton0, ebiten.GamepadButton1}, // A or B (bottom/right face buttons)
-	ActionFast:      {ebiten.GamepadButton4, ebiten.GamepadButton5}, // L1/R1
-	ActionShowMenu:  {ebiten.GamepadButton6, ebiten.GamepadButton7}, // Start/Select
+// 標準ゲームパッドボタン割り当て
+var StandardGamepadButtonBindings = map[Action][]ebiten.StandardGamepadButton{
+	ActionMoveUp:    {ebiten.StandardGamepadButtonLeftTop},
+	ActionMoveDown:  {ebiten.StandardGamepadButtonLeftBottom},
+	ActionMoveLeft:  {ebiten.StandardGamepadButtonLeftLeft},
+	ActionMoveRight: {ebiten.StandardGamepadButtonLeftRight},
+	ActionShot:      {ebiten.StandardGamepadButtonRightBottom, ebiten.StandardGamepadButtonRightRight},     // A/B, Cross/Circle
+	ActionFast:      {ebiten.StandardGamepadButtonFrontTopLeft, ebiten.StandardGamepadButtonFrontTopRight}, // L1/R1, LB/RB
+	ActionShowMenu:  {ebiten.StandardGamepadButtonCenterRight},                                             // Start/Menu
 }
 
 // ゲームパッドスティック設定
@@ -54,8 +54,6 @@ var currentGamepadID ebiten.GamepadID = -1
 // input.Update() から呼び出すことを想定
 func UpdateGamepadID() {
 	// 接続されているパッドがなければ再検索
-	// 現在のIDが無効になっているかどうかもチェックすべきだが、
-	// 簡易的に毎回（あるいは定期的に）接続リストを確認して先頭のものを採用する戦略をとる
 	ids := ebiten.AppendGamepadIDs(nil)
 	if len(ids) > 0 {
 		currentGamepadID = ids[0]
@@ -77,32 +75,31 @@ func IsActionPressed(action Action) bool {
 
 	// ゲームパッド判定
 	if currentGamepadID >= 0 {
-		// ボタン判定
-		if btns, ok := GamepadButtonBindings[action]; ok {
+		// Standard Gamepad Button Checks
+		if btns, ok := StandardGamepadButtonBindings[action]; ok {
 			for _, b := range btns {
-				if ebiten.IsGamepadButtonPressed(currentGamepadID, b) {
+				if ebiten.IsStandardGamepadButtonPressed(currentGamepadID, b) {
 					return true
 				}
 			}
 		}
 
-		// スティック判定（移動系アクションのみ）
-		// 左スティック (Axis 0, 1) を想定
+		// Standard Gamepad Stick Checks (Left Stick)
 		switch action {
 		case ActionMoveLeft:
-			if ebiten.GamepadAxisValue(currentGamepadID, 0) < -stickThreshold {
+			if ebiten.StandardGamepadAxisValue(currentGamepadID, ebiten.StandardGamepadAxisLeftStickHorizontal) < -stickThreshold {
 				return true
 			}
 		case ActionMoveRight:
-			if ebiten.GamepadAxisValue(currentGamepadID, 0) > stickThreshold {
+			if ebiten.StandardGamepadAxisValue(currentGamepadID, ebiten.StandardGamepadAxisLeftStickHorizontal) > stickThreshold {
 				return true
 			}
 		case ActionMoveUp:
-			if ebiten.GamepadAxisValue(currentGamepadID, 1) < -stickThreshold {
+			if ebiten.StandardGamepadAxisValue(currentGamepadID, ebiten.StandardGamepadAxisLeftStickVertical) < -stickThreshold {
 				return true
 			}
 		case ActionMoveDown:
-			if ebiten.GamepadAxisValue(currentGamepadID, 1) > stickThreshold {
+			if ebiten.StandardGamepadAxisValue(currentGamepadID, ebiten.StandardGamepadAxisLeftStickVertical) > stickThreshold {
 				return true
 			}
 		}
@@ -124,17 +121,14 @@ func IsActionJustPressed(action Action) bool {
 
 	// ゲームパッド判定
 	if currentGamepadID >= 0 {
-		// ボタン判定
-		if btns, ok := GamepadButtonBindings[action]; ok {
+		// Standard Gamepad Button Checks
+		if btns, ok := StandardGamepadButtonBindings[action]; ok {
 			for _, b := range btns {
-				if inpututil.IsGamepadButtonJustPressed(currentGamepadID, b) {
+				if inpututil.IsStandardGamepadButtonJustPressed(currentGamepadID, b) {
 					return true
 				}
 			}
 		}
-
-		// スティックのJustPressed判定は少し複雑（前回値の保持が必要）なので
-		// 今回はボタンのみ対応とする。移動にJustPressedを使うことは稀なため。
 	}
 
 	return false
@@ -162,6 +156,14 @@ func GetGamepadDebugInfo() string {
 		v := ebiten.GamepadAxisValue(currentGamepadID, a)
 		if math.Abs(v) > 0.1 { // ノイズ除去
 			msg += fmt.Sprintf("%d:%.2f ", a, v)
+		}
+	}
+
+	// Standard Gamepad Info
+	msg += "\nStandard Buttons: "
+	for b := ebiten.StandardGamepadButton(0); b <= ebiten.StandardGamepadButtonMax; b++ {
+		if ebiten.IsStandardGamepadButtonPressed(currentGamepadID, b) {
+			msg += fmt.Sprintf("%d ", b)
 		}
 	}
 

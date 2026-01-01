@@ -39,8 +39,8 @@ func NewPlayer() *Player {
 
 func (p *Player) PowerUp() {
 	p.PowerLevel++
-	if p.PowerLevel > 3 {
-		p.PowerLevel = 3
+	if p.PowerLevel > 4 {
+		p.PowerLevel = 4
 	}
 }
 

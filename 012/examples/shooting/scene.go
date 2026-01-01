@@ -2,6 +2,7 @@ package main
 
 import (
 	"image/color"
+	"math"
 	"math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -172,19 +173,30 @@ func (gs *GameScene) Update() error {
 				gs.BulletGroup.AddChild(b1)
 				gs.BulletGroup.AddChild(b2)
 			case 3:
-				b1 := NewBullet(gs.Player.X()-16, gs.Player.Y()-24)
+				b1 := NewBulletAngled(gs.Player.X()-16, gs.Player.Y()-24, -math.Pi/2-0.2, 8.0)
 				b2 := NewBullet(gs.Player.X(), gs.Player.Y()-24)
-				b3 := NewBullet(gs.Player.X()+16, gs.Player.Y()-24)
+				b3 := NewBulletAngled(gs.Player.X()+16, gs.Player.Y()-24, -math.Pi/2+0.2, 8.0)
 				gs.BulletGroup.AddChild(b1)
 				gs.BulletGroup.AddChild(b2)
 				gs.BulletGroup.AddChild(b3)
-			default: // Fallback same as 3
-				b1 := NewBullet(gs.Player.X()-16, gs.Player.Y()-24)
-				b2 := NewBullet(gs.Player.X(), gs.Player.Y()-24)
-				b3 := NewBullet(gs.Player.X()+16, gs.Player.Y()-24)
+			case 4:
+				b1 := NewBullet(gs.Player.X()-8, gs.Player.Y()-24)
+				b2 := NewBullet(gs.Player.X()+8, gs.Player.Y()-24)
+				b3 := NewBulletAngled(gs.Player.X()-20, gs.Player.Y()-24, -math.Pi/2-0.2, 8.0)
+				b4 := NewBulletAngled(gs.Player.X()+20, gs.Player.Y()-24, -math.Pi/2+0.2, 8.0)
 				gs.BulletGroup.AddChild(b1)
 				gs.BulletGroup.AddChild(b2)
 				gs.BulletGroup.AddChild(b3)
+				gs.BulletGroup.AddChild(b4)
+			default: // Fallback same as 4
+				b1 := NewBullet(gs.Player.X()-8, gs.Player.Y()-24)
+				b2 := NewBullet(gs.Player.X()+8, gs.Player.Y()-24)
+				b3 := NewBulletAngled(gs.Player.X()-20, gs.Player.Y()-24, -math.Pi/2-0.2, 8.0)
+				b4 := NewBulletAngled(gs.Player.X()+20, gs.Player.Y()-24, -math.Pi/2+0.2, 8.0)
+				gs.BulletGroup.AddChild(b1)
+				gs.BulletGroup.AddChild(b2)
+				gs.BulletGroup.AddChild(b3)
+				gs.BulletGroup.AddChild(b4)
 			}
 			gs.ShootTimer = 8 // Cooldown frames
 		}

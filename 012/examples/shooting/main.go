@@ -20,11 +20,12 @@ const (
 )
 
 type Game struct {
-	SceneManager  *objects.SceneManager
-	MainScreen    *ui.MainScreen
-	ScoreLabel    *ui.Label
-	BossHPLabel   *ui.Label
-	GameOverLabel *ui.Label
+	SceneManager   *objects.SceneManager
+	MainScreen     *ui.MainScreen
+	ScoreLabel     *ui.Label
+	BossHPLabel    *ui.Label
+	GameOverLabel  *ui.Label
+	GameOverLabel2 *ui.Label
 }
 
 func NewGame() *Game {
@@ -74,11 +75,13 @@ func (g *Game) Init() {
 	g.MainScreen.AddChild(menuWin)
 
 	// ゲームオーバーラベル（初期状態では親なし）
-	g.GameOverLabel = ui.NewLabel(0, 200, 640, 50, "GAME OVER\n\rPress R to Reset", 48)
+	g.GameOverLabel = ui.NewLabel(0, 200, 640, 50, "GAME OVER", 48)
+	g.GameOverLabel2 = ui.NewLabel(0, 250, 640, 50, "Press R to Reset", 48)
 	// 中央揃えにするために、Label側の設定か、レイアウトを使うかだが、
 	// NewLabelのデフォルトは左揃え。中央揃えにするにはLabelのプロパティをいじるか、
 	// 単に位置調整で対応する。ここでは位置調整とテキストアラインメント変更。
 	g.GameOverLabel.AlignX = uiparts.AlignCenter
+	g.GameOverLabel2.AlignX = uiparts.AlignCenter
 }
 
 func (g *Game) Update() error {
@@ -108,10 +111,12 @@ func (g *Game) Update() error {
 		if gs.GameOver {
 			if g.GameOverLabel.GetEntityBase().Parent == nil {
 				g.MainScreen.AddChild(g.GameOverLabel)
+				g.MainScreen.AddChild(g.GameOverLabel2)
 			}
 		} else {
 			if g.GameOverLabel.GetEntityBase().Parent != nil {
 				g.MainScreen.RemoveChild(g.GameOverLabel)
+				g.MainScreen.RemoveChild(g.GameOverLabel2)
 			}
 		}
 	}

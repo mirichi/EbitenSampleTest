@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 	"math"
 	"math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 
 	"MyProject/input"
 	"MyProject/objects"
@@ -26,6 +28,7 @@ type GameScene struct {
 	ShootTimer        int
 	EffectManager     *EffectManager
 	BossDefeatedTimer int
+	StageStartTimer   int // Added
 
 	// Stage Management
 	Stage             *StageData
@@ -99,6 +102,7 @@ func (gs *GameScene) LoadStage(stageNum int) {
 	gs.BossSpawned = false
 	gs.Boss = nil
 	gs.BossDefeatedTimer = 0
+	gs.StageStartTimer = 180 // Show title for 3 seconds
 
 	// Clear existing enemies for safety (if any remain)
 	// Usually handled by cleanup or boss dead logic, but good to be sure if loading mid-game
@@ -107,7 +111,9 @@ func (gs *GameScene) LoadStage(stageNum int) {
 func (gs *GameScene) Update() error {
 	// Reset logic
 	if gs.GameOver {
-		if input.IsActionJustPressed(input.ActionShot) || input.IsActionJustPressed(input.ActionShowMenu) {
+		if input.IsActionJustPressed(input.ActionShot) ||
+			input.IsActionJustPressed(input.ActionShowMenu) ||
+			input.IsActionJustPressed(input.ActionReset) {
 			gs.InitGameScene()
 		}
 		return nil
@@ -143,6 +149,10 @@ func (gs *GameScene) Update() error {
 			gs.LoadStage(gs.StageNum + 1)
 			return nil
 		}
+	}
+
+	if gs.StageStartTimer > 0 {
+		gs.StageStartTimer--
 	}
 
 	// Transfer Pending Bullets from Boss
@@ -375,6 +385,13 @@ func (gs *GameScene) Draw(screen *ebiten.Image) {
 
 	// Draw everything via Root
 	gs.Root.Draw(screen)
+
+	// Stage Title
+	if gs.StageStartTimer > 0 {
+		// Blink effect or just solid? Solid for now.
+		msg := fmt.Sprintf("STAGE %d", gs.StageNum)
+		ebitenutil.DebugPrintAt(screen, msg, 290, 240)
+	}
 
 	// HUD
 	// Use GUI instead

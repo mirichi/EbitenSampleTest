@@ -20,6 +20,7 @@ const (
 	ActionShowMenu
 	ActionShot
 	ActionFast
+	ActionReset
 )
 
 // キーボード割り当て
@@ -31,6 +32,7 @@ var KeyBindings = map[Action][]ebiten.Key{
 	ActionShot:      {ebiten.KeyZ, ebiten.KeySpace},
 	ActionFast:      {ebiten.KeyShift},
 	ActionShowMenu:  {ebiten.KeyEscape},
+	ActionReset:     {ebiten.KeyR},
 }
 
 // 標準ゲームパッドボタン割り当て

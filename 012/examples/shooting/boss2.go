@@ -5,6 +5,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
+	"MyProject/examples/shooting/systems"
 	"MyProject/objects"
 )
 
@@ -40,17 +41,14 @@ func NewBoss2(x, y float64) *Boss2 {
 func (b *Boss2) InitBoss2(x, y float64) {
 	// --- Body ---
 	// Blueish tank-like body
-	// --- Body ---
-	// Blueish tank-like body
-	bodyImg := GetResourceManager().GetImage(ImgBoss2Body)
+	bodyImg := systems.GetResourceManager().GetImage(systems.ImgBoss2Body)
 
 	b.ContainerSprite = objects.NewContainerSprite(x, y, bodyImg)
 	b.MainBody = &b.ContainerSprite.Sprite
 	b.PendingBullets = []*EnemyBullet{}
 
 	// --- Turret ---
-	// --- Turret ---
-	turretImg := GetResourceManager().GetImage(ImgBoss2Turret)
+	turretImg := systems.GetResourceManager().GetImage(systems.ImgBoss2Turret)
 	b.Turret = objects.NewSprite(0, 0, turretImg)
 	b.Turret.OriginX = 20
 	b.Turret.OriginY = 20

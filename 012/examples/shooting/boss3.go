@@ -6,6 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
+	"MyProject/examples/shooting/systems"
 	"MyProject/objects"
 )
 
@@ -39,16 +40,13 @@ func NewBoss3(x, y float64) *Boss3 {
 func (b *Boss3) InitBoss3(x, y float64) {
 	// --- Core ---
 	// Large Purple Hexagon-ish
-	// --- Core ---
-	// Large Purple Hexagon-ish
-	coreImg := GetResourceManager().GetImage(ImgBoss3Core)
+	coreImg := systems.GetResourceManager().GetImage(systems.ImgBoss3Core)
 	b.ContainerSprite = objects.NewContainerSprite(x, y, coreImg)
 	b.Core = &b.ContainerSprite.Sprite
 	b.PendingBullets = []*EnemyBullet{}
 
 	// --- Wings ---
-	// --- Wings ---
-	wingImg := GetResourceManager().GetImage(ImgBoss3Wing)
+	wingImg := systems.GetResourceManager().GetImage(systems.ImgBoss3Wing)
 
 	b.WingL = objects.NewSprite(-60, 20, wingImg)
 	b.AddChild(b.WingL)
@@ -57,8 +55,7 @@ func (b *Boss3) InitBoss3(x, y float64) {
 	b.AddChild(b.WingR)
 
 	// --- Cannon ---
-	// --- Cannon ---
-	cannonImg := GetResourceManager().GetImage(ImgBoss3Cannon)
+	cannonImg := systems.GetResourceManager().GetImage(systems.ImgBoss3Cannon)
 	b.Cannon = objects.NewSprite(0, 40, cannonImg)
 	b.AddChild(b.Cannon)
 

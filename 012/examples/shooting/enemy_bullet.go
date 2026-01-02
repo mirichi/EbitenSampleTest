@@ -3,6 +3,7 @@ package main
 import (
 	"math"
 
+	"MyProject/examples/shooting/systems"
 	"MyProject/objects"
 )
 
@@ -16,8 +17,7 @@ type EnemyBullet struct {
 
 func NewEnemyBullet(x, y float64, angle float64) *EnemyBullet {
 	// 12x12 Pink/Red Circle
-	// 12x12 Pink/Red Circle
-	img := GetResourceManager().GetImage(ImgBulletEnemy)
+	img := systems.GetResourceManager().GetImage(systems.ImgBulletEnemy)
 
 	s := objects.NewSprite(x, y, img)
 

@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 
+	"MyProject/examples/shooting/systems"
 	"MyProject/objects"
 )
 
@@ -20,12 +21,12 @@ type Item struct {
 }
 
 func NewItem(x, y float64, t ItemType) *Item {
-	var resID ResourceID
+	var resID systems.ResourceID
 	switch t {
 	case ItemTypePowerUp:
-		resID = ImgItemPowerUp
+		resID = systems.ImgItemPowerUp
 	}
-	img := GetResourceManager().GetImage(resID)
+	img := systems.GetResourceManager().GetImage(resID)
 
 	s := objects.NewSprite(x, y, img)
 

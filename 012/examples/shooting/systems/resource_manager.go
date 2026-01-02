@@ -1,4 +1,4 @@
-package main
+package systems
 
 import (
 	"image/color"
@@ -84,12 +84,8 @@ func (rm *ResourceManager) loadDefaultAssets() {
 	rm.registerFillImage(ImgBoss3Cannon, 24, 48, color.RGBA{200, 50, 200, 255})
 
 	// --- Bullets ---
-	// NOTE: Original Player bullet was 16x16 yellow?
-	rm.registerFillImage(ImgBulletPlayer, 16, 16, color.RGBA{255, 255, 0, 255})
-
-	// Enemy Bullet (Pink/Red circle usually, but here rect or drawn)
-	// Original code: objects.NewSprite(x, y, bulletImg), bulletImg filled {255, 0, 100, 255}
-	rm.registerFillImage(ImgBulletEnemy, 16, 16, color.RGBA{255, 0, 100, 255})
+	rm.registerFillImage(ImgBulletPlayer, 12, 12, color.RGBA{255, 255, 0, 255})
+	rm.registerFillImage(ImgBulletEnemy, 12, 12, color.RGBA{255, 0, 100, 255})
 
 	// --- Items ---
 	rm.registerFillImage(ImgItemPowerUp, 24, 24, color.RGBA{255, 100, 100, 255})

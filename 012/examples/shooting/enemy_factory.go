@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 
+	"MyProject/examples/shooting/systems"
 	"MyProject/objects"
 )
 
@@ -20,29 +21,29 @@ const (
 func SpawnEnemyByType(t EnemyType, x, y float64) Enemy {
 	var img *ebiten.Image
 	// Determine Resource ID and parameters
-	var resID ResourceID
+	var resID systems.ResourceID
 	var speed float64
 
 	switch t {
 	case EnemyTypeStraight:
-		resID = ImgEnemyStraight
+		resID = systems.ImgEnemyStraight
 		speed = 2.0
 	case EnemyTypeWave:
-		resID = ImgEnemyWave
+		resID = systems.ImgEnemyWave
 		speed = 1.5
 	case EnemyTypeFast:
-		resID = ImgEnemyFast
+		resID = systems.ImgEnemyFast
 		speed = 4.0
 	case EnemyTypeMedium:
-		resID = ImgEnemyMedium
+		resID = systems.ImgEnemyMedium
 		speed = 0.5
 	case EnemyTypeShooting:
-		resID = ImgEnemyShooting
+		resID = systems.ImgEnemyShooting
 		speed = 1.0
 	}
 
 	// Retrieve shared image from ResourceManager
-	img = GetResourceManager().GetImage(resID)
+	img = systems.GetResourceManager().GetImage(resID)
 
 	// x, y は中心座標として扱いたいが、Spriteは左上が原点とは限らない（Originによる）
 	// 今回のSpriteは中心がOriginになっているので、x, yをそのまま渡せば中心になる

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"MyProject/examples/shooting/systems"
 	"MyProject/objects"
 	"math"
 )
@@ -18,9 +19,7 @@ func NewBullet(x, y float64) *Bullet {
 }
 
 func NewBulletVelocity(x, y, vx, vy float64) *Bullet {
-	// 8x8 Yellow Circle-ish
-	// 8x8 Yellow Circle-ish
-	img := GetResourceManager().GetImage(ImgBulletPlayer)
+	img := systems.GetResourceManager().GetImage(systems.ImgBulletPlayer)
 
 	s := objects.NewSprite(x, y, img)
 

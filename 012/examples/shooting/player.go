@@ -3,6 +3,7 @@ package main
 import (
 	"math"
 
+	"MyProject/examples/shooting/systems"
 	"MyProject/input"
 
 	"MyProject/objects"
@@ -16,9 +17,7 @@ type Player struct {
 }
 
 func NewPlayer() *Player {
-	// 32x32 Blue Rect
-	// 32x32 Blue Rect
-	img := GetResourceManager().GetImage(ImgPlayer)
+	img := systems.GetResourceManager().GetImage(systems.ImgPlayer)
 
 	// Start at bottom center
 	s := objects.NewSprite(ScreenWidth/2, ScreenHeight-50, img)

@@ -7,6 +7,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
+	"MyProject/examples/shooting/systems"
 	"MyProject/objects"
 )
 
@@ -54,8 +55,7 @@ func NewBoss(x, y float64, em *EffectManager) *Boss {
 func (b *Boss) InitBoss(x, y float64, em *EffectManager) {
 	b.EffectManager = em
 	// --- Body (Boss itself) ---
-	// --- Body (Boss itself) ---
-	bodyImg := GetResourceManager().GetImage(ImgBossBody)
+	bodyImg := systems.GetResourceManager().GetImage(systems.ImgBossBody)
 
 	b.ContainerSprite = objects.NewContainerSprite(x, y, bodyImg)
 	b.PendingBullets = []*EnemyBullet{}
@@ -64,8 +64,7 @@ func (b *Boss) InitBoss(x, y float64, em *EffectManager) {
 	// Left Arm
 	b.LeftArm = objects.NewContainer(-40, 0)
 	// Left Hand Sprite
-	// Left Hand Sprite
-	handImg := GetResourceManager().GetImage(ImgBossHand)
+	handImg := systems.GetResourceManager().GetImage(systems.ImgBossHand)
 	b.LeftHand = objects.NewSprite(18, 62, handImg) // Pivot at wrist/connection
 	b.LeftHand.OriginX = 18
 	b.LeftHand.OriginY = 0

@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 
 	"MyProject/input"
 	"MyProject/objects"
@@ -23,7 +22,7 @@ type Game struct {
 	SceneManager   *objects.SceneManager
 	MainScreen     *ui.MainScreen
 	ScoreLabel     *ui.Label
-	BossHPLabel    *ui.Label
+	BossHPBar      *ui.ProgressBar
 	GameOverLabel  *ui.Label
 	GameOverLabel2 *ui.Label
 }
@@ -42,9 +41,9 @@ func (g *Game) Init() {
 	// UI初期化
 	g.MainScreen = ui.NewMainScreen()
 
-	// ステータス表示用のパネル
-	// ゲーム画面の左上に配置
-	hudPanel := ui.NewPanel(10, 100, 150, 50)
+	// ステータス表示用のパネル (Score)
+	// 画面左上に配置
+	hudPanel := ui.NewPanel(10, 10, 150, 50)
 	hudPanel.BackgroundColor = color.RGBA{25, 25, 25, 255}
 	// レイアウト設定（縦並び、左寄せ、幅ストレッチ、隙間5px）
 	hudPanel.AutoLayout = uiparts.FlexLayoutV(uiparts.FlexStart, uiparts.FlexStretch, 5)
@@ -53,11 +52,17 @@ func (g *Game) Init() {
 	g.ScoreLabel = ui.NewLabel(0, 0, 0, 20, "Score: 0", 16)
 	hudPanel.AddChild(g.ScoreLabel)
 
-	// ボスHPラベル
-	g.BossHPLabel = ui.NewLabel(0, 0, 0, 20, "Boss HP: -", 16)
-	hudPanel.AddChild(g.BossHPLabel)
-
 	g.MainScreen.AddChild(hudPanel)
+
+	// Boss HP Bar (Top Center, between Score and Reset)
+	// Score ends at 160, Reset starts at 520. Available: 360px.
+	// Bar Width: 300px. Center at 320. Start X = 170.
+	g.BossHPBar = ui.NewProgressBar(0, 50, 300, 15)
+	g.BossHPBar.X = 170
+	g.BossHPBar.Y = 10
+	g.BossHPBar.FillColor = color.RGBA{200, 50, 50, 255} // Red
+	g.BossHPBar.Visible = false
+	g.MainScreen.AddChild(g.BossHPBar)
 
 	// リセットボタンなどを置くウィンドウ
 	menuWin := ui.NewPanel(ScreenWidth-120, 10, 110, 40)
@@ -102,9 +107,11 @@ func (g *Game) Update() error {
 		g.ScoreLabel.Text = "Score: " + strconv.Itoa(gs.Score)
 
 		if gs.BossSpawned && gs.Boss != nil {
-			g.BossHPLabel.Text = "HP: " + strconv.Itoa(gs.Boss.GetHP())
+			g.BossHPBar.Visible = true
+			g.BossHPBar.SetRange(0, float64(gs.Boss.GetMaxHP()))
+			g.BossHPBar.SetValue(float64(gs.Boss.GetHP()))
 		} else {
-			g.BossHPLabel.Text = "HP: -"
+			g.BossHPBar.Visible = false
 		}
 
 		// ゲームオーバー表示制御
@@ -129,7 +136,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.MainScreen.Draw(screen)
 
 	// Debug Info
-	ebitenutil.DebugPrint(screen, input.GetGamepadDebugInfo())
+	// ebitenutil.DebugPrint(screen, input.GetGamepadDebugInfo())
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {

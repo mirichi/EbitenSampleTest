@@ -6,6 +6,7 @@ import (
 	"math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 
 	"MyProject/examples/shooting/systems"
 	"MyProject/objects"
@@ -167,6 +168,26 @@ func (b *Boss) Draw(screen *ebiten.Image) {
 		return
 	}
 	b.ContainerSprite.Draw(screen)
+
+	// Draw Hand HP Bars
+	if !b.LeftHandDead {
+		lx, ly := b.LeftHand.GetGlobalPos()
+		// Bar Size: 30x4
+		// Position: Below hand (approx 20px down from center)
+		// MaxHP: 20
+		ratio := float32(b.LeftHandHP) / 20.0
+		// Background (Gray)
+		vector.DrawFilledRect(screen, float32(lx-15), float32(ly+30), 30, 4, color.RGBA{50, 50, 50, 255}, true)
+		// HP (Green)
+		vector.DrawFilledRect(screen, float32(lx-15), float32(ly+30), 30*ratio, 4, color.RGBA{0, 255, 0, 255}, true)
+	}
+
+	if !b.RightHandDead {
+		rx, ry := b.RightHand.GetGlobalPos()
+		ratio := float32(b.RightHandHP) / 20.0
+		vector.DrawFilledRect(screen, float32(rx-15), float32(ry+30), 30, 4, color.RGBA{50, 50, 50, 255}, true)
+		vector.DrawFilledRect(screen, float32(rx-15), float32(ry+30), 30*ratio, 4, color.RGBA{0, 255, 0, 255}, true)
+	}
 }
 
 func (b *Boss) IsDead() bool {

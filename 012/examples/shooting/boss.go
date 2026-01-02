@@ -18,7 +18,15 @@ type Boss struct {
 	LeftHand  *objects.Sprite
 	RightHand *objects.Sprite
 
+	// Refs
+	EffectManager *EffectManager
+
 	objects.CollisionTester
+
+	// HitBoxes
+	BodyCol      objects.CollisionTester
+	LeftHandCol  objects.CollisionTester
+	RightHandCol objects.CollisionTester
 
 	HP     int
 	MaxHP  int
@@ -29,15 +37,22 @@ type Boss struct {
 	phase          int     // 0: Entering, 1: Fighting
 	PendingBullets []*EnemyBullet
 	flashTimer     int
+
+	// Hand Attributes
+	LeftHandHP    int
+	RightHandHP   int
+	LeftHandDead  bool
+	RightHandDead bool
 }
 
-func NewBoss(x, y float64) *Boss {
+func NewBoss(x, y float64, em *EffectManager) *Boss {
 	b := &Boss{}
-	b.InitBoss(x, y)
+	b.InitBoss(x, y, em)
 	return b
 }
 
-func (b *Boss) InitBoss(x, y float64) {
+func (b *Boss) InitBoss(x, y float64, em *EffectManager) {
+	b.EffectManager = em
 	// --- Body (Boss itself) ---
 	bodyImg := ebiten.NewImage(96, 96)
 	bodyImg.Fill(color.RGBA{200, 50, 50, 255}) // Reddish body
@@ -66,20 +81,22 @@ func (b *Boss) InitBoss(x, y float64) {
 	b.AddChild(b.RightArm)
 
 	// --- Attributes ---
-	b.MaxHP = 50
+	b.MaxHP = 70
 	b.HP = b.MaxHP
 	b.phase = 0 // Entering
-	b.flashTimer = 0
+	b.LeftHandHP = 20
+	b.RightHandHP = 20
 
+	// --- Collision ---
 	// --- Collision ---
 	// Composite collider: Body + Hands
 	// Use b.ContainerSprite.Sprite for the collision tester
-	bodyCol := objects.NewRectCollider(b.Sprite)
-	lHandCol := objects.NewCircleCollider(b.LeftHand, objects.Vector2{X: 18, Y: 18}, 18)
-	rHandCol := objects.NewCircleCollider(b.RightHand, objects.Vector2{X: 18, Y: 18}, 18)
+	b.BodyCol = objects.NewRectCollider(&b.Sprite)
+	b.LeftHandCol = objects.NewCircleCollider(b.LeftHand, objects.Vector2{X: 18, Y: 18}, 18)
+	b.RightHandCol = objects.NewCircleCollider(b.RightHand, objects.Vector2{X: 18, Y: 18}, 18)
 
 	b.CollisionTester = objects.NewCompositeCollider(
-		[]objects.CollisionTester{bodyCol, lHandCol, rHandCol},
+		[]objects.CollisionTester{b.BodyCol, b.LeftHandCol, b.RightHandCol},
 		objects.CompositeOr,
 	)
 }
@@ -90,25 +107,16 @@ func (b *Boss) Update() {
 	}
 	b.time += 1.0
 
-	// Flash Logic
-	if b.flashTimer > 0 {
-		b.flashTimer--
-		// Flash Effect: Scale color to be very bright (approximating white flash)
-		f := float32(2.0)
-		b.ColorScale.Reset()
-		b.ColorScale.Scale(f, f, f, 1)
+	// Left Hand dead visibility
+	if b.LeftHandDead {
 		b.LeftHand.ColorScale.Reset()
-		b.LeftHand.ColorScale.Scale(f, f, f, 1)
+		b.LeftHand.ColorScale.Scale(0.5, 0.5, 0.5, 0.5) // Dark and transparent if dead
+	}
+
+	// Right Hand dead visibility
+	if b.RightHandDead {
 		b.RightHand.ColorScale.Reset()
-		b.RightHand.ColorScale.Scale(f, f, f, 1)
-	} else {
-		// Normal Color
-		b.ColorScale.Reset()
-		b.ColorScale.Scale(1, 1, 1, 1)
-		b.LeftHand.ColorScale.Reset()
-		b.LeftHand.ColorScale.Scale(1, 1, 1, 1)
-		b.RightHand.ColorScale.Reset()
-		b.RightHand.ColorScale.Scale(1, 1, 1, 1)
+		b.RightHand.ColorScale.Scale(0.5, 0.5, 0.5, 0.5)
 	}
 
 	// Logic
@@ -129,14 +137,18 @@ func (b *Boss) Update() {
 		// Shooting logic (every 60 frames approx)
 		if int(b.phaseTime)%60 == 0 {
 			// Left Hand Shot
-			lx, ly := b.LeftHand.GetGlobalPos()
-			lb := NewEnemyBullet(lx, ly+18, math.Pi/2+rand.Float64()*0.5-0.25)
-			b.PendingBullets = append(b.PendingBullets, lb)
+			if !b.LeftHandDead {
+				lx, ly := b.LeftHand.GetGlobalPos()
+				lb := NewEnemyBullet(lx, ly+18, math.Pi/2+rand.Float64()*0.5-0.25)
+				b.PendingBullets = append(b.PendingBullets, lb)
+			}
 
 			// Right Hand Shot
-			rx, ry := b.RightHand.GetGlobalPos()
-			rb := NewEnemyBullet(rx, ry+18, math.Pi/2+rand.Float64()*0.5-0.25)
-			b.PendingBullets = append(b.PendingBullets, rb)
+			if !b.RightHandDead {
+				rx, ry := b.RightHand.GetGlobalPos()
+				rb := NewEnemyBullet(rx, ry+18, math.Pi/2+rand.Float64()*0.5-0.25)
+				b.PendingBullets = append(b.PendingBullets, rb)
+			}
 		}
 	}
 
@@ -168,7 +180,8 @@ func (b *Boss) MarkDead() {
 
 func (b *Boss) ApplyDamage(damage int) {
 	b.HP -= damage
-	b.flashTimer = 4 // Flash for 4 frames
+	b.HP -= damage
+	b.Sprite.Flash(4)
 	if b.HP <= 0 {
 		b.MarkDead()
 	}
@@ -190,4 +203,47 @@ func (b *Boss) GetHP() int {
 
 func (b *Boss) GetMaxHP() int {
 	return b.MaxHP
+}
+
+func (b *Boss) HandleHit(bullet *Bullet) {
+	// Use specific colliders for accurate hit detection
+	if !b.LeftHandDead && bullet.Test(b.LeftHandCol) {
+		b.LeftHandHP--
+		b.LeftHand.Flash(4)
+		if b.LeftHandHP <= 0 {
+			b.LeftHandDead = true
+			if b.EffectManager != nil {
+				bx, by := b.GetGlobalPos()
+				lhx, lhy := b.LeftHand.GetGlobalPos()
+				diffX := lhx - bx
+				diffY := lhy - by
+
+				spawnX := b.X + diffX
+				spawnY := b.Y + diffY
+
+				b.EffectManager.SpawnExplosion(spawnX, spawnY, color.RGBA{150, 150, 0, 255})
+			}
+		}
+		return
+	}
+
+	if !b.RightHandDead && bullet.Test(b.RightHandCol) {
+		b.RightHandHP--
+		b.RightHand.Flash(4)
+		if b.RightHandHP <= 0 {
+			b.RightHandDead = true
+			if b.EffectManager != nil {
+				bx, by := b.GetGlobalPos()
+				hx, hy := b.RightHand.GetGlobalPos()
+				spawnX := b.X + (hx - bx)
+				spawnY := b.Y + (hy - by)
+				b.EffectManager.SpawnExplosion(spawnX, spawnY, color.RGBA{150, 150, 0, 255})
+			}
+		}
+		return
+	}
+
+	if bullet.Test(b.BodyCol) {
+		b.ApplyDamage(1)
+	}
 }

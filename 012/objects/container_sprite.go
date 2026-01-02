@@ -10,7 +10,7 @@ import (
 // EntityBaseを埋め込んで座標や親子関係の機能を再利用する
 // Spriteを継承することで、Spriteとしての振る舞い（衝突判定への利用など）も可能にする
 type ContainerSprite struct {
-	*Sprite
+	Sprite
 	parts.Grouping
 }
 
@@ -24,7 +24,7 @@ func NewContainerSprite(x, y float64, img *ebiten.Image) *ContainerSprite {
 // InitContainerSprite はContainerSpriteを初期化する
 func (s *ContainerSprite) InitContainerSprite(x, y float64, img *ebiten.Image) {
 	// Spriteを初期化
-	s.Sprite = NewSprite(x, y, img)
+	s.InitSprite(x, y, img)
 
 	// Grouping初期化
 	// コンテナ自身を親として登録

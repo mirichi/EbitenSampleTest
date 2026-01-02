@@ -282,7 +282,7 @@ func (gs *GameScene) Update() error {
 					} else if gs.StageNum == 3 {
 						gs.Boss = NewBoss3(320, -100)
 					} else {
-						gs.Boss = NewBoss(320, -100) // Start off-screen
+						gs.Boss = NewBoss(320, -100, gs.EffectManager) // Start off-screen
 					}
 					gs.EnemyGroup.AddChild(gs.Boss)
 					goto BreakLoop
@@ -324,7 +324,11 @@ func (gs *GameScene) checkCollisions() {
 				if bullet, ok := bChild.(*Bullet); ok {
 					if !bullet.IsDead && bullet.Test(enemy) {
 						bullet.IsDead = true
-						enemy.ApplyDamage(1)
+						if h, ok := enemy.(HitHandler); ok {
+							h.HandleHit(bullet)
+						} else {
+							enemy.ApplyDamage(1)
+						}
 						if enemy.IsDead() {
 							gs.KillCount++
 							gs.Score += 100

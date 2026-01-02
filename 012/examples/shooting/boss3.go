@@ -23,7 +23,6 @@ type Boss3 struct {
 	phaseTime      float64
 	phase          int
 	PendingBullets []*EnemyBullet
-	flashTimer     int
 
 	// Parts
 	Core   *objects.Sprite
@@ -44,7 +43,7 @@ func (b *Boss3) InitBoss3(x, y float64) {
 	coreImg := ebiten.NewImage(64, 64)
 	coreImg.Fill(color.RGBA{100, 0, 150, 255})
 	b.ContainerSprite = objects.NewContainerSprite(x, y, coreImg)
-	b.Core = b.ContainerSprite.Sprite
+	b.Core = &b.ContainerSprite.Sprite
 	b.PendingBullets = []*EnemyBullet{}
 
 	// --- Wings ---
@@ -67,7 +66,6 @@ func (b *Boss3) InitBoss3(x, y float64) {
 	b.MaxHP = 150 // Very Strong
 	b.HP = b.MaxHP
 	b.phase = 0
-	b.flashTimer = 0
 
 	// --- Collision ---
 	coreCol := objects.NewRectCollider(b.Core)
@@ -87,28 +85,7 @@ func (b *Boss3) Update() {
 	}
 	b.time += 1.0
 
-	// Flash Logic
-	if b.flashTimer > 0 {
-		b.flashTimer--
-		f := float32(2.0)
-		b.ColorScale.Reset()
-		b.ColorScale.Scale(f, f, f, 1)
-		b.WingL.ColorScale.Reset()
-		b.WingL.ColorScale.Scale(f, f, f, 1)
-		b.WingR.ColorScale.Reset()
-		b.WingR.ColorScale.Scale(f, f, f, 1)
-		b.Cannon.ColorScale.Reset()
-		b.Cannon.ColorScale.Scale(f, f, f, 1)
-	} else {
-		b.ColorScale.Reset()
-		b.ColorScale.Scale(1, 1, 1, 1)
-		b.WingL.ColorScale.Reset()
-		b.WingL.ColorScale.Scale(1, 1, 1, 1)
-		b.WingR.ColorScale.Reset()
-		b.WingR.ColorScale.Scale(1, 1, 1, 1)
-		b.Cannon.ColorScale.Reset()
-		b.Cannon.ColorScale.Scale(1, 1, 1, 1)
-	}
+	// Flash Logic - Handled by Sprite.Update via ContainerSprite
 
 	// Logic
 	if b.phase == 0 {
@@ -179,7 +156,10 @@ func (b *Boss3) MarkDead() {
 
 func (b *Boss3) ApplyDamage(damage int) {
 	b.HP -= damage
-	b.flashTimer = 4
+	b.Sprite.Flash(4)
+	b.WingL.Flash(4)
+	b.WingR.Flash(4)
+	b.Cannon.Flash(4)
 	if b.HP <= 0 {
 		b.MarkDead()
 	}
@@ -201,4 +181,9 @@ func (b *Boss3) GetHP() int {
 
 func (b *Boss3) GetMaxHP() int {
 	return b.MaxHP
+}
+
+func (b *Boss3) HandleHit(bullet *Bullet) {
+	// Simple hit handling for Boss3
+	b.ApplyDamage(1)
 }

@@ -13,6 +13,7 @@ type Sprite struct {
 	parts.EntityBase
 	gameparts.Transform
 	gameparts.Drawable
+	gameparts.Flasher
 }
 
 // NewSprite は新しいSpriteを作成する
@@ -31,6 +32,8 @@ func (s *Sprite) InitSprite(x, y float64, img *ebiten.Image) {
 
 	s.OriginX = float64(img.Bounds().Dx()) / 2
 	s.OriginY = float64(img.Bounds().Dy()) / 2
+
+	s.Flasher.InitFlasher(s, &s.ColorScale)
 }
 
 // GetGlobalPos は、グローバル行列を原点(0,0)に適用し、グローバルなX, Y座標を返します。

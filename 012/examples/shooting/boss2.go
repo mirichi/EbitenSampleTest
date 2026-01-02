@@ -26,7 +26,6 @@ type Boss2 struct {
 	phaseTime      float64
 	phase          int
 	PendingBullets []*EnemyBullet
-	flashTimer     int
 
 	// Specific parts
 	MainBody *objects.Sprite
@@ -46,7 +45,7 @@ func (b *Boss2) InitBoss2(x, y float64) {
 	bodyImg.Fill(color.RGBA{50, 50, 200, 255})
 
 	b.ContainerSprite = objects.NewContainerSprite(x, y, bodyImg)
-	b.MainBody = b.ContainerSprite.Sprite
+	b.MainBody = &b.ContainerSprite.Sprite
 	b.PendingBullets = []*EnemyBullet{}
 
 	// --- Turret ---
@@ -61,7 +60,6 @@ func (b *Boss2) InitBoss2(x, y float64) {
 	b.MaxHP = 80 // Stronger
 	b.HP = b.MaxHP
 	b.phase = 0
-	b.flashTimer = 0
 
 	// --- Collision ---
 	bodyCol := objects.NewRectCollider(b.MainBody)
@@ -79,20 +77,7 @@ func (b *Boss2) Update() {
 	}
 	b.time += 1.0
 
-	// Flash Logic
-	if b.flashTimer > 0 {
-		b.flashTimer--
-		f := float32(2.0)
-		b.ColorScale.Reset()
-		b.ColorScale.Scale(f, f, f, 1)
-		b.Turret.ColorScale.Reset()
-		b.Turret.ColorScale.Scale(f, f, f, 1)
-	} else {
-		b.ColorScale.Reset()
-		b.ColorScale.Scale(1, 1, 1, 1)
-		b.Turret.ColorScale.Reset()
-		b.Turret.ColorScale.Scale(1, 1, 1, 1)
-	}
+	// Flash Logic - Handled by Sprite.Update via ContainerSprite
 
 	// Movement
 	if b.phase == 0 {
@@ -144,7 +129,8 @@ func (b *Boss2) MarkDead() {
 
 func (b *Boss2) ApplyDamage(damage int) {
 	b.HP -= damage
-	b.flashTimer = 4
+	b.Sprite.Flash(4)
+	b.Turret.Flash(4) // Flash turret too
 	if b.HP <= 0 {
 		b.MarkDead()
 	}
@@ -170,3 +156,8 @@ func (b *Boss2) GetMaxHP() int {
 
 // Ensure Boss2 implements Enemy interface (which requires parts.Entity etc.)
 // Boss2 embeds ContainerSprite -> Sprite -> EntityBase, so yes.
+
+func (b *Boss2) HandleHit(bullet *Bullet) {
+	// Simple hit handling for Boss2 (Body + Turret treated as one for now)
+	b.ApplyDamage(1)
+}

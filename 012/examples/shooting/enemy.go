@@ -24,6 +24,11 @@ type Enemy interface {
 	GetMaxHP() int
 }
 
+// HitHandler is an optional interface for Enemies that want to handle hit details (e.g. specific parts)
+type HitHandler interface {
+	HandleHit(bullet *Bullet)
+}
+
 // EnemyBase Struct
 type EnemyBase struct {
 	*objects.Sprite // Embed Sprite
@@ -31,12 +36,11 @@ type EnemyBase struct {
 	isDead bool
 
 	// Common state for logic
-	baseX      float64
-	tick       int
-	speedY     float64
-	hp         int
-	maxHp      int
-	flashTimer int
+	baseX  float64
+	tick   int
+	speedY float64
+	hp     int
+	maxHp  int
 }
 
 // ...
@@ -64,7 +68,7 @@ func (e *EnemyBase) MarkDead() {
 
 func (e *EnemyBase) ApplyDamage(damage int) {
 	e.hp -= damage
-	e.flashTimer = 4
+	e.Sprite.Flash(4)
 	if e.hp <= 0 {
 		e.MarkDead()
 	}
@@ -85,14 +89,7 @@ func (e *EnemyBase) checkBounds() {
 }
 
 func (e *EnemyBase) ProcessFlash() {
-	if e.flashTimer > 0 {
-		e.flashTimer--
-		f := float32(2.0)
-		e.Sprite.ColorScale.Reset()
-		e.Sprite.ColorScale.Scale(f, f, f, 1)
-	} else {
-		e.Sprite.ColorScale.Reset()
-	}
+	// Deprecated: Handled by Sprite.Update()
 }
 
 // --- Concrete Implementations ---

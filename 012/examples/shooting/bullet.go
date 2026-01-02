@@ -1,12 +1,8 @@
 package main
 
 import (
-	"image/color"
-	"math"
-
-	"github.com/hajimehoshi/ebiten/v2"
-
 	"MyProject/objects"
+	"math"
 )
 
 type Bullet struct {
@@ -23,8 +19,8 @@ func NewBullet(x, y float64) *Bullet {
 
 func NewBulletVelocity(x, y, vx, vy float64) *Bullet {
 	// 8x8 Yellow Circle-ish
-	img := ebiten.NewImage(12, 12)
-	img.Fill(color.RGBA{255, 255, 0, 255})
+	// 8x8 Yellow Circle-ish
+	img := GetResourceManager().GetImage(ImgBulletPlayer)
 
 	s := objects.NewSprite(x, y, img)
 

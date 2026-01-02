@@ -1,8 +1,6 @@
 package main
 
 import (
-	"image/color"
-
 	"github.com/hajimehoshi/ebiten/v2"
 
 	"MyProject/objects"
@@ -22,14 +20,12 @@ type Item struct {
 }
 
 func NewItem(x, y float64, t ItemType) *Item {
-	img := ebiten.NewImage(24, 24)
-
-	var col color.Color
+	var resID ResourceID
 	switch t {
 	case ItemTypePowerUp:
-		col = color.RGBA{255, 100, 100, 255} // Pinkish
+		resID = ImgItemPowerUp
 	}
-	img.Fill(col)
+	img := GetResourceManager().GetImage(resID)
 
 	s := objects.NewSprite(x, y, img)
 

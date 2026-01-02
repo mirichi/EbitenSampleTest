@@ -1,8 +1,6 @@
 package main
 
 import (
-	"image/color"
-
 	"github.com/hajimehoshi/ebiten/v2"
 
 	"MyProject/objects"
@@ -21,30 +19,30 @@ const (
 // SpawnEnemyByType は指定されたタイプと位置で敵を生成する
 func SpawnEnemyByType(t EnemyType, x, y float64) Enemy {
 	var img *ebiten.Image
+	// Determine Resource ID and parameters
+	var resID ResourceID
 	var speed float64
-	var col color.Color
-	w, h := 48, 48
 
 	switch t {
 	case EnemyTypeStraight:
-		col = color.RGBA{255, 0, 0, 255}
+		resID = ImgEnemyStraight
 		speed = 2.0
 	case EnemyTypeWave:
-		col = color.RGBA{0, 255, 0, 255}
+		resID = ImgEnemyWave
 		speed = 1.5
 	case EnemyTypeFast:
-		col = color.RGBA{255, 255, 0, 255}
+		resID = ImgEnemyFast
 		speed = 4.0
 	case EnemyTypeMedium:
-		col = color.RGBA{150, 0, 255, 255} // Purple
-		speed = 0.5                        // Slow
+		resID = ImgEnemyMedium
+		speed = 0.5
 	case EnemyTypeShooting:
-		col = color.RGBA{255, 120, 0, 255} // Orange
+		resID = ImgEnemyShooting
 		speed = 1.0
 	}
 
-	img = ebiten.NewImage(w, h)
-	img.Fill(col)
+	// Retrieve shared image from ResourceManager
+	img = GetResourceManager().GetImage(resID)
 
 	// x, y は中心座標として扱いたいが、Spriteは左上が原点とは限らない（Originによる）
 	// 今回のSpriteは中心がOriginになっているので、x, yをそのまま渡せば中心になる

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image/color"
 	"math"
 	"math/rand"
 
@@ -40,15 +39,16 @@ func NewBoss3(x, y float64) *Boss3 {
 func (b *Boss3) InitBoss3(x, y float64) {
 	// --- Core ---
 	// Large Purple Hexagon-ish
-	coreImg := ebiten.NewImage(64, 64)
-	coreImg.Fill(color.RGBA{100, 0, 150, 255})
+	// --- Core ---
+	// Large Purple Hexagon-ish
+	coreImg := GetResourceManager().GetImage(ImgBoss3Core)
 	b.ContainerSprite = objects.NewContainerSprite(x, y, coreImg)
 	b.Core = &b.ContainerSprite.Sprite
 	b.PendingBullets = []*EnemyBullet{}
 
 	// --- Wings ---
-	wingImg := ebiten.NewImage(32, 96)
-	wingImg.Fill(color.RGBA{80, 0, 120, 255})
+	// --- Wings ---
+	wingImg := GetResourceManager().GetImage(ImgBoss3Wing)
 
 	b.WingL = objects.NewSprite(-60, 20, wingImg)
 	b.AddChild(b.WingL)
@@ -57,8 +57,8 @@ func (b *Boss3) InitBoss3(x, y float64) {
 	b.AddChild(b.WingR)
 
 	// --- Cannon ---
-	cannonImg := ebiten.NewImage(24, 48)
-	cannonImg.Fill(color.RGBA{200, 50, 200, 255})
+	// --- Cannon ---
+	cannonImg := GetResourceManager().GetImage(ImgBoss3Cannon)
 	b.Cannon = objects.NewSprite(0, 40, cannonImg)
 	b.AddChild(b.Cannon)
 

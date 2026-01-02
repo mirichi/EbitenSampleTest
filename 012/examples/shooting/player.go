@@ -1,11 +1,7 @@
 package main
 
 import (
-	"image/color"
 	"math"
-
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 
 	"MyProject/input"
 
@@ -21,8 +17,8 @@ type Player struct {
 
 func NewPlayer() *Player {
 	// 32x32 Blue Rect
-	img := ebiten.NewImage(48, 48)
-	img.Fill(color.RGBA{0, 0, 255, 255})
+	// 32x32 Blue Rect
+	img := GetResourceManager().GetImage(ImgPlayer)
 
 	// Start at bottom center
 	s := objects.NewSprite(ScreenWidth/2, ScreenHeight-50, img)
@@ -49,63 +45,51 @@ func (p *Player) PowerUp() {
 func (p *Player) Update() {
 	// Keyboard Move
 	if input.IsActionPressed(input.ActionMoveLeft) {
-		p.Sprite.X -= p.Speed
+		p.X -= p.Speed
 	}
 	if input.IsActionPressed(input.ActionMoveRight) {
-		p.Sprite.X += p.Speed
+		p.X += p.Speed
 	}
 	if input.IsActionPressed(input.ActionMoveUp) {
-		p.Sprite.Y -= p.Speed
+		p.Y -= p.Speed
 	}
 	if input.IsActionPressed(input.ActionMoveDown) {
-		p.Sprite.Y += p.Speed
+		p.Y += p.Speed
 	}
 
 	// Touch/Mouse Move
 	t := input.GetPointer()
 	if t != nil && t.IsPressed() {
 		tx, ty := t.Pos()
-		dx := tx - p.Sprite.X
-		dy := ty - p.Sprite.Y
+		dx := tx - p.X
+		dy := ty - p.Y
 		dist := math.Hypot(dx, dy)
 
 		if dist > p.Speed {
-			p.Sprite.X += (dx / dist) * p.Speed
-			p.Sprite.Y += (dy / dist) * p.Speed
+			p.X += (dx / dist) * p.Speed
+			p.Y += (dy / dist) * p.Speed
 		} else {
-			p.Sprite.X = tx
-			p.Sprite.Y = ty
+			p.X = tx
+			p.Y = ty
 		}
 	}
 
 	// Clamp to Screen
-	w := float64(p.Sprite.Image.Bounds().Dx())
-	h := float64(p.Sprite.Image.Bounds().Dy())
+	w := float64(p.Image.Bounds().Dx())
+	h := float64(p.Image.Bounds().Dy())
 
-	if p.Sprite.X < w/2 {
-		p.Sprite.X = w / 2
+	if p.X < w/2 {
+		p.X = w / 2
 	}
-	if p.Sprite.X > ScreenWidth-w/2 {
-		p.Sprite.X = ScreenWidth - w/2
+	if p.X > ScreenWidth-w/2 {
+		p.X = ScreenWidth - w/2
 	}
-	if p.Sprite.Y < h/2 {
-		p.Sprite.Y = h / 2
+	if p.Y < h/2 {
+		p.Y = h / 2
 	}
-	if p.Sprite.Y > ScreenHeight-h/2 {
-		p.Sprite.Y = ScreenHeight - h/2
+	if p.Y > ScreenHeight-h/2 {
+		p.Y = ScreenHeight - h/2
 	}
 
 	p.Sprite.Update()
 }
-
-// Draw is promoted from Sprite
-func (p *Player) Draw(screen *ebiten.Image) {
-	p.Sprite.Draw(screen)
-
-	// DEBUG: Draw Hitbox
-	ebitenutil.DrawCircle(screen, p.Sprite.X, p.Sprite.Y, 10, color.RGBA{255, 0, 0, 60})
-
-}
-
-func (p *Player) X() float64 { return p.Sprite.X }
-func (p *Player) Y() float64 { return p.Sprite.Y }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image/color"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -41,16 +40,17 @@ func NewBoss2(x, y float64) *Boss2 {
 func (b *Boss2) InitBoss2(x, y float64) {
 	// --- Body ---
 	// Blueish tank-like body
-	bodyImg := ebiten.NewImage(120, 80)
-	bodyImg.Fill(color.RGBA{50, 50, 200, 255})
+	// --- Body ---
+	// Blueish tank-like body
+	bodyImg := GetResourceManager().GetImage(ImgBoss2Body)
 
 	b.ContainerSprite = objects.NewContainerSprite(x, y, bodyImg)
 	b.MainBody = &b.ContainerSprite.Sprite
 	b.PendingBullets = []*EnemyBullet{}
 
 	// --- Turret ---
-	turretImg := ebiten.NewImage(40, 40)
-	turretImg.Fill(color.RGBA{100, 200, 255, 255})
+	// --- Turret ---
+	turretImg := GetResourceManager().GetImage(ImgBoss2Turret)
 	b.Turret = objects.NewSprite(0, 0, turretImg)
 	b.Turret.OriginX = 20
 	b.Turret.OriginY = 20

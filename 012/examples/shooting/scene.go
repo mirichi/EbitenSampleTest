@@ -195,7 +195,7 @@ func (gs *GameScene) Update() error {
 	// Update World Scroll (Parallax) based on Player Position
 	if gs.World != nil && gs.Player != nil {
 		center := float64(ScreenWidth) / 2
-		diff := center - gs.Player.X()
+		diff := center - gs.Player.X
 		gs.World.X = diff * 0.15
 	}
 
@@ -215,8 +215,8 @@ func (gs *GameScene) Update() error {
 			// Calculate spawn position in World Space
 			// BulletGroup is in World, so we need to convert Player Screen Pos to World Pos.
 			// World.X is the shift. Local = Screen - World.X
-			px := gs.Player.X() - gs.World.X
-			py := gs.Player.Y() - 24
+			px := gs.Player.X - gs.World.X
+			py := gs.Player.Y - 24
 
 			switch gs.Player.PowerLevel {
 			case 1:

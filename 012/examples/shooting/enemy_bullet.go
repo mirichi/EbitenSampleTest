@@ -1,10 +1,7 @@
 package main
 
 import (
-	"image/color"
 	"math"
-
-	"github.com/hajimehoshi/ebiten/v2"
 
 	"MyProject/objects"
 )
@@ -19,8 +16,8 @@ type EnemyBullet struct {
 
 func NewEnemyBullet(x, y float64, angle float64) *EnemyBullet {
 	// 12x12 Pink/Red Circle
-	img := ebiten.NewImage(12, 12)
-	img.Fill(color.RGBA{255, 100, 100, 255})
+	// 12x12 Pink/Red Circle
+	img := GetResourceManager().GetImage(ImgBulletEnemy)
 
 	s := objects.NewSprite(x, y, img)
 

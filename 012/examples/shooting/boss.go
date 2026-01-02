@@ -54,8 +54,8 @@ func NewBoss(x, y float64, em *EffectManager) *Boss {
 func (b *Boss) InitBoss(x, y float64, em *EffectManager) {
 	b.EffectManager = em
 	// --- Body (Boss itself) ---
-	bodyImg := ebiten.NewImage(96, 96)
-	bodyImg.Fill(color.RGBA{200, 50, 50, 255}) // Reddish body
+	// --- Body (Boss itself) ---
+	bodyImg := GetResourceManager().GetImage(ImgBossBody)
 
 	b.ContainerSprite = objects.NewContainerSprite(x, y, bodyImg)
 	b.PendingBullets = []*EnemyBullet{}
@@ -64,8 +64,8 @@ func (b *Boss) InitBoss(x, y float64, em *EffectManager) {
 	// Left Arm
 	b.LeftArm = objects.NewContainer(-40, 0)
 	// Left Hand Sprite
-	handImg := ebiten.NewImage(36, 36)
-	handImg.Fill(color.RGBA{150, 150, 0, 255})      // Yellowish hand
+	// Left Hand Sprite
+	handImg := GetResourceManager().GetImage(ImgBossHand)
 	b.LeftHand = objects.NewSprite(18, 62, handImg) // Pivot at wrist/connection
 	b.LeftHand.OriginX = 18
 	b.LeftHand.OriginY = 0

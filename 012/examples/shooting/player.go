@@ -93,3 +93,7 @@ func (p *Player) Update() {
 
 	p.Sprite.Update()
 }
+
+func (p *Player) IsDead() bool {
+	return false // Player handles game over separately
+}

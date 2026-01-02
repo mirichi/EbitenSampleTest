@@ -11,6 +11,8 @@ import (
 
 	"MyProject/input"
 	"MyProject/objects"
+
+	"MyProject/examples/shooting/systems"
 )
 
 type GameScene struct {
@@ -29,6 +31,8 @@ type GameScene struct {
 	Boss              Enemy
 	ShootTimer        int
 	EffectManager     *EffectManager
+	CleanupManager    *systems.CleanupManager
+	CollisionManager  *systems.CollisionManager
 	BossDefeatedTimer int
 	StageStartTimer   int
 
@@ -74,6 +78,10 @@ func (gs *GameScene) InitGameScene() {
 	// EffectManager (Added to World)
 	gs.EffectManager = NewEffectManager()
 	gs.World.AddChild(gs.EffectManager)
+
+	// Systems
+	gs.CleanupManager = systems.NewCleanupManager()
+	gs.CollisionManager = systems.NewCollisionManager()
 
 	// Player (Drawn on Screen / Root, On Top of World)
 	gs.Player = NewPlayer()
@@ -306,130 +314,68 @@ func (gs *GameScene) Update() error {
 
 func (gs *GameScene) checkCollisions() {
 	// Enemy vs Player
-	children := gs.EnemyGroup.Children
-	for _, child := range children {
-		if enemy, ok := child.(Enemy); ok {
-			// Skip dead enemies (like Boss dying frame)
-			if enemy.IsDead() {
-				continue
-			}
-
-			if gs.Player.Test(enemy) {
-				gs.GameOver = true
-			}
-
-			// Enemy vs Bullets
-			bChildren := gs.BulletGroup.Children
-			for _, bChild := range bChildren {
-				if bullet, ok := bChild.(*Bullet); ok {
-					if !bullet.IsDead && bullet.Test(enemy) {
-						bullet.IsDead = true
-						if h, ok := enemy.(HitHandler); ok {
-							h.HandleHit(bullet)
-						} else {
-							enemy.ApplyDamage(1)
-						}
-						if enemy.IsDead() {
-							gs.KillCount++
-							gs.Score += 100
-
-							isBoss := false
-							if gs.Boss != nil && enemy == gs.Boss {
-								isBoss = true
-							}
-
-							if !isBoss {
-								ex, ey := enemy.GetGlobalPos()
-								if gs.World != nil {
-									ex -= gs.World.X
-									ey -= gs.World.Y
-								}
-								gs.EffectManager.SpawnExplosion(ex, ey, color.White)
-
-								// Drop Item
-								if item := enemy.DropItem(); item != nil {
-									gs.ItemGroup.AddChild(item)
-								}
-							}
-						}
-						break
-					}
-				}
-			}
-		}
-	}
+	gs.CollisionManager.CheckCollision(gs.Player, gs.EnemyGroup, func(target interface{}) {
+		// Player hit an enemy
+		gs.GameOver = true
+	})
 
 	// Enemy Bullets vs Player
-	ebChildren := gs.EnemyBulletGroup.Children
-	for _, ebChild := range ebChildren {
-		if bullet, ok := ebChild.(*EnemyBullet); ok {
-			if !bullet.IsDead {
-				if gs.Player.Test(bullet) {
-					gs.GameOver = true
-				}
-			}
-		}
-	}
+	gs.CollisionManager.CheckCollision(gs.Player, gs.EnemyBulletGroup, func(target interface{}) {
+		// Player hit an enemy bullet
+		gs.GameOver = true
+	})
 
 	// Items vs Player
-	iChildren := gs.ItemGroup.Children
-	for _, iChild := range iChildren {
-		if item, ok := iChild.(*Item); ok {
-			if !item.IsDead() {
-				if gs.Player.Test(item) {
-					item.MarkDead()
-					gs.Player.PowerUp()
+	gs.CollisionManager.CheckCollision(gs.Player, gs.ItemGroup, func(target interface{}) {
+		if item, ok := target.(*Item); ok {
+			item.MarkDead()
+			gs.Player.PowerUp()
+		}
+	})
+
+	// Bullets vs Enemies
+	gs.CollisionManager.CheckGroupCollision(gs.BulletGroup, gs.EnemyGroup, func(a, b interface{}) {
+		bullet := a.(*Bullet)
+		enemy := b.(Enemy)
+
+		bullet.MarkDead()
+		if h, ok := enemy.(HitHandler); ok {
+			h.HandleHit(bullet)
+		} else {
+			enemy.ApplyDamage(1)
+		}
+
+		if enemy.IsDead() {
+			gs.KillCount++
+			gs.Score += 100
+
+			isBoss := false
+			if gs.Boss != nil && enemy == gs.Boss {
+				isBoss = true
+			}
+
+			if !isBoss {
+				ex, ey := enemy.GetGlobalPos()
+				if gs.World != nil {
+					ex -= gs.World.X
+					ey -= gs.World.Y
+				}
+				gs.EffectManager.SpawnExplosion(ex, ey, color.White)
+
+				// Drop Item
+				if item := enemy.DropItem(); item != nil {
+					gs.ItemGroup.AddChild(item)
 				}
 			}
 		}
-	}
+	})
 }
 
 func (gs *GameScene) cleanup() {
-	// Remove dead bullets
-	// Iterate backwards to safely remove
-	bChildren := gs.BulletGroup.Children
-	for i := len(bChildren) - 1; i >= 0; i-- {
-		child := bChildren[i]
-		if bullet, ok := child.(*Bullet); ok {
-			if bullet.IsDead {
-				gs.BulletGroup.RemoveChild(bullet)
-			}
-		}
-	}
-
-	// Remove dead enemies
-	eChildren := gs.EnemyGroup.Children
-	for i := len(eChildren) - 1; i >= 0; i-- {
-		child := eChildren[i]
-		if enemy, ok := child.(Enemy); ok {
-			if enemy.IsDead() {
-				gs.EnemyGroup.RemoveChild(enemy)
-			}
-		}
-	}
-
-	// Remove dead enemy bullets
-	ebChildren := gs.EnemyBulletGroup.Children
-	for i := len(ebChildren) - 1; i >= 0; i-- {
-		child := ebChildren[i]
-		if bullet, ok := child.(*EnemyBullet); ok {
-			if bullet.IsDead {
-				gs.EnemyBulletGroup.RemoveChild(bullet)
-			}
-		}
-	}
-
-	// Remove dead items
-	iChildren := gs.ItemGroup.Children
-	for i := len(iChildren) - 1; i >= 0; i-- {
-		child := iChildren[i]
-		if item, ok := child.(*Item); ok {
-			if item.IsDead() {
-				gs.ItemGroup.RemoveChild(item)
-			}
-		}
-	}
+	gs.CleanupManager.Cleanup(gs.BulletGroup)
+	gs.CleanupManager.Cleanup(gs.EnemyGroup)
+	gs.CleanupManager.Cleanup(gs.EnemyBulletGroup)
+	gs.CleanupManager.Cleanup(gs.ItemGroup)
 }
 
 func (gs *GameScene) Draw(screen *ebiten.Image) {

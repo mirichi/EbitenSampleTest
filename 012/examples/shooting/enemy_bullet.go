@@ -9,9 +9,9 @@ import (
 type EnemyBullet struct {
 	*objects.Sprite
 	*objects.CircleCollider
-	SpeedX float64
-	SpeedY float64
-	IsDead bool
+	SpeedX     float64
+	SpeedY     float64
+	isDeadFlag bool
 }
 
 func NewEnemyBullet(x, y float64, angle float64) *EnemyBullet {
@@ -26,10 +26,10 @@ func NewEnemyBullet(x, y float64, angle float64) *EnemyBullet {
 	vy := math.Sin(angle) * speed
 
 	b := &EnemyBullet{
-		Sprite: s,
-		SpeedX: vx,
-		SpeedY: vy,
-		IsDead: false,
+		Sprite:     s,
+		SpeedX:     vx,
+		SpeedY:     vy,
+		isDeadFlag: false,
 	}
 
 	b.CircleCollider = objects.NewCircleCollider(s, objects.Vector2{X: 6, Y: 6}, 6)
@@ -38,7 +38,7 @@ func NewEnemyBullet(x, y float64, angle float64) *EnemyBullet {
 }
 
 func (b *EnemyBullet) Update() {
-	if b.IsDead {
+	if b.isDeadFlag {
 		return
 	}
 
@@ -46,11 +46,19 @@ func (b *EnemyBullet) Update() {
 	b.Sprite.Y += b.SpeedY
 
 	// Remove if out of screen (large margin)
-	if b.Sprite.Y > 480+20 || b.Sprite.X < -20 || b.Sprite.X > 640+20 || b.Sprite.Y < -50 {
-		b.IsDead = true
+	if b.Sprite.Y > 480+50 || b.Sprite.X < -200 || b.Sprite.X > ScreenWidth+200 || b.Sprite.Y < -100 {
+		b.isDeadFlag = true
 	}
 
 	b.Sprite.Update()
+}
+
+func (b *EnemyBullet) IsDead() bool {
+	return b.isDeadFlag
+}
+
+func (b *EnemyBullet) MarkDead() {
+	b.isDeadFlag = true
 }
 
 // Draw is promoted from Sprite

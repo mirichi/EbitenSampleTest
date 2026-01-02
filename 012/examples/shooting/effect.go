@@ -65,7 +65,7 @@ func (p *Particle) Draw(screen *ebiten.Image) {
 	}
 
 	gx, gy := p.GetGlobalPos()
-	vector.DrawFilledCircle(screen, float32(gx), float32(gy), p.Radius, c, true)
+	vector.DrawFilledCircle(screen, float32(gx), float32(gy), p.Radius, c, false)
 }
 
 // EffectManager embeds Container

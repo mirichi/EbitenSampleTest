@@ -34,6 +34,10 @@ type TouchTouch struct {
 }
 
 func (t *TouchTouch) Pos() (float64, float64) {
+	if t.IsJustReleased() {
+		x, y := inpututil.TouchPositionInPreviousTick(t.id)
+		return float64(x), float64(y)
+	}
 	x, y := ebiten.TouchPosition(t.id)
 	return float64(x), float64(y)
 }
